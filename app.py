@@ -73,7 +73,7 @@ class CharacterCreatorApp:
         if 'character_instance' not in st.session_state:
             st.session_state.character_instance = None
         if 'creator_mode' not in st.session_state:
-            st.session_state.creator_mode = True
+            st.session_state.creator_mode = True  # Empieza en modo creación
         if 'selected_image' not in st.session_state:
             st.session_state.selected_image = None
     
@@ -95,7 +95,14 @@ class CharacterCreatorApp:
             
             st.markdown("---")
             
-            # Modo: Crear personaje
+            # Botón para volver a crear personaje si ya hay uno
+            if st.session_state.character_instance and not st.session_state.creator_mode:
+                if st.button("🔄 Crear Nuevo Personaje"):
+                    st.session_state.creator_mode = True
+                    st.session_state.selected_image = None
+                    st.rerun()
+            
+            # Modo: Crear personaje (siempre visible)
             self.render_character_creator(available_images)
             
             # Información del personaje actual
@@ -137,7 +144,7 @@ class CharacterCreatorApp:
         
         st.markdown("---")
         
-        # Selector de imagen desde carpeta - ENFOQUE SIMPLIFICADO
+        # Selector de imagen desde carpeta
         st.subheader("🖼️ Seleccionar Imagen")
         
         if available_images:
@@ -246,7 +253,7 @@ class CharacterCreatorApp:
             )
             st.session_state.current_character = name
             st.session_state.messages = []
-            st.session_state.creator_mode = False
+            st.session_state.creator_mode = False  # ✅ CAMBIO IMPORTANTE: Cambiar a modo chat
             
             # Añadir saludo inicial
             st.session_state.messages.append({
@@ -257,7 +264,7 @@ class CharacterCreatorApp:
             })
             
             st.success(f"¡Personaje {name} creado exitosamente!")
-            st.rerun()
+            st.rerun()  # ✅ Forzar recarga para mostrar el chat
             
         except Exception as e:
             st.error(f"Error al crear el personaje: {str(e)}")
@@ -281,7 +288,7 @@ class CharacterCreatorApp:
                     width=80
                 )
         with col2:
-            st.subheader(f"{st.session_state.current_character}")
+            st.subheader(f"Conversando con: {st.session_state.current_character}")
             st.caption(f"Modelo: {st.session_state.character_instance.model_name}")
         with col3:
             if st.button("🗑️ Limpiar Chat", use_container_width=True):
@@ -302,14 +309,7 @@ class CharacterCreatorApp:
             for message in st.session_state.messages:
                 if message["role"] == "assistant":
                     # Mensaje del asistente con avatar
-                    col1, col2 = st.columns([1, 6])
-                    with col1:
-                        avatar_path = message.get('avatar_path')
-                        if avatar_path and os.path.exists(avatar_path):
-                            self.display_image(avatar_path, width=50)
-                        else:
-                            st.write("🤖")  # Fallback
-                    with col2:
+                    with st.chat_message("assistant", avatar=message.get('avatar_path')):
                         st.write(f"**{message.get('character', 'AI')}:** {message['content']}")
                 else:
                     # Mensaje del usuario
@@ -331,57 +331,43 @@ class CharacterCreatorApp:
     
     def generate_and_display_response(self, prompt):
         """Generar y mostrar respuesta del personaje"""
-        # Crear un espacio para el mensaje del asistente
-        with st.chat_message("assistant"):
-            col1, col2 = st.columns([1, 6])
-            
-            with col1:
-                # Mostrar avatar
-                avatar_path = st.session_state.character_instance.profile_image_path
-                if avatar_path and os.path.exists(avatar_path):
-                    self.display_image(avatar_path, width=50)
-                else:
-                    st.write("🤖")
-            
-            with col2:
-                with st.spinner(f"{st.session_state.current_character} está pensando..."):
-                    response = st.session_state.character_instance.generate_response(prompt)
-                    
-                    # Mostrar respuesta
-                    st.write(f"**{st.session_state.current_character}:** {response}")
+        with st.chat_message("assistant", avatar=st.session_state.character_instance.profile_image_path):
+            with st.spinner(f"{st.session_state.current_character} está pensando..."):
+                response = st.session_state.character_instance.generate_response(prompt)
+                
+                # Mostrar respuesta
+                st.write(f"**{st.session_state.current_character}:** {response}")
         
         # Añadir respuesta al historial de mensajes
         st.session_state.messages.append({
             "role": "assistant", 
             "content": response,
             "character": st.session_state.current_character,
-            "avatar_path": avatar_path
+            "avatar_path": st.session_state.character_instance.profile_image_path
         })
     
     def run(self):
         self.initialize_session_state()
         self.render_sidebar()
         
+        # ✅ LÓGICA CORREGIDA: Mostrar chat solo si NO estamos en modo creación
         if st.session_state.character_instance and not st.session_state.creator_mode:
             self.render_chat_interface()
         else:
-            # Mostrar página de bienvenida
-            st.title("🎭 Character AI Creator")
-            st.markdown("""
-            ### Crea tu propio personaje de IA conversacional con imágenes locales
-            
-            **Características:**
-            - 📁 **Sistema de carpeta** - Usa imágenes desde la carpeta `character_images`
-            - 📤 **Subir nuevas imágenes** - Agrega fácilmente nuevas imágenes
-            - 🖼️ **Avatares en el chat** - Cada mensaje muestra la imagen del personaje
-            - 🎨 **Selección visual** - Previsualiza todas las imágenes disponibles
-            
-            **Instrucciones:**
-            1. Agrega imágenes a la carpeta `character_images` (se creará automáticamente)
-            2. En la barra lateral 👈 selecciona o sube una imagen
-            3. Completa nombre, personalidad y saludo en el formulario
-            4. ¡Comienza a chatear con tu personaje visual!
-            """)
+            # Mostrar página de bienvenida o creación
+            if st.session_state.character_instance:
+                st.info("💡 Usa el botón 'Crear Nuevo Personaje' en la barra lateral para modificar o crear otro personaje.")
+            else:
+                st.title("🎭 Character AI Creator")
+                st.markdown("""
+                ### Crea tu propio personaje de IA conversacional con imágenes locales
+                
+                **Instrucciones:**
+                1. En la barra lateral 👈 selecciona o sube una imagen
+                2. Completa nombre, personalidad y saludo
+                3. Haz clic en "Crear Personaje"
+                4. ¡Comienza a chatear!
+                """)
 
 if __name__ == "__main__":
     app = CharacterCreatorApp()

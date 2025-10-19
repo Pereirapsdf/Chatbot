@@ -5,10 +5,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 class CharacterAI:
-    def __init__(self, name, personality, greeting, model_name=None):
+    def __init__(self, name, personality, greeting, profile_image_path=None, model_name=None):
         self.name = name
         self.personality = personality
         self.greeting = greeting
+        self.profile_image_path = profile_image_path  # ✅ Nombre corregido
         self.conversation_history = []
         
         # Configurar la API
@@ -108,10 +109,12 @@ class CharacterAI:
     def clear_history(self):
         self.conversation_history = []
     
-    def update_character(self, name=None, personality=None, greeting=None):
+    def update_character(self, name=None, personality=None, greeting=None, profile_image_path=None):
         if name:
             self.name = name
         if personality:
             self.personality = personality
         if greeting:
             self.greeting = greeting
+        if profile_image_path:
+            self.profile_image_path = profile_image_path
