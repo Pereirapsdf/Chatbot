@@ -4,10 +4,9 @@ import os
 import glob
 from PIL import Image
 import base64
-from dotenv import load_dotenv
 from character_base import CharacterAI
 
-load_dotenv()
+
 
 # Configurar página
 st.set_page_config(
