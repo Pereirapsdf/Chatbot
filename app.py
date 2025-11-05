@@ -106,62 +106,100 @@ class CharacterCreatorApp:
             st.success("📂 Chat cargado correctamente.")
         except Exception as e:
             st.error(f"❌ Error cargando chat: {e}")
-    # ==============================
 
     def render_sidebar(self):
         with st.sidebar:
             st.title("🎭 Character AI Creator")
             st.markdown("---")
-            
-            # Mostrar información de modelos disponibles
-            st.subheader("🔧 Configuración")
-            if self.available_models:
-                st.success(f"✅ {len(self.available_models)} modelos disponibles")
-            else:
-                st.error("❌ No se pudieron cargar los modelos")
-            
-            # Cargar imágenes disponibles
-            available_images = self.get_available_images()
-            st.info(f"📁 {len(available_images)} imágenes en carpeta")
-            
-            st.markdown("---")
-            
-            # Botón para volver a crear personaje si ya hay uno
-            if st.session_state.character_instance and not st.session_state.creator_mode:
-                if st.button("🔄 Crear Nuevo Personaje"):
-                    st.session_state.creator_mode = True
-                    st.session_state.selected_image = None
-                    st.rerun()
-            
-            # Modo: Crear personaje (siempre visible)
-            self.render_character_creator(available_images)
-            
-            # Información del personaje actual
-            if st.session_state.character_instance:
-                st.markdown("---")
-                st.subheader("Personaje Actual")
-                
-                # Mostrar imagen de perfil actual
-                if (st.session_state.character_instance.profile_image_path and 
-                    os.path.exists(st.session_state.character_instance.profile_image_path)):
-                    col1, col2 = st.columns([1, 2])
-                    with col1:
-                        self.display_image(
-                            st.session_state.character_instance.profile_image_path, 
-                            width=60
+        
+        # Mostrar información de modelos disponibles
+        st.subheader("🔧 Configuración")
+        if self.available_models:
+            st.success(f"✅ {len(self.available_models)} modelos disponibles")
+        else:
+            st.error("❌ No se pudieron cargar los modelos")
+        
+        # Cargar imágenes disponibles
+        available_images = self.get_available_images()
+        st.info(f"📁 {len(available_images)} imágenes en carpeta")
+        
+        st.markdown("---")
+
+        # ==============================
+        # 📂 NUEVA SECCIÓN: Cargar chat guardado
+        # ==============================
+        st.subheader("📂 Cargar Chat Guardado")
+
+        saved_files = sorted(glob.glob(f"{self.chats_folder}/*.json"))
+        if saved_files:
+            file_to_load = st.selectbox(
+                "Selecciona un chat para cargar:",
+                options=saved_files,
+                format_func=lambda x: os.path.basename(x)
+            )
+            if st.button("✅ Cargar Chat Guardado"):
+                self.load_chat_history(file_to_load)
+
+                # Recuperar info del personaje desde el primer mensaje
+                if st.session_state.messages:
+                    first_message = next((m for m in st.session_state.messages if m.get("role") == "assistant"), None)
+                    if first_message:
+                        name = first_message.get("character", "Personaje")
+                        avatar_path = first_message.get("avatar_path", None)
+                        st.session_state.current_character = name
+                        st.session_state.character_instance = CharacterAI(
+                            name=name,
+                            personality="(restaurado desde chat guardado)",
+                            greeting="(continuación de conversación anterior)",
+                            profile_image_path=avatar_path,
+                            model_name=self.available_models[0] if self.available_models else "unknown"
                         )
-                    with col2:
-                        st.info(f"**Nombre:** {st.session_state.character_instance.name}")
-                else:
+                        st.session_state.creator_mode = False
+                        st.success(f"💬 Chat de {name} restaurado correctamente.")
+                        st.rerun()
+        else:
+            st.info("No hay chats guardados todavía.")
+
+        st.markdown("---")
+        
+        # Botón para volver a crear personaje si ya hay uno
+        if st.session_state.character_instance and not st.session_state.creator_mode:
+            if st.button("🔄 Crear Nuevo Personaje"):
+                st.session_state.creator_mode = True
+                st.session_state.selected_image = None
+                st.rerun()
+        
+        # ==============================
+        # Sección original: crear personaje
+        # ==============================
+        self.render_character_creator(available_images)
+        
+        if st.session_state.character_instance:
+            st.markdown("---")
+            st.subheader("Personaje Actual")
+            
+            if (st.session_state.character_instance.profile_image_path and 
+                os.path.exists(st.session_state.character_instance.profile_image_path)):
+                col1, col2 = st.columns([1, 2])
+                with col1:
+                    self.display_image(
+                        st.session_state.character_instance.profile_image_path, 
+                        width=60
+                    )
+                with col2:
                     st.info(f"**Nombre:** {st.session_state.character_instance.name}")
-                
-                st.info(f"**Modelo:** {st.session_state.character_instance.model_name}")
-                
-                if st.button("🔄 Nueva Conversación"):
-                    self.save_chat_history()
-                    st.session_state.messages = []
-                    st.session_state.character_instance.clear_history()
-                    st.rerun()
+            else:
+                st.info(f"**Nombre:** {st.session_state.character_instance.name}")
+            
+            st.info(f"**Modelo:** {st.session_state.character_instance.model_name}")
+            
+            if st.button("🔄 Nueva Conversación"):
+                self.save_chat_history()
+                st.session_state.messages = []
+                st.session_state.character_instance.clear_history()
+                st.rerun()
+
+    
     
     def render_character_creator(self, available_images):
         st.subheader("Crear Personaje")
