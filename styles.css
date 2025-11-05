@@ -1,0 +1,110 @@
+/* Fondo general */
+[data-testid="stAppViewContainer"] {
+  background: linear-gradient(135deg, #e0e7ff 0%, #f5f3ff 100%);
+  color: #222;
+  font-family: "Inter", sans-serif;
+}
+
+/* Sidebar */
+[data-testid="stSidebar"] {
+  background: #f3f4f6;
+  color: #111827;
+  border-right: 1px solid #e5e7eb;
+}
+
+/* Títulos */
+h1, h2, h3 {
+  color: #3b0764;
+  font-weight: 700 !important;
+}
+
+/* Subtítulos y textos */
+p, span, label, textarea, input, div {
+  color: #374151;
+  font-size: 16px;
+}
+
+/* Tabs */
+button[data-baseweb="tab"] {
+  background: transparent;
+  border-bottom: 2px solid transparent;
+  color: #6b7280;
+  font-weight: 600;
+}
+
+button[data-baseweb="tab"][aria-selected="true"] {
+  color: #4f46e5;
+  border-bottom: 3px solid #4f46e5;
+}
+
+/* Alertas (info, warning, error, success) */
+.stAlert {
+  border-radius: 10px;
+  font-size: 15px;
+}
+
+.stAlert[data-baseweb="notification"] {
+  background-color: #eef2ff;
+  border-left: 4px solid #6366f1;
+  color: #312e81;
+}
+
+.stAlert[data-baseweb="notification"][kind="warning"] {
+  background-color: #fef9c3;
+  border-left: 4px solid #ca8a04;
+  color: #78350f;
+}
+
+.stAlert[data-baseweb="notification"][kind="error"] {
+  background-color: #fee2e2;
+  border-left: 4px solid #dc2626;
+  color: #7f1d1d;
+}
+
+.stAlert[data-baseweb="notification"][kind="success"] {
+  background-color: #dcfce7;
+  border-left: 4px solid #16a34a;
+  color: #14532d;
+}
+
+/* Chat bubbles */
+div[data-testid="stChatMessage"] {
+  border-radius: 12px;
+  padding: 10px 14px;
+  margin: 8px 0;
+}
+
+div[data-testid="stChatMessage"][data-testid="stChatMessage-User"] {
+  background: #ede9fe;
+}
+
+div[data-testid="stChatMessage"][data-testid="stChatMessage-Assistant"] {
+  background: #eef2ff;
+}
+
+/* Botones */
+button {
+  border-radius: 10px !important;
+  background-color: #4f46e5 !important;
+  color: white !important;
+  border: none !important;
+  font-weight: 600 !important;
+}
+
+button:hover {
+  background-color: #4338ca !important;
+}
+
+/* Inputs y textareas */
+textarea, input, select {
+  border-radius: 8px !important;
+  border: 1px solid #d1d5db !important;
+  background-color: #ffffff !important;
+  color: #111827 !important;
+}
+
+textarea:focus, input:focus, select:focus {
+  border-color: #6366f1 !important;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.3) !important;
+  outline: none !important;
+}
