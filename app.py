@@ -414,24 +414,62 @@ class CharacterCreatorApp:
         })
     
     def run(self):
+        self.apply_custom_style()
         self.initialize_session_state()
-        self.render_sidebar()
-        if st.session_state.character_instance and not st.session_state.creator_mode:
-            self.render_chat_interface()
-        else:
-            if st.session_state.character_instance:
-                st.info("💡 Usa el botón 'Crear Nuevo Personaje' en la barra lateral para modificar o crear otro personaje.")
+
+        st.title("🎭 Character AI Creator")
+        st.caption("Crea, personaliza y conversa con tus personajes de IA en un solo lugar")
+
+        tabs = st.tabs(["🧠 Crear Personaje", "💬 Chat", "📂 Chats Guardados"])
+
+        
+        with tabs[0]:
+            available_images = self.get_available_images()
+
+            st.subheader("🧠 Crear Nuevo Personaje")
+            self.render_character_creator(available_images)
+
+      
+        with tabs[1]:
+            if st.session_state.character_instance and not st.session_state.creator_mode:
+                self.render_chat_interface()
             else:
-                st.title("🎭 Character AI Creator")
-                st.markdown("""
-                ### Crea tu propio personaje de IA conversacional con imágenes locales
-                
-                **Instrucciones:**
-                1. En la barra lateral 👈 selecciona o sube una imagen
-                2. Completa nombre, personalidad y saludo
-                3. Haz clic en "Crear Personaje"
-                4. ¡Comienza a chatear!
-                """)
+                st.info("💡 Crea un personaje primero en la pestaña '🧠 Crear Personaje'")
+
+      
+        with tabs[2]:
+            st.subheader("📂 Cargar Chat Guardado")
+
+            saved_files = sorted(glob.glob(f"{self.chats_folder}/*.json"))
+            if saved_files:
+                file_to_load = st.selectbox(
+                    "Selecciona un chat guardado:",
+                    options=saved_files,
+                    format_func=lambda x: os.path.basename(x)
+                )
+
+                if st.button("✅ Cargar Chat Guardado"):
+                    self.load_chat_history(file_to_load)
+                    if st.session_state.messages:
+                        first_message = next((m for m in st.session_state.messages if m.get("role") == "assistant"), None)
+                        if first_message:
+                            name = first_message.get("character", "Personaje")
+                            avatar_path = first_message.get("avatar_path", None)
+                            st.session_state.current_character = name
+                            st.session_state.character_instance = CharacterAI(
+                                name=name,
+                                personality="(restaurado desde chat guardado)",
+                                greeting="(continuación de conversación anterior)",
+                                profile_image_path=avatar_path,
+                                model_name=self.available_models[0] if self.available_models else "unknown"
+                            )
+                            st.session_state.creator_mode = False
+                            st.success(f"💬 Chat de {name} restaurado correctamente.")
+                            st.rerun()
+            else:
+                st.info("Aún no hay chats guardados.")
+
+    
 
 if __name__ == "__main__":
     app = CharacterCreatorApp()
