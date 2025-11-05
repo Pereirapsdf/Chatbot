@@ -295,7 +295,7 @@ class CharacterCreatorApp:
                         st.session_state.selected_image, 
                         selected_model
                     )
-        def apply_custom_style(self):
+    def apply_custom_style(self):
             css_path = os.path.join(os.path.dirname(__file__), "styles.css")
             if os.path.exists(css_path):
                 with open(css_path) as f:
