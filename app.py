@@ -295,28 +295,12 @@ class CharacterCreatorApp:
                         st.session_state.selected_image, 
                         selected_model
                     )
-    def apply_custom_style(self):
-        custom_css = """
-            <style>
-            /* Fondo general */
-            [data-testid="stAppViewContainer"] {
-                background-color: #FDFDFD;
-                background-image: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-                background-attachment: fixed;
-             }
-         /* Fondo del sidebar */
-            [data-testid="stSidebar"] {
-             background-color: #f1f3f8;
-            }
-            /* Cuadros de chat */
-            div[data-testid="stChatMessage"] {
-                border-radius: 10px;
-                padding: 8px;
-                margin: 5px 0;
-            }   
-        </style>
-        """
-        st.markdown(custom_css, unsafe_allow_html=True)
+        def apply_custom_style(self):
+            css_path = os.path.join(os.path.dirname(__file__), "styles.css")
+            if os.path.exists(css_path):
+                with open(css_path) as f:
+                    st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+
 
     def create_character(self, name, personality, greeting, profile_image_path, model_name=None):
         try:
