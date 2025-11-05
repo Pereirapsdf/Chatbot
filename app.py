@@ -2,11 +2,10 @@ import streamlit as st
 import google.generativeai as genai
 import os
 import glob
+import json
+from datetime import datetime
 from PIL import Image
-import base64
 from character_base import CharacterAI
-
-
 
 # Configurar página
 st.set_page_config(
@@ -19,35 +18,38 @@ class CharacterCreatorApp:
     def __init__(self):
         self.available_models = self.get_available_models()
         self.images_folder = "character_images"
+        self.chats_folder = "saved_chats"
         self.create_images_folder()
+        self.create_chats_folder()
         
     def create_images_folder(self):
         """Crear carpeta de imágenes si no existe"""
         if not os.path.exists(self.images_folder):
             os.makedirs(self.images_folder)
+
+    def create_chats_folder(self):
+        """Crear carpeta de chats si no existe"""
+        if not os.path.exists(self.chats_folder):
+            os.makedirs(self.chats_folder)
     
     def get_available_images(self):
         """Obtener lista de imágenes disponibles en la carpeta"""
         image_extensions = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp']
         available_images = []
-        
         for ext in image_extensions:
             available_images.extend(glob.glob(f"{self.images_folder}/*.{ext}"))
             available_images.extend(glob.glob(f"{self.images_folder}/*.{ext.upper()}"))
-        
         return available_images
     
     def get_available_models(self):
-        """Obtener modelos disponibles"""
+        """Obtener modelos disponibles desde Google Generative AI"""
         try:
             genai.configure(api_key=os.getenv('GOOGLE_API_KEY'))
             models = genai.list_models()
-            
             available_models = []
             for model in models:
                 if 'generateContent' in model.supported_generation_methods:
                     available_models.append(model.name)
-            
             return available_models
         except Exception as e:
             st.error(f"Error conectando a la API: {e}")
@@ -76,6 +78,36 @@ class CharacterCreatorApp:
         if 'selected_image' not in st.session_state:
             st.session_state.selected_image = None
     
+    # ==============================
+    # 🧩 FUNCIONES DE GUARDADO / CARGA
+    # ==============================
+    def save_chat_history(self):
+        """Guardar historial de chat actual en un archivo JSON"""
+        if not st.session_state.messages or not st.session_state.character_instance:
+            st.warning("⚠️ No hay conversación para guardar.")
+            return
+
+        filename = f"{st.session_state.current_character}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+        filepath = os.path.join(self.chats_folder, filename)
+
+        try:
+            with open(filepath, "w", encoding="utf-8") as f:
+                json.dump(st.session_state.messages, f, ensure_ascii=False, indent=2)
+            st.success(f"💾 Chat guardado como `{filename}`")
+        except Exception as e:
+            st.error(f"❌ Error guardando chat: {e}")
+
+    def load_chat_history(self, selected_file):
+        """Cargar un chat guardado desde archivo JSON"""
+        try:
+            with open(selected_file, "r", encoding="utf-8") as f:
+                messages = json.load(f)
+            st.session_state.messages = messages
+            st.success("📂 Chat cargado correctamente.")
+        except Exception as e:
+            st.error(f"❌ Error cargando chat: {e}")
+    # ==============================
+
     def render_sidebar(self):
         with st.sidebar:
             st.title("🎭 Character AI Creator")
@@ -112,7 +144,6 @@ class CharacterCreatorApp:
                 # Mostrar imagen de perfil actual
                 if (st.session_state.character_instance.profile_image_path and 
                     os.path.exists(st.session_state.character_instance.profile_image_path)):
-                    
                     col1, col2 = st.columns([1, 2])
                     with col1:
                         self.display_image(
@@ -127,6 +158,7 @@ class CharacterCreatorApp:
                 st.info(f"**Modelo:** {st.session_state.character_instance.model_name}")
                 
                 if st.button("🔄 Nueva Conversación"):
+                    self.save_chat_history()
                     st.session_state.messages = []
                     st.session_state.character_instance.clear_history()
                     st.rerun()
@@ -147,7 +179,6 @@ class CharacterCreatorApp:
         st.subheader("🖼️ Seleccionar Imagen")
         
         if available_images:
-            # Usar radio buttons para evitar duplicación
             image_options = {os.path.basename(img): img for img in available_images}
             
             if image_options:
@@ -158,13 +189,11 @@ class CharacterCreatorApp:
                     key="image_selector"
                 )
                 
-                # Mostrar preview de la imagen seleccionada
                 if selected_image_name:
                     selected_image_path = image_options[selected_image_name]
                     st.write("**Vista previa:**")
                     self.display_image(selected_image_path, width=100)
                     
-                    # Botón para confirmar selección
                     if st.button("✅ Confirmar selección", key="confirm_selection"):
                         st.session_state.selected_image = selected_image_path
                         st.rerun()
@@ -174,7 +203,6 @@ class CharacterCreatorApp:
             st.warning(f"📁 No hay imágenes en la carpeta '{self.images_folder}'")
             st.info("Agrega imágenes PNG, JPG, JPEG, etc. en la carpeta")
         
-        # Upload de nueva imagen
         st.markdown("---")
         st.subheader("📤 Subir Nueva Imagen")
         
@@ -186,7 +214,6 @@ class CharacterCreatorApp:
         )
         
         if uploaded_file is not None:
-            # Guardar imagen en la carpeta
             image_path = os.path.join(self.images_folder, uploaded_file.name)
             with open(image_path, "wb") as f:
                 f.write(uploaded_file.getbuffer())
@@ -195,28 +222,22 @@ class CharacterCreatorApp:
             st.session_state.selected_image = image_path
             st.rerun()
         
-        # Formulario para los datos del personaje
         st.markdown("---")
         st.subheader("📝 Datos del Personaje")
         
         with st.form("character_form"):
-            # Nombre del personaje
             name = st.text_input("Nombre del Personaje:", placeholder="Ej: Merlin, Doctora Elena, etc.")
-            
-            # Personalidad y saludo
             personality = st.text_area(
                 "Personalidad:",
                 height=120,
                 placeholder="Describe la personalidad, forma de hablar, intereses..."
             )
-            
             greeting = st.text_area(
                 "Saludo Inicial:",
                 height=80,
                 placeholder="Cómo saluda el personaje al iniciar..."
             )
             
-            # Selector de modelo
             selected_model = None
             if self.available_models:
                 selected_model = st.selectbox(
@@ -252,9 +273,8 @@ class CharacterCreatorApp:
             )
             st.session_state.current_character = name
             st.session_state.messages = []
-            st.session_state.creator_mode = False  # ✅ CAMBIO IMPORTANTE: Cambiar a modo chat
+            st.session_state.creator_mode = False  
             
-            # Añadir saludo inicial
             st.session_state.messages.append({
                 "role": "assistant", 
                 "content": greeting,
@@ -263,8 +283,7 @@ class CharacterCreatorApp:
             })
             
             st.success(f"¡Personaje {name} creado exitosamente!")
-            st.rerun()  # ✅ Forzar recarga para mostrar el chat
-            
+            st.rerun()
         except Exception as e:
             st.error(f"Error al crear el personaje: {str(e)}")
     
@@ -277,8 +296,7 @@ class CharacterCreatorApp:
             st.info("👈 Crea un personaje en la barra lateral para comenzar!")
             return
         
-        # Header del chat con imagen
-        col1, col2, col3 = st.columns([1, 3, 1])
+        col1, col2, col3 = st.columns([1, 3, 2])
         with col1:
             if (st.session_state.character_instance.profile_image_path and 
                 os.path.exists(st.session_state.character_instance.profile_image_path)):
@@ -290,54 +308,48 @@ class CharacterCreatorApp:
             st.subheader(f"Conversando con: {st.session_state.current_character}")
             st.caption(f"Modelo: {st.session_state.character_instance.model_name}")
         with col3:
-            if st.button("🗑️ Limpiar Chat", use_container_width=True):
+            st.markdown("### Opciones")
+            if st.button("💾 Guardar Chat"):
+                self.save_chat_history()
+            folder = self.chats_folder
+            saved_files = sorted(glob.glob(f"{folder}/*.json"))
+            if saved_files:
+                selected_file = st.selectbox("📂 Cargar Chat:", saved_files, key="load_chat_select")
+                if st.button("✅ Cargar Chat"):
+                    self.load_chat_history(selected_file)
+                    st.rerun()
+            if st.button("🗑️ Limpiar Chat"):
+                self.save_chat_history()
                 st.session_state.messages = []
                 st.session_state.character_instance.clear_history()
                 st.rerun()
         
-        # Contenedor del chat
         chat_container = st.container()
         self.render_chat_messages(chat_container)
-        
-        # Input del usuario
         self.render_chat_input()
     
     def render_chat_messages(self, container):
-        """Renderizar mensajes del chat con avatares"""
         with container:
             for message in st.session_state.messages:
                 if message["role"] == "assistant":
-                    # Mensaje del asistente con avatar
                     with st.chat_message("assistant", avatar=message.get('avatar_path')):
                         st.write(f"**{message.get('character', 'AI')}:** {message['content']}")
                 else:
-                    # Mensaje del usuario
                     with st.chat_message("user"):
                         st.write(message["content"])
     
     def render_chat_input(self):
-        """Renderizar input del chat"""
         if prompt := st.chat_input("Escribe tu mensaje aquí..."):
-            # Añadir mensaje del usuario
             st.session_state.messages.append({"role": "user", "content": prompt})
-            
-            # Mostrar mensaje del usuario inmediatamente
             with st.chat_message("user"):
                 st.write(prompt)
-            
-            # Generar y mostrar respuesta
             self.generate_and_display_response(prompt)
     
     def generate_and_display_response(self, prompt):
-        """Generar y mostrar respuesta del personaje"""
         with st.chat_message("assistant", avatar=st.session_state.character_instance.profile_image_path):
             with st.spinner(f"{st.session_state.current_character} está pensando..."):
                 response = st.session_state.character_instance.generate_response(prompt)
-                
-                # Mostrar respuesta
                 st.write(f"**{st.session_state.current_character}:** {response}")
-        
-        # Añadir respuesta al historial de mensajes
         st.session_state.messages.append({
             "role": "assistant", 
             "content": response,
@@ -348,12 +360,9 @@ class CharacterCreatorApp:
     def run(self):
         self.initialize_session_state()
         self.render_sidebar()
-        
-        # ✅ LÓGICA CORREGIDA: Mostrar chat solo si NO estamos en modo creación
         if st.session_state.character_instance and not st.session_state.creator_mode:
             self.render_chat_interface()
         else:
-            # Mostrar página de bienvenida o creación
             if st.session_state.character_instance:
                 st.info("💡 Usa el botón 'Crear Nuevo Personaje' en la barra lateral para modificar o crear otro personaje.")
             else:
