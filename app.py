@@ -78,9 +78,7 @@ class CharacterCreatorApp:
         if 'selected_image' not in st.session_state:
             st.session_state.selected_image = None
     
-    # ==============================
-    # 🧩 FUNCIONES DE GUARDADO / CARGA
-    # ==============================
+    
     def save_chat_history(self):
         """Guardar historial de chat actual en un archivo JSON"""
         if not st.session_state.messages or not st.session_state.character_instance:
@@ -108,7 +106,7 @@ class CharacterCreatorApp:
             st.error(f"❌ Error cargando chat: {e}")
 
     def render_sidebar(self):
-        with st.sidebar:
+        with st.subheader:
             st.title("🎭 Character AI Creator")
             st.markdown("---")
         
@@ -169,9 +167,7 @@ class CharacterCreatorApp:
                 st.session_state.selected_image = None
                 st.rerun()
         
-        # ==============================
-        # Sección original: crear personaje
-        # ==============================
+      
         self.render_character_creator(available_images)
         
         if st.session_state.character_instance:
@@ -299,7 +295,29 @@ class CharacterCreatorApp:
                         st.session_state.selected_image, 
                         selected_model
                     )
-    
+    def apply_custom_style(self):
+        custom_css = """
+            <style>
+            /* Fondo general */
+            [data-testid="stAppViewContainer"] {
+                background-color: #FDFDFD;
+                background-image: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+                background-attachment: fixed;
+             }
+         /* Fondo del sidebar */
+            [data-testid="stSidebar"] {
+             background-color: #f1f3f8;
+            }
+            /* Cuadros de chat */
+            div[data-testid="stChatMessage"] {
+                border-radius: 10px;
+                padding: 8px;
+                margin: 5px 0;
+            }   
+        </style>
+        """
+        st.markdown(custom_css, unsafe_allow_html=True)
+
     def create_character(self, name, personality, greeting, profile_image_path, model_name=None):
         try:
             st.session_state.character_instance = CharacterAI(
