@@ -137,3 +137,35 @@ hr {
   background: rgba(255, 255, 255, 0.2);
   margin: 20px 0;
 }
+
+main > div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+/* Centrar formularios y secciones */
+section, form, .stForm, .stMarkdown, .stAlert, .stRadio, .stFileUploader, .stSelectbox {
+  width: 80%;
+  max-width: 900px;
+  margin: auto;
+}
+
+/* Mejor alineación de imágenes y títulos */
+h1, h2, h3, p {
+  text-align: center !important;
+}
+
+/* Separación visual más equilibrada */
+.stForm, .stAlert, .stRadio, .stFileUploader, .stSelectbox {
+  margin-top: 1.2rem !important;
+  margin-bottom: 1.2rem !important;
+}
+
+/* Botones centrados */
+.stButton {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+}

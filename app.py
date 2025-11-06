@@ -322,7 +322,8 @@ class CharacterCreatorApp:
                 "avatar_path": profile_image_path
             })
             
-            st.success(f"¡Personaje {name} creado exitosamente!")
+            st.success(f"¡Personaje {name} creado exitosamente! Redirigiendo al chat...")
+            st.session_state.active_tab = "chat"
             st.rerun()
         except Exception as e:
             st.error(f"Error al crear el personaje: {str(e)}")
@@ -400,60 +401,56 @@ class CharacterCreatorApp:
     def run(self):
         self.apply_custom_style()
         self.initialize_session_state()
-
         st.title("🎭 Character AI Creator")
         st.caption("Crea, personaliza y conversa con tus personajes de IA en un solo lugar")
+        st.session_state.active_tab = "create"
+        tab_labels = ["🧠 Crear Personaje", "💬 Chat", "📂 Chats Guardados"]
+        tabs = st.tabs(tab_labels)
 
-        tabs = st.tabs(["🧠 Crear Personaje", "💬 Chat", "📂 Chats Guardados"])
-
+        # Detectar pestaña activa
+        active_index = 0 if st.session_state.active_tab == "create" else 1 if st.session_state.active_tab == "chat" else 2
         
-        with tabs[0]:
-            available_images = self.get_available_images()
+        with tabs[active_index]:
+            if st.session_state.active_tab == "create":
+                available_images = self.get_available_images()
+                st.subheader("🧠 Crear Nuevo Personaje")
+                self.render_character_creator(available_images)
 
-            st.subheader("🧠 Crear Nuevo Personaje")
-            self.render_character_creator(available_images)
+            elif st.session_state.active_tab == "chat":
+                if st.session_state.character_instance and not st.session_state.creator_mode:
+                    self.render_chat_interface()
+                else:
+                    st.info("💡 Crea un personaje primero en la pestaña '🧠 Crear Personaje'")
 
-      
-        with tabs[1]:
-            if st.session_state.character_instance and not st.session_state.creator_mode:
-                self.render_chat_interface()
             else:
-                st.info("💡 Crea un personaje primero en la pestaña '🧠 Crear Personaje'")
-
-      
-        with tabs[2]:
-            st.subheader("📂 Cargar Chat Guardado")
-
-            saved_files = sorted(glob.glob(f"{self.chats_folder}/*.json"))
-            if saved_files:
-                file_to_load = st.selectbox(
-                    "Selecciona un chat guardado:",
-                    options=saved_files,
-                    format_func=lambda x: os.path.basename(x)
-                )
-
-                if st.button("✅ Cargar Chat Guardado"):
-                    self.load_chat_history(file_to_load)
-                    if st.session_state.messages:
-                        first_message = next((m for m in st.session_state.messages if m.get("role") == "assistant"), None)
-                        if first_message:
-                            name = first_message.get("character", "Personaje")
-                            avatar_path = first_message.get("avatar_path", None)
-                            st.session_state.current_character = name
-                            st.session_state.character_instance = CharacterAI(
-                                name=name,
-                                personality="(restaurado desde chat guardado)",
-                                greeting="(continuación de conversación anterior)",
-                                profile_image_path=avatar_path,
-                                model_name=self.available_models[0] if self.available_models else "unknown"
-                            )
-                            st.session_state.creator_mode = False
-                            st.success(f"💬 Chat de {name} restaurado correctamente.")
-                            st.rerun()
-            else:
-                st.info("Aún no hay chats guardados.")
-
-    
+                st.subheader("📂 Cargar Chat Guardado")
+                saved_files = sorted(glob.glob(f"{self.chats_folder}/*.json"))
+                if saved_files:
+                    file_to_load = st.selectbox(
+                        "Selecciona un chat guardado:",
+                        options=saved_files,
+                        format_func=lambda x: os.path.basename(x)
+                    )
+                    if st.button("✅ Cargar Chat Guardado"):
+                        self.load_chat_history(file_to_load)
+                        if st.session_state.messages:
+                            first_message = next((m for m in st.session_state.messages if m.get("role") == "assistant"), None)
+                            if first_message:
+                                    name = first_message.get("character", "Personaje")
+                                    avatar_path = first_message.get("avatar_path", None)
+                                    st.session_state.current_character = name
+                                    st.session_state.character_instance = CharacterAI(
+                                        name=name,
+                                        personality="(restaurado desde chat guardado)",
+                                        greeting="(continuación de conversación anterior)",
+                                        profile_image_path=avatar_path,
+                                        model_name=self.available_models[0] if self.available_models else "unknown"
+                                    )
+                                    st.session_state.creator_mode = False
+                                    st.success(f"💬 Chat de {name} restaurado correctamente.")
+                                    st.rerun()
+                else:
+                    st.info("Aún no hay chats guardados.")    
 
 if __name__ == "__main__":
     app = CharacterCreatorApp()
