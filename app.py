@@ -229,33 +229,7 @@ class CharacterCreatorApp:
         # Cabecera
         st.title("🎭 Character AI Creator")
         st.caption("Crea, personaliza y conversa con tus personajes de IA")
-
-        # Pestañas personalizadas centradas
-        st.markdown(
-            f"""
-            <div class="custom-tabs">
-              <button class="custom-tab-btn {'active' if st.session_state.active_tab == 'create' else ''}" 
-                      onclick="document.dispatchEvent(new CustomEvent('set_tab', {{detail: 'create'}}))">🧠 Crear Personaje</button>
-              <button class="custom-tab-btn {'active' if st.session_state.active_tab == 'chat' else ''}" 
-                      onclick="document.dispatchEvent(new CustomEvent('set_tab', {{detail: 'chat'}}))">💬 Chat</button>
-              <button class="custom-tab-btn {'active' if st.session_state.active_tab == 'saved' else ''}" 
-                      onclick="document.dispatchEvent(new CustomEvent('set_tab', {{detail: 'saved'}}))">📂 Chats Guardados</button>
-            </div>
-
-            <script>
-            const sendTab = (t) => {{
-              const el = document.getElementById('st_active_tab_input');
-              if (el) {{
-                el.value = t;
-                el.dispatchEvent(new Event('change', {{ bubbles: true }}));
-              }}
-            }};
-            document.addEventListener('set_tab', (e) => sendTab(e.detail));
-            </script>
-            """,
-            unsafe_allow_html=True
-        )
-
+        
         # Input oculto para recibir el cambio de pestaña
         tab_create, tab_chat, tab_saved = st.tabs(["🧠 Crear Personaje", "💬 Chat", "📂 Chats Guardados"])
 
@@ -301,3 +275,4 @@ class CharacterCreatorApp:
 if __name__ == "__main__":
     app = CharacterCreatorApp()
     app.run()
+
