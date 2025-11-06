@@ -41,7 +41,7 @@ class CharacterCreatorApp:
     def get_available_models(self):
         try:
             genai.configure(api_key=os.getenv('GOOGLE_API_KEY'))
-            return ["models/gemini-2.0-flash", "models/gemini-2.0-flash-lite,models/gemini-2.5-flash-lite","models/gemini-flash-lite-latest"] 
+            return ["models/gemini-2.0-flash", "models/gemini-2.0-flash-lite","models/gemini-2.5-flash-lite","models/gemini-flash-lite-latest"] 
         except Exception as e:
             st.error(f"Error conectando a la API: {e}")
             return []
@@ -177,7 +177,7 @@ class CharacterCreatorApp:
             st.session_state.creator_mode = False
             st.success(f"¡Personaje {name} creado exitosamente! Redirigiendo al chat...")
             st.session_state.active_tab = "chat"
-            st.experimental_rerun()
+            st.rerun()
         except Exception as e:
             st.error(f"Error al crear el personaje: {str(e)}")
 
@@ -261,7 +261,7 @@ class CharacterCreatorApp:
 
         if tab_input != st.session_state.active_tab:
             st.session_state.active_tab = tab_input
-            st.experimental_rerun()
+            st.rerun()
 
         # Renderizado según pestaña activa
         if st.session_state.active_tab == "create":
@@ -297,7 +297,7 @@ class CharacterCreatorApp:
                             )
                             st.session_state.creator_mode = False
                             st.success(f"💬 Chat de {name} restaurado correctamente.")
-                            st.experimental_rerun()
+                            st.rerun()
             else:
                 st.info("Aún no hay chats guardados.")
 
