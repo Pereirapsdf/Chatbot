@@ -257,25 +257,20 @@ class CharacterCreatorApp:
         )
 
         # Input oculto para recibir el cambio de pestaña
-        tab_input = st.text_input("", value=st.session_state.active_tab, key="st_active_tab_input", label_visibility="collapsed")
+        tab_create, tab_chat, tab_saved = st.tabs(["🧠 Crear Personaje", "💬 Chat", "📂 Chats Guardados"])
 
-        if tab_input != st.session_state.active_tab:
-            st.session_state.active_tab = tab_input
-            st.rerun()
-
-        # Renderizado según pestaña activa
-        if st.session_state.active_tab == "create":
+        with tab_create:
             available_images = self.get_available_images()
             st.subheader("🧠 Crear Nuevo Personaje")
             self.render_character_creator(available_images)
 
-        elif st.session_state.active_tab == "chat":
+        with tab_chat:
             if st.session_state.character_instance and not st.session_state.creator_mode:
                 self.render_chat_interface()
             else:
                 st.info("💡 Crea un personaje primero en la pestaña '🧠 Crear Personaje'")
 
-        else:
+        with tab_saved:
             st.subheader("📂 Chats Guardados")
             saved_files = sorted(glob.glob(f"{self.chats_folder}/*.json"))
             if saved_files:
@@ -300,6 +295,7 @@ class CharacterCreatorApp:
                             st.rerun()
             else:
                 st.info("Aún no hay chats guardados.")
+      
 
 
 if __name__ == "__main__":
