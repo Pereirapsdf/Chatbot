@@ -1,6 +1,6 @@
 /* Fondo general */
 [data-testid="stAppViewContainer"] {
-  background: linear-gradient(135deg, #55669c 0%, #523ac7 100%);
+  background: linear-gradient(135deg, #55669c 0%, #25a3d4 100%);
   color: #222;
   font-family: "Inter", sans-serif;
 }
