@@ -1,133 +1,125 @@
-/* === 🎭 CHARACTER AI CREATOR THEME (Glassmorphism + Centered Layout) === */
+/* === 🎭 CHARACTER AI CREATOR - GLASSMORPHIC & NEON STYLE === */
 
-/* Fondo general */
+/* Fondo principal dinámico */
 [data-testid="stAppViewContainer"] {
-  background: linear-gradient(135deg, #3939a8 0%, #14143c 100%);
+  background: linear-gradient(135deg, #2b2b82 0%, #141432 100%);
   color: #e5e7eb;
   font-family: "Inter", sans-serif;
   background-attachment: fixed;
+  animation: bgMove 25s ease infinite alternate;
 }
 
-/* Contenedor principal con efecto vidrio */
+@keyframes bgMove {
+  from { background-position: 0% 0%; }
+  to { background-position: 100% 100%; }
+}
+
+/* --- Contenedor principal --- */
 section.main > div {
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(12px);
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(14px);
   border-radius: 20px;
   padding: 30px;
-  margin: 20px auto;
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.25);
-  max-width: 1100px;
+  margin: 30px auto;
+  max-width: 1080px;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.25);
 }
 
-/* Sidebar */
+/* --- Sidebar --- */
 [data-testid="stSidebar"] {
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.18);
   backdrop-filter: blur(10px);
-  border-right: 1px solid rgba(255, 255, 255, 0.2);
-  color: #1e1b4b;
+  border-right: 1px solid rgba(255, 255, 255, 0.25);
 }
 
-/* --- TEXTOS Y TITULOS --- */
+/* --- Tipografía --- */
 h1, h2, h3 {
   color: #ffffff;
-  font-weight: 700 !important;
-  text-align: center !important;
+  font-weight: 700;
+  text-align: center;
   letter-spacing: -0.5px;
 }
 
 p, span, label, textarea, input, div {
-  color: #e5e7eb;
+  color: #e8e9ff;
   font-size: 16px;
 }
 
-/* --- FORMULARIOS Y CONTENEDORES CENTRADOS --- */
-section, form, .stForm, .stMarkdown, .stAlert, .stRadio, .stFileUploader, .stSelectbox {
+/* --- Formularios centrados --- */
+section, form, .stForm, .stAlert, .stRadio, .stSelectbox {
   width: 90% !important;
-  max-width: 960px !important;
-  margin-left: auto !important;
-  margin-right: auto !important;
-  display: block !important;
+  max-width: 940px !important;
+  margin: 0 auto !important;
 }
 
-/* --- TABS NATIVAS CENTRADAS --- */
+/* --- Tabs centradas --- */
 [data-baseweb="tab-list"] {
   display: flex !important;
   justify-content: center !important;
-  gap: 16px !important;
-  margin: 12px auto 26px auto !important;
+  gap: 14px;
+  margin: 18px auto 26px auto !important;
 }
 
-/* Estilo de las tabs */
+/* Tabs estilizadas */
 button[data-baseweb="tab"] {
   background: rgba(255,255,255,0.08) !important;
   border: 1px solid rgba(255,255,255,0.08) !important;
   color: #c7d2fe !important;
   font-weight: 600 !important;
   border-radius: 12px !important;
-  padding: 8px 14px !important;
+  padding: 10px 18px !important;
   transition: all 0.25s ease !important;
 }
 
 button[data-baseweb="tab"]:hover {
   transform: translateY(-2px);
-  background: rgba(255,255,255,0.15) !important;
+  background: rgba(255,255,255,0.18) !important;
 }
 
 button[data-baseweb="tab"][aria-selected="true"] {
-  background: linear-gradient(90deg, #6d28d9, #4f46e5) !important;
-  color: #ffffff !important;
-  box-shadow: 0 6px 18px rgba(79,70,229,0.3) !important;
-  border: 1px solid rgba(255,255,255,0.12) !important;
+  background: linear-gradient(90deg, #7c3aed, #4f46e5) !important;
+  color: #fff !important;
+  box-shadow: 0 6px 20px rgba(79,70,229,0.35) !important;
 }
 
-/* --- ALERTAS --- */
+/* --- Alertas --- */
 .stAlert {
   border-radius: 12px;
   font-size: 15px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  padding: 12px 18px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
 }
 
 .stAlert[data-baseweb="notification"] {
-  background-color: rgba(224, 231, 255, 0.3);
-  border-left: 4px solid #6366f1;
-  color: #1e1b4b;
+  background-color: rgba(224, 231, 255, 0.25);
+  border-left: 4px solid #818cf8;
+  color: #e0e7ff;
 }
 
-.stAlert[data-baseweb="notification"][kind="warning"] {
-  background-color: rgba(254, 240, 138, 0.3);
-  border-left: 4px solid #ca8a04;
-  color: #78350f;
-}
-
-.stAlert[data-baseweb="notification"][kind="error"] {
-  background-color: rgba(254, 202, 202, 0.3);
-  border-left: 4px solid #dc2626;
-  color: #7f1d1d;
-}
-
-.stAlert[data-baseweb="notification"][kind="success"] {
-  background-color: rgba(187, 247, 208, 0.3);
-  border-left: 4px solid #16a34a;
-  color: #14532d;
-}
-
-/* --- CHAT BUBBLES --- */
+/* --- Chat burbujas --- */
 div[data-testid="stChatMessage"] {
   border-radius: 14px;
   padding: 10px 14px;
   margin: 8px 0;
   backdrop-filter: blur(8px);
+  transition: all 0.2s ease;
+}
+
+div[data-testid="stChatMessage"]:hover {
+  transform: scale(1.01);
 }
 
 div[data-testid="stChatMessage"]:has(div[role="user"]) {
-  background: rgba(139, 92, 246, 0.25);
+  background: rgba(139, 92, 246, 0.3);
+  align-self: flex-end;
 }
 
 div[data-testid="stChatMessage"]:has(div[role="assistant"]) {
-  background: rgba(219, 234, 254, 0.3);
+  background: rgba(59, 130, 246, 0.25);
+  align-self: flex-start;
 }
 
-/* --- BOTONES --- */
+/* --- Botones modernos --- */
 button {
   border-radius: 12px !important;
   background: linear-gradient(135deg, #6366f1, #4f46e5) !important;
@@ -135,59 +127,44 @@ button {
   border: none !important;
   font-weight: 600 !important;
   transition: all 0.3s ease !important;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15) !important;
+  box-shadow: 0 4px 20px rgba(99,102,241,0.35) !important;
 }
 
 button:hover {
   background: linear-gradient(135deg, #4f46e5, #4338ca) !important;
+  box-shadow: 0 0 20px rgba(99,102,241,0.6);
   transform: translateY(-2px);
 }
 
-/* --- INPUTS Y CAMPOS DE TEXTO --- */
+/* --- Inputs --- */
 textarea, input, select {
   border-radius: 10px !important;
-  border: 1px solid rgba(255, 255, 255, 0.3) !important;
-  background-color: rgba(255, 255, 255, 0.15) !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  background-color: rgba(255, 255, 255, 0.12) !important;
   color: #f9fafb !important;
   transition: all 0.2s ease-in-out !important;
 }
 
 textarea:focus, input:focus, select:focus {
   border-color: #a5b4fc !important;
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.4) !important;
-  outline: none !important;
-  background-color: rgba(255, 255, 255, 0.25) !important;
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.4) !important;
+  background-color: rgba(255, 255, 255, 0.22) !important;
 }
 
-/* --- SEPARADORES --- */
-hr {
-  border: 0;
-  height: 1px;
-  background: rgba(255, 255, 255, 0.25);
-  margin: 20px 0;
-}
-
-/* --- IMÁGENES Y ELEMENTOS VISUALES --- */
-img[alt="(image)"], .stImage img {
+/* --- Imágenes --- */
+.stImage img {
   display: block;
-  margin-left: auto;
-  margin-right: auto;
+  margin: 0 auto;
   border-radius: 12px;
-  max-width: 200px;
-  transition: transform 0.2s ease;
+  max-width: 220px;
+  transition: transform 0.25s ease;
 }
 
-img[alt="(image)"]:hover {
-  transform: scale(1.05);
+.stImage img:hover {
+  transform: scale(1.06);
 }
 
-/* --- RADIO BUTTONS ELEGANTES --- */
-[data-testid="stRadio"] label p {
-  color: #f3f4f6 !important;
-  font-weight: 500 !important;
-}
-
-/* Centrar radio buttons */
+/* --- Radio Buttons --- */
 [data-testid="stRadio"], .stRadio {
   display: flex !important;
   justify-content: center !important;
@@ -195,25 +172,27 @@ img[alt="(image)"]:hover {
   gap: 1rem;
 }
 
-/* --- BOTÓN CONFIRMAR CENTRADO --- */
+[data-testid="stRadio"] label p {
+  color: #f3f4f6 !important;
+  font-weight: 500 !important;
+}
+
+/* --- Separadores --- */
+hr {
+  border: 0;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.25);
+  margin: 25px 0;
+}
+
+/* --- Centrado de botones de confirmación --- */
 .css-1emrehy.edgvbvh3 {
   display: flex;
   justify-content: center;
 }
 
-/* --- MÁRGENES ENTRE SECCIONES --- */
-.stAlert, .stForm, .stRadio, .stFileUploader {
-  margin-top: 1rem !important;
-  margin-bottom: 1rem !important;
-}
-
-/* --- OCULTAR INPUT INVISIBLE (de pestaña) SI EXISTE --- */
+/* --- Ocultar input invisible (tab control) --- */
 .stTextInput input[value="create"],
 .stTextInput input[placeholder="create"] {
-  display: none !important;
-}
-
-div[data-testid="stTextInput"] > div:has(input[value="create"]),
-div[data-testid="stTextInput"] > div:has(input[placeholder="create"]) {
   display: none !important;
 }
