@@ -138,34 +138,85 @@ hr {
   margin: 20px 0;
 }
 
-main > div {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
+/* === CENTRADO GLOBAL, ajustes específicos para Streamlit === */
+
+/* Forzar contenedores principales centrados */
+[data-testid="stAppViewContainer"] > .css-1y4p8pa { 
+  align-items: center !important;
 }
 
-/* Centrar formularios y secciones */
-section, form, .stForm, .stMarkdown, .stAlert, .stRadio, .stFileUploader, .stSelectbox {
-  width: 80%;
-  max-width: 900px;
-  margin: auto;
-}
-
-/* Mejor alineación de imágenes y títulos */
-h1, h2, h3, p {
+/* Centrar títulos y subtítulos */
+h1, h2, h3, .css-18e3th9, .css-1v0mbdj {
   text-align: center !important;
 }
 
-/* Separación visual más equilibrada */
-.stForm, .stAlert, .stRadio, .stFileUploader, .stSelectbox {
-  margin-top: 1.2rem !important;
-  margin-bottom: 1.2rem !important;
+/* Centrar formularios y bloques */
+section, form, .stForm, .stMarkdown, .stAlert, .stRadio, .stFileUploader, .stSelectbox, .css-1l02zno {
+  width: 90% !important;
+  max-width: 980px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  display: block !important;
 }
 
-/* Botones centrados */
-.stButton {
+/* Asegurar que los contenedores internos no se estiren horizontalmente */
+main > div[role="main"] > div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Ajustes para la sección del selector de imagen (centrar radio + preview) */
+[data-testid="stRadio"] , .stRadio {
+  display: flex !important;
+  justify-content: center !important;
+  gap: 1rem;
+}
+
+/* Centrar la vista previa de imagen */
+img[alt="(image)"], .stImage, .css-1eq21z6 img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* "Pestañas" personalizadas (botones) centradas */
+.custom-tabs {
   display: flex;
   justify-content: center;
-  margin-top: 1rem;
+  gap: 12px;
+  margin-bottom: 18px;
+  margin-top: 6px;
+}
+
+.custom-tab-btn {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.08);
+  color: #fff;
+  padding: 8px 14px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 700;
+  transition: all .18s ease;
+}
+
+.custom-tab-btn:hover { transform: translateY(-2px); }
+
+.custom-tab-btn.active {
+  background: linear-gradient(90deg,#6d28d9,#4f46e5);
+  box-shadow: 0 6px 18px rgba(79,70,229,0.18);
+  border: 1px solid rgba(255,255,255,0.12);
+}
+
+/* Botón confirmar selección centrado */
+.css-1emrehy.edgvbvh3 { 
+  /* Common class for st.button - best-effort centering */
+  display: flex;
+  justify-content: center;
+}
+
+/* Ajuste de margen entre secciones */
+.stAlert, .stForm, .stRadio, .stFileUploader {
+  margin-top: 1rem !important;
+  margin-bottom: 1rem !important;
 }
