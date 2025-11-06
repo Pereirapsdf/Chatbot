@@ -1,57 +1,86 @@
-/* Fondo general con efecto glass */
+/* === 🎭 CHARACTER AI CREATOR THEME (Glassmorphism + Centered Layout) === */
+
+/* Fondo general */
 [data-testid="stAppViewContainer"] {
   background: linear-gradient(135deg, #4338ca 0%, #2563eb 100%);
-  color: #222;
+  color: #e5e7eb;
   font-family: "Inter", sans-serif;
   background-attachment: fixed;
 }
 
-/* Contenedor principal estilo vidrio */
+/* Contenedor principal con efecto vidrio */
 section.main > div {
   background: rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(12px);
   border-radius: 20px;
   padding: 30px;
-  margin: 20px;
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+  margin: 20px auto;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.25);
+  max-width: 1100px;
 }
 
 /* Sidebar */
 [data-testid="stSidebar"] {
   background: rgba(255, 255, 255, 0.3);
   backdrop-filter: blur(10px);
-  color: #111827;
   border-right: 1px solid rgba(255, 255, 255, 0.2);
+  color: #1e1b4b;
 }
 
-/* Títulos */
+/* --- TEXTOS Y TITULOS --- */
 h1, h2, h3 {
   color: #ffffff;
   font-weight: 700 !important;
+  text-align: center !important;
   letter-spacing: -0.5px;
 }
 
-/* Subtítulos y textos */
 p, span, label, textarea, input, div {
   color: #e5e7eb;
   font-size: 16px;
 }
 
-/* Tabs */
+/* --- FORMULARIOS Y CONTENEDORES CENTRADOS --- */
+section, form, .stForm, .stMarkdown, .stAlert, .stRadio, .stFileUploader, .stSelectbox {
+  width: 90% !important;
+  max-width: 960px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  display: block !important;
+}
+
+/* --- TABS NATIVAS CENTRADAS --- */
+[data-baseweb="tab-list"] {
+  display: flex !important;
+  justify-content: center !important;
+  gap: 16px !important;
+  margin: 12px auto 26px auto !important;
+}
+
+/* Estilo de las tabs */
 button[data-baseweb="tab"] {
-  background: transparent;
-  border-bottom: 2px solid transparent;
-  color: #c7d2fe;
-  font-weight: 600;
-  transition: all 0.3s ease;
+  background: rgba(255,255,255,0.08) !important;
+  border: 1px solid rgba(255,255,255,0.08) !important;
+  color: #c7d2fe !important;
+  font-weight: 600 !important;
+  border-radius: 12px !important;
+  padding: 8px 14px !important;
+  transition: all 0.25s ease !important;
+}
+
+button[data-baseweb="tab"]:hover {
+  transform: translateY(-2px);
+  background: rgba(255,255,255,0.15) !important;
 }
 
 button[data-baseweb="tab"][aria-selected="true"] {
-  color: #ffffff;
-  border-bottom: 3px solid #a5b4fc;
+  background: linear-gradient(90deg, #6d28d9, #4f46e5) !important;
+  color: #ffffff !important;
+  box-shadow: 0 6px 18px rgba(79,70,229,0.3) !important;
+  border: 1px solid rgba(255,255,255,0.12) !important;
 }
 
-/* Alertas (info, warning, error, success) */
+/* --- ALERTAS --- */
 .stAlert {
   border-radius: 12px;
   font-size: 15px;
@@ -82,7 +111,7 @@ button[data-baseweb="tab"][aria-selected="true"] {
   color: #14532d;
 }
 
-/* Chat bubbles */
+/* --- CHAT BUBBLES --- */
 div[data-testid="stChatMessage"] {
   border-radius: 14px;
   padding: 10px 14px;
@@ -90,15 +119,15 @@ div[data-testid="stChatMessage"] {
   backdrop-filter: blur(8px);
 }
 
-div[data-testid="stChatMessage"][data-testid="stChatMessage-User"] {
-  background: rgba(139, 92, 246, 0.3);
+div[data-testid="stChatMessage"]:has(div[role="user"]) {
+  background: rgba(139, 92, 246, 0.25);
 }
 
-div[data-testid="stChatMessage"][data-testid="stChatMessage-Assistant"] {
+div[data-testid="stChatMessage"]:has(div[role="assistant"]) {
   background: rgba(219, 234, 254, 0.3);
 }
 
-/* Botones */
+/* --- BOTONES --- */
 button {
   border-radius: 12px !important;
   background: linear-gradient(135deg, #6366f1, #4f46e5) !important;
@@ -114,7 +143,7 @@ button:hover {
   transform: translateY(-2px);
 }
 
-/* Inputs y textareas */
+/* --- INPUTS Y CAMPOS DE TEXTO --- */
 textarea, input, select {
   border-radius: 10px !important;
   border: 1px solid rgba(255, 255, 255, 0.3) !important;
@@ -130,104 +159,61 @@ textarea:focus, input:focus, select:focus {
   background-color: rgba(255, 255, 255, 0.25) !important;
 }
 
-/* Separadores */
+/* --- SEPARADORES --- */
 hr {
   border: 0;
   height: 1px;
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.25);
   margin: 20px 0;
 }
 
-/* === CENTRADO GLOBAL, ajustes específicos para Streamlit === */
-
-/* Forzar contenedores principales centrados */
-[data-testid="stAppViewContainer"] > .css-1y4p8pa { 
-  align-items: center !important;
-}
-
-/* Centrar títulos y subtítulos */
-h1, h2, h3, .css-18e3th9, .css-1v0mbdj {
-  text-align: center !important;
-}
-
-/* Centrar formularios y bloques */
-section, form, .stForm, .stMarkdown, .stAlert, .stRadio, .stFileUploader, .stSelectbox, .css-1l02zno {
-  width: 90% !important;
-  max-width: 980px !important;
-  margin-left: auto !important;
-  margin-right: auto !important;
-  display: block !important;
-}
-
-/* Asegurar que los contenedores internos no se estiren horizontalmente */
-main > div[role="main"] > div {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-/* Ajustes para la sección del selector de imagen (centrar radio + preview) */
-[data-testid="stRadio"] , .stRadio {
-  display: flex !important;
-  justify-content: center !important;
-  gap: 1rem;
-}
-
-/* Centrar la vista previa de imagen */
-img[alt="(image)"], .stImage, .css-1eq21z6 img {
+/* --- IMÁGENES Y ELEMENTOS VISUALES --- */
+img[alt="(image)"], .stImage img {
   display: block;
   margin-left: auto;
   margin-right: auto;
-}
-
-/* "Pestañas" personalizadas (botones) centradas */
-.custom-tabs {
-  display: flex;
-  justify-content: center;
-  gap: 12px;
-  margin-bottom: 18px;
-  margin-top: 6px;
-}
-
-.custom-tab-btn {
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.08);
-  color: #fff;
-  padding: 8px 14px;
   border-radius: 12px;
-  cursor: pointer;
-  font-weight: 700;
-  transition: all .18s ease;
+  max-width: 200px;
+  transition: transform 0.2s ease;
 }
 
-.custom-tab-btn:hover { transform: translateY(-2px); }
-
-.custom-tab-btn.active {
-  background: linear-gradient(90deg,#6d28d9,#4f46e5);
-  box-shadow: 0 6px 18px rgba(79,70,229,0.18);
-  border: 1px solid rgba(255,255,255,0.12);
+img[alt="(image)"]:hover {
+  transform: scale(1.05);
 }
 
-/* Botón confirmar selección centrado */
-.css-1emrehy.edgvbvh3 { 
-  /* Common class for st.button - best-effort centering */
+/* --- RADIO BUTTONS ELEGANTES --- */
+[data-testid="stRadio"] label p {
+  color: #f3f4f6 !important;
+  font-weight: 500 !important;
+}
+
+/* Centrar radio buttons */
+[data-testid="stRadio"], .stRadio {
+  display: flex !important;
+  justify-content: center !important;
+  flex-wrap: wrap !important;
+  gap: 1rem;
+}
+
+/* --- BOTÓN CONFIRMAR CENTRADO --- */
+.css-1emrehy.edgvbvh3 {
   display: flex;
   justify-content: center;
 }
 
-/* Ajuste de margen entre secciones */
+/* --- MÁRGENES ENTRE SECCIONES --- */
 .stAlert, .stForm, .stRadio, .stFileUploader {
   margin-top: 1rem !important;
   margin-bottom: 1rem !important;
 }
 
-
+/* --- OCULTAR INPUT INVISIBLE (de pestaña) SI EXISTE --- */
 .stTextInput input[value="create"],
 .stTextInput input[placeholder="create"] {
-    display: none !important;
+  display: none !important;
 }
 
 div[data-testid="stTextInput"] > div:has(input[value="create"]),
 div[data-testid="stTextInput"] > div:has(input[placeholder="create"]) {
-    display: none !important;
+  display: none !important;
 }
