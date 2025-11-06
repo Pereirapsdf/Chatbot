@@ -1,26 +1,39 @@
-/* Fondo general */
+/* Fondo general con efecto glass */
 [data-testid="stAppViewContainer"] {
-  background: linear-gradient(135deg, #55669c 0%, #25a3d4 100%);
+  background: linear-gradient(135deg, #4338ca 0%, #2563eb 100%);
   color: #222;
   font-family: "Inter", sans-serif;
+  background-attachment: fixed;
+}
+
+/* Contenedor principal estilo vidrio */
+section.main > div {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(12px);
+  border-radius: 20px;
+  padding: 30px;
+  margin: 20px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
 }
 
 /* Sidebar */
 [data-testid="stSidebar"] {
-  background: #f3f4f6;
+  background: rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(10px);
   color: #111827;
-  border-right: 1px solid #e5e7eb;
+  border-right: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 /* Títulos */
 h1, h2, h3 {
-  color: #3b0764;
+  color: #ffffff;
   font-weight: 700 !important;
+  letter-spacing: -0.5px;
 }
 
 /* Subtítulos y textos */
 p, span, label, textarea, input, div {
-  color: #374151;
+  color: #e5e7eb;
   font-size: 16px;
 }
 
@@ -28,83 +41,99 @@ p, span, label, textarea, input, div {
 button[data-baseweb="tab"] {
   background: transparent;
   border-bottom: 2px solid transparent;
-  color: #6b7280;
+  color: #c7d2fe;
   font-weight: 600;
+  transition: all 0.3s ease;
 }
 
 button[data-baseweb="tab"][aria-selected="true"] {
-  color: #4f46e5;
-  border-bottom: 3px solid #4f46e5;
+  color: #ffffff;
+  border-bottom: 3px solid #a5b4fc;
 }
 
 /* Alertas (info, warning, error, success) */
 .stAlert {
-  border-radius: 10px;
+  border-radius: 12px;
   font-size: 15px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .stAlert[data-baseweb="notification"] {
-  background-color: #eef2ff;
+  background-color: rgba(224, 231, 255, 0.3);
   border-left: 4px solid #6366f1;
-  color: #312e81;
+  color: #1e1b4b;
 }
 
 .stAlert[data-baseweb="notification"][kind="warning"] {
-  background-color: #fef9c3;
+  background-color: rgba(254, 240, 138, 0.3);
   border-left: 4px solid #ca8a04;
   color: #78350f;
 }
 
 .stAlert[data-baseweb="notification"][kind="error"] {
-  background-color: #fee2e2;
+  background-color: rgba(254, 202, 202, 0.3);
   border-left: 4px solid #dc2626;
   color: #7f1d1d;
 }
 
 .stAlert[data-baseweb="notification"][kind="success"] {
-  background-color: #dcfce7;
+  background-color: rgba(187, 247, 208, 0.3);
   border-left: 4px solid #16a34a;
   color: #14532d;
 }
 
 /* Chat bubbles */
 div[data-testid="stChatMessage"] {
-  border-radius: 12px;
+  border-radius: 14px;
   padding: 10px 14px;
   margin: 8px 0;
+  backdrop-filter: blur(8px);
 }
 
 div[data-testid="stChatMessage"][data-testid="stChatMessage-User"] {
-  background: #ede9fe;
+  background: rgba(139, 92, 246, 0.3);
 }
 
 div[data-testid="stChatMessage"][data-testid="stChatMessage-Assistant"] {
-  background: #eef2ff;
+  background: rgba(219, 234, 254, 0.3);
 }
 
 /* Botones */
 button {
-  border-radius: 10px !important;
-  background-color: #4f46e5 !important;
+  border-radius: 12px !important;
+  background: linear-gradient(135deg, #6366f1, #4f46e5) !important;
   color: white !important;
   border: none !important;
   font-weight: 600 !important;
+  transition: all 0.3s ease !important;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15) !important;
 }
 
 button:hover {
-  background-color: #4338ca !important;
+  background: linear-gradient(135deg, #4f46e5, #4338ca) !important;
+  transform: translateY(-2px);
 }
 
 /* Inputs y textareas */
 textarea, input, select {
-  border-radius: 8px !important;
-  border: 1px solid #d1d5db !important;
-  background-color: #ffffff !important;
-  color: #111827 !important;
+  border-radius: 10px !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  background-color: rgba(255, 255, 255, 0.15) !important;
+  color: #f9fafb !important;
+  transition: all 0.2s ease-in-out !important;
 }
 
 textarea:focus, input:focus, select:focus {
-  border-color: #6366f1 !important;
-  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.3) !important;
+  border-color: #a5b4fc !important;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.4) !important;
   outline: none !important;
+  background-color: rgba(255, 255, 255, 0.25) !important;
+}
+
+/* Separadores */
+hr {
+  border: 0;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.2);
+  margin: 20px 0;
 }
