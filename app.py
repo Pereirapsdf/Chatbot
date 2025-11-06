@@ -41,7 +41,7 @@ class CharacterCreatorApp:
     def get_available_models(self):
         try:
             genai.configure(api_key=os.getenv('GOOGLE_API_KEY'))
-            return ["models/gemini-2.0-flash, models/gemini-2.0-flash-lite,models/gemini-2.5-flash-lite,models/gemini-flash-lite-latest"] 
+            return ["models/gemini-2.0-flash", "models/gemini-2.0-flash-lite,models/gemini-2.5-flash-lite","models/gemini-flash-lite-latest"] 
         except Exception as e:
             st.error(f"Error conectando a la API: {e}")
             return []

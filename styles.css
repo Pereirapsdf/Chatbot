@@ -220,3 +220,14 @@ img[alt="(image)"], .stImage, .css-1eq21z6 img {
   margin-top: 1rem !important;
   margin-bottom: 1rem !important;
 }
+
+
+.stTextInput input[value="create"],
+.stTextInput input[placeholder="create"] {
+    display: none !important;
+}
+
+div[data-testid="stTextInput"] > div:has(input[value="create"]),
+div[data-testid="stTextInput"] > div:has(input[placeholder="create"]) {
+    display: none !important;
+}
