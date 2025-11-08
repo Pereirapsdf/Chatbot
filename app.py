@@ -12,19 +12,24 @@ st.set_page_config(
     page_title="Character AI Creator",
     page_icon="🎭",
     layout="wide",
-    initial_sidebar_state="expanded"  # Asegurar que el sidebar esté expandido
+    initial_sidebar_state="expanded"
 )
 
-# Script para mantener el botón de sidebar visible
+# Este script asegura que el botón de colapsar nunca sea visible
 st.markdown("""
     <style>
     [data-testid="collapsedControl"] {
         display: none !important;
     }
     </style>
+    <script>
+    const observer = new MutationObserver(() => {
+        const btn = document.querySelector('[data-testid="collapsedControl"]');
+        if (btn) btn.style.display = 'none';
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+    </script>
     """, unsafe_allow_html=True)
-
-
 
 
 class CharacterCreatorApp:
