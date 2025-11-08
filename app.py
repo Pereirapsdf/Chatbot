@@ -15,19 +15,30 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Este script asegura que el botón de colapsar nunca sea visible
 st.markdown("""
     <style>
-    /* Esconde permanentemente el botón de colapsar el sidebar */
-    button[aria-label="Toggle sidebar"] {
-        display: none !important;
-    }
-    /* Forzar sidebar siempre expandido */
-    .css-1d391kg {   /* Clase contenedor del sidebar */
-        transform: none !important;
-        margin-left: 0px !important;
-    }
+        /* Oculta el botón de colapsar de manera permanente */
+        [data-testid="collapsedControl"] {
+            display: none !important;
+        }
     </style>
+    <script>
+        // Observador para ocultar dinámicamente el botón si aparece
+        const observer = new MutationObserver(() => {
+            const btn = document.querySelector('[data-testid="collapsedControl"]');
+            if (btn) btn.style.display = 'none';
+        });
+        observer.observe(document.body, { childList: true, subtree: true });
+
+        // Forzar sidebar siempre expandido
+        const expandSidebar = () => {
+            const sb = document.querySelector('section[data-testid="stSidebar"]');
+            if (sb && sb.style.transform !== "translateX(0%)") {
+                sb.style.transform = "translateX(0%)";
+            }
+        }
+        setInterval(expandSidebar, 100);  // Revisar constantemente
+    </script>
 """, unsafe_allow_html=True)
 
 class CharacterCreatorApp:
