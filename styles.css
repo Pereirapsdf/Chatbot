@@ -89,25 +89,31 @@ section.main > div {
 
 /* --- Chat input fijo --- */
 [data-testid="stChatInputContainer"] {
-  position: fixed !important;
+   position: fixed !important;
   bottom: 0 !important;
-  left: 260px !important; /* deja espacio para la sidebar */
+  left: 260px !important; /* ajusta si tu sidebar tiene otro ancho */
   right: 0 !important;
+  z-index: 2147483647 !important; /* muy arriba para evitar solapamientos */
   background-color: #0e1117 !important;
   padding: 1rem !important;
   border-top: 1px solid #262730 !important;
-  z-index: 1000 !important;
+  box-sizing: border-box !important;
 }
 
 /* Ajustar el campo de texto */
-[data-testid="stChatInputContainer"] textarea {
-  background: rgba(255, 255, 255, 0.05) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+[data-testid="stChatInputContainer"] textarea,
+[data-testid="stChatInputContainer"] .stTextArea {
+  width: 100% !important;
+  max-width: 1200px !important;
+  margin: 0 auto !important;
+  background: rgba(255,255,255,0.04) !important;
   border-radius: 20px !important;
-  color: #e5e7eb !important;
   padding: 11px 14px !important;
-  transition: all 0.2s ease-in-out !important;
+  color: #e5e7eb !important;
+  border: 1px solid rgba(255,255,255,0.08) !important;
+  resize: none !important;
 }
+
 
 [data-testid="stChatInputContainer"] textarea:focus {
   border-color: #5865f2 !important;
@@ -134,9 +140,10 @@ section.main > div {
 
 /* --- Chat mensajes --- */
 section[data-testid="stChatMessageContainer"] {
-   max-height: calc(100vh - 180px) !important;
+    max-height: calc(100vh - 160px) !important; /* se ajustará por JS también */
    overflow-y: auto !important;
-   padding-bottom: 220px !important; /* espacio para la barra fija */
+   padding-bottom: 40px !important; /* base, JS lo incrementará dinámicamente */
+   box-sizing: border-box !important;
 }
 
 div[data-testid="stChatMessage"] {
