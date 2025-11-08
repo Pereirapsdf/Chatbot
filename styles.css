@@ -191,7 +191,7 @@ hr {
   justify-content: center;
 }
 
-/* --- Ocultar input invisible (tab control) --- */
+/* --- Ocultar input invisible (tab control) --*/
 .stTextInput input[value="create"],
 .stTextInput input[placeholder="create"] {
   display: none !important;

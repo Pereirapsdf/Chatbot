@@ -226,7 +226,7 @@ class CharacterCreatorApp:
         self.apply_custom_style()
         self.initialize_session_state()
 
-        # Cabecera
+        # Cabecer
         st.title("🎭 Character AI Creator")
         st.caption("Crea, personaliza y conversa con tus personajes de IA")
         
