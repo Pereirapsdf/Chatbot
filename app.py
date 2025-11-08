@@ -16,18 +16,6 @@ st.set_page_config(
 )
 
 # Script para mantener el botón de sidebar visible
-st.markdown("""
-<script>
-setInterval(() => {
-    const btn = document.querySelector('[data-testid="collapsedControl"]');
-    if (btn) {
-        btn.style.display = 'flex';
-        btn.style.visibility = 'visible';
-        btn.style.opacity = '1';
-    }
-}, 100);
-</script>
-""", unsafe_allow_html=True)
 
 class CharacterCreatorApp:
     def __init__(self):
