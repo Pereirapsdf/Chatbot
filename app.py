@@ -16,41 +16,154 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 st.markdown("""
-    <script>
-    // --- Scroll automático hasta el último mensaje ---
-    function autoScrollChat() {
-    const chatContainer = document.querySelector('section[data-testid="stChatMessageContainer"]');
-    if (chatContainer) {
-        chatContainer.scrollTo({
-        top: chatContainer.scrollHeight,
-        behavior: 'smooth'
-        });
+    <style>
+    /* estilos mínimos para el input fijo (puedes mantener tu styles.css para el resto) */
+    [data-testid="stAppViewContainer"] { overflow: visible !important; }
+    .main .block-container { padding-bottom: 220px !important; } /* dejar margen para input */
+    [data-testid="stChatInputContainer"] {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 260px !important; /* si tu sidebar es distinta, JS la recalcula */
+    right: 0 !important;
+    z-index: 2147483646 !important;
+    background-color: #0e1117 !important;
+    padding: 12px 16px !important;
+    border-top: 1px solid #262730 !important;
+    box-sizing: border-box !important;
     }
+    [data-testid="stChatInputContainer"] textarea {
+    width: 100% !important;
+    max-width: 1200px !important;
+    margin: 0 auto !important;
+    border-radius: 18px !important;
+    padding: 10px 14px !important;
+    resize: none !important;
+    }
+    section[data-testid="stChatMessageContainer"] {
+    overflow-y: auto !important;
+    max-height: calc(100vh - 160px) !important;
+    box-sizing: border-box !important;
+    }
+    </style>
+
+    <script>
+    (function () {
+    // Helpers
+    function getSidebarWidth() {
+        const sb = document.querySelector('section[data-testid="stSidebar"]');
+        return sb ? sb.getBoundingClientRect().width : 0;
     }
 
-    // Observar cuando se agregan nuevos mensajes
-    const chatObserver = new MutationObserver((mutations) => {
-    for (const mutation of mutations) {
-        if (mutation.addedNodes.length > 0) {
-        autoScrollChat();
+    function moveInputToBodyAndFix() {
+        const sel = '[data-testid="stChatInputContainer"]';
+        const inputEl = document.querySelector(sel);
+        if (!inputEl) return null;
+
+        // Mover al body si no está ahí
+        if (inputEl.parentElement !== document.body) {
+        document.body.appendChild(inputEl);
+        }
+
+        // ajustar posición y left según sidebar
+        const sidebarW = getSidebarWidth();
+        inputEl.style.position = 'fixed';
+        inputEl.style.bottom = '0px';
+        inputEl.style.left = sidebarW + 'px';
+        inputEl.style.right = '0px';
+        inputEl.style.zIndex = '2147483646';
+        inputEl.style.boxSizing = 'border-box';
+        // forzar reflow mínimo
+        inputEl.getBoundingClientRect();
+        return inputEl;
+    }
+
+    function ensureMessageContainerPadding(inputEl) {
+        const msgSel = 'section[data-testid="stChatMessageContainer"]';
+        const msgEl = document.querySelector(msgSel);
+        if (!msgEl) return null;
+        const inputH = (inputEl ? inputEl.getBoundingClientRect().height : 120);
+        // dejar espacio extra para que nunca tape mensajes
+        msgEl.style.paddingBottom = (inputH + 40) + 'px';
+        msgEl.style.maxHeight = 'calc(100vh - ' + (inputH + 80) + 'px)';
+        return msgEl;
+    }
+
+    function scrollChatToBottom(msgEl, smooth = true) {
+        if (!msgEl) return;
+        try {
+        msgEl.scrollTo({
+            top: msgEl.scrollHeight,
+            behavior: smooth ? 'smooth' : 'auto'
+        });
+        } catch (e) {
+        msgEl.scrollTop = msgEl.scrollHeight;
         }
     }
+
+    // Observador para mensajes nuevos (auto-scroll)
+    let msgObserver = null;
+    function observeMessagesAndAutoScroll() {
+        const msgSel = 'section[data-testid="stChatMessageContainer"]';
+        const msgEl = document.querySelector(msgSel);
+        if (!msgEl) return;
+
+        // desconectar previo si existe
+        if (msgObserver) {
+        try { msgObserver.disconnect(); } catch(e) {}
+        msgObserver = null;
+        }
+
+        msgObserver = new MutationObserver((mutations) => {
+        for (const m of mutations) {
+            if (m.addedNodes && m.addedNodes.length) {
+            // pequeño timeout para esperar render interno de Streamlit
+            setTimeout(() => scrollChatToBottom(msgEl, true), 30);
+            break;
+            }
+        }
+        });
+
+        msgObserver.observe(msgEl, { childList: true, subtree: true });
+        // bajar al iniciar
+        setTimeout(() => scrollChatToBottom(msgEl, false), 60);
+    }
+
+    // Observador del body para reaplicar cada vez que Streamlit re-renderiza DOM
+    const globalObserver = new MutationObserver(() => {
+        const inputEl = moveInputToBodyAndFix();
+        ensureMessageContainerPadding(inputEl);
+        observeMessagesAndAutoScroll();
+    });
+    globalObserver.observe(document.body, { childList: true, subtree: true });
+
+    // Reaplicar también periódicamente por si acaso (no recarga servidor)
+    setInterval(() => {
+        const inputEl = moveInputToBodyAndFix();
+        ensureMessageContainerPadding(inputEl);
+        observeMessagesAndAutoScroll();
+    }, 700);
+
+    // Primer intento al cargar
+    window.addEventListener('load', () => {
+        const inputEl = moveInputToBodyAndFix();
+        ensureMessageContainerPadding(inputEl);
+        observeMessagesAndAutoScroll();
     });
 
-    const initAutoScroll = () => {
-    const chatContainer = document.querySelector('section[data-testid="stChatMessageContainer"]');
-    if (chatContainer) {
-        chatObserver.observe(chatContainer, { childList: true, subtree: true });
-        autoScrollChat(); // desplazarse al final al iniciar
-    } else {
-        setTimeout(initAutoScroll, 500); // esperar a que aparezca
-    }
-    };
+    // Ajustar si cambía tamaño ventana (sidebar puede cambiar)
+    window.addEventListener('resize', () => {
+        const inputEl = document.querySelector('[data-testid="stChatInputContainer"]');
+        if (inputEl) {
+        inputEl.style.left = getSidebarWidth() + 'px';
+        // reajustar padding contenedor
+        ensureMessageContainerPadding(inputEl);
+        }
+    });
 
-    window.addEventListener('load', initAutoScroll);
-    setInterval(initAutoScroll, 2000); // reforzar en cada re-render
+    })();
     </script>
 """, unsafe_allow_html=True)
+
 
 
 
