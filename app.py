@@ -331,14 +331,14 @@ class CharacterCreatorApp:
 
         # Guardamos los datos del personaje (incluido el modelo)
         data = {
-            "name": character_instance.name,
-            "personality": character_instance.personality,
-            "greeting": character_instance.greeting,
-            "profile_image_path": character_instance.profile_image_path,
-            "model_name": character_instance.model_name,  # Guardamos también el modelo
-            "messages": st.session_state.messages  # Guardamos los mensajes
+            "name": st.session_state.character_instance.name,
+            "personality": st.session_state.character_instance.personality,
+            "greeting": st.session_state.character_instance.greeting,
+            "profile_image_path": st.session_state.character_instance.profile_image_path,
+            "model_name": st.session_state.character_instance.model_name,  # Asegúrate de que esto esté aquí
+            "messages": st.session_state.messages
         }
-
+        print(f"Guardando personaje con el modelo: {st.session_state.character_instance.model_name}")
         with open(filepath, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
 
