@@ -269,6 +269,12 @@ class CharacterCreatorApp:
         with st.sidebar:
             st.title("📋 Menú principal")
             
+            # Botón opcional de toggle interno
+            if st.button("⬅️ Colapsar Sidebar", key="toggle_sidebar"):
+                # Cambiamos el estado de visibilidad (ejemplo con sesión)
+                st.session_state.sidebar_visible = not st.session_state.sidebar_visible
+                st.rerun()
+            
             # Botones de navegación
             if st.button("🏠 Home", key="btn_home", use_container_width=True):
                 st.session_state.active_menu = "home"
@@ -290,7 +296,6 @@ class CharacterCreatorApp:
             st.title("🎭 Character AI Creator")
             st.caption("Crea, personaliza y conversa con tus personajes de IA")
 
-            # Solo mostrar la pestaña de crear personaje
             available_images = self.get_available_images()
             
             if st.session_state.character_instance and not st.session_state.creator_mode:
@@ -336,6 +341,7 @@ class CharacterCreatorApp:
                         st.rerun()
             else:
                 st.info("No hay personajes creados todavía.")
+
 
 if __name__ == "__main__":
     app = CharacterCreatorApp()
