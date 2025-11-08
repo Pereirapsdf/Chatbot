@@ -18,18 +18,12 @@ st.set_page_config(
 # Este script asegura que el botón de colapsar nunca sea visible
 st.markdown("""
     <style>
-    [data-testid="collapsedControl"] {
+    /* Oculta el botón de colapsar completamente */
+    button[aria-label="Toggle sidebar"] {
         display: none !important;
     }
     </style>
-    <script>
-    const observer = new MutationObserver(() => {
-        const btn = document.querySelector('[data-testid="collapsedControl"]');
-        if (btn) btn.style.display = 'none';
-    });
-    observer.observe(document.body, { childList: true, subtree: true });
-    </script>
-    """, unsafe_allow_html=True)
+""", unsafe_allow_html=True)
 
 
 class CharacterCreatorApp:
