@@ -17,152 +17,202 @@ st.set_page_config(
 
 st.markdown("""
     <style>
-    /* estilos mínimos para el input fijo (puedes mantener tu styles.css para el resto) */
+    /* Mantener espacio y estilo mínimo para el input */
     [data-testid="stAppViewContainer"] { overflow: visible !important; }
-    .main .block-container { padding-bottom: 220px !important; } /* dejar margen para input */
-    [data-testid="stChatInputContainer"] {
+    .main .block-container { padding-bottom: 260px !important; }
+    [data-testid="stChatInputContainer"], .stChatInputContainer {
     position: fixed !important;
     bottom: 0 !important;
-    left: 260px !important; /* si tu sidebar es distinta, JS la recalcula */
+    left: 260px !important;
     right: 0 !important;
-    z-index: 2147483646 !important;
+    z-index: 2147483647 !important;
     background-color: #0e1117 !important;
-    padding: 12px 16px !important;
+    padding: 10px 16px !important;
     border-top: 1px solid #262730 !important;
     box-sizing: border-box !important;
     }
-    [data-testid="stChatInputContainer"] textarea {
-    width: 100% !important;
-    max-width: 1200px !important;
-    margin: 0 auto !important;
-    border-radius: 18px !important;
-    padding: 10px 14px !important;
-    resize: none !important;
-    }
-    section[data-testid="stChatMessageContainer"] {
+    section[data-testid="stChatMessageContainer"], .stChatMessageContainer {
     overflow-y: auto !important;
-    max-height: calc(100vh - 160px) !important;
+    max-height: calc(100vh - 180px) !important;
     box-sizing: border-box !important;
     }
     </style>
 
     <script>
-    (function () {
-    // Helpers
-    function getSidebarWidth() {
-        const sb = document.querySelector('section[data-testid="stSidebar"]');
-        return sb ? sb.getBoundingClientRect().width : 0;
+    (function() {
+    console.log("[CHAT-FIX] Iniciando script robusto de posicionamiento/scroll");
+
+    // Varias formas de buscar elementos por si cambian los data-testids
+    const inputSelectors = [
+        '[data-testid="stChatInputContainer"]',
+        '.stChatInputContainer',
+        '[data-testid^="stChat"][data-testid$="InputContainer"]',
+        '[role="textbox"]' // fallback débil
+    ];
+    const msgSelectors = [
+        'section[data-testid="stChatMessageContainer"]',
+        '.stChatMessageContainer',
+        '[data-testid^="stChat"][data-testid$="MessageContainer"]'
+    ];
+    const sidebarSelector = 'section[data-testid="stSidebar"], .stSidebar';
+
+    function queryFirst(selectors) {
+        for (const s of selectors) {
+        const el = document.querySelector(s);
+        if (el) return el;
+        }
+        return null;
     }
 
-    function moveInputToBodyAndFix() {
-        const sel = '[data-testid="stChatInputContainer"]';
-        const inputEl = document.querySelector(sel);
-        if (!inputEl) return null;
+    function getSidebarWidth() {
+        const sb = document.querySelector(sidebarSelector);
+        return sb ? Math.round(sb.getBoundingClientRect().width) : 0;
+    }
 
-        // Mover al body si no está ahí
+    function moveAndFixInput() {
+        try {
+        const inputEl = queryFirst(inputSelectors);
+        if (!inputEl) { console.debug("[CHAT-FIX] Input no hallado (aún)"); return null; }
+
         if (inputEl.parentElement !== document.body) {
-        document.body.appendChild(inputEl);
+            document.body.appendChild(inputEl);
+            console.debug("[CHAT-FIX] Input movido al body");
         }
 
-        // ajustar posición y left según sidebar
-        const sidebarW = getSidebarWidth();
+        const left = getSidebarWidth();
         inputEl.style.position = 'fixed';
         inputEl.style.bottom = '0px';
-        inputEl.style.left = sidebarW + 'px';
+        inputEl.style.left = left + 'px';
         inputEl.style.right = '0px';
-        inputEl.style.zIndex = '2147483646';
+        inputEl.style.zIndex = '2147483647';
         inputEl.style.boxSizing = 'border-box';
-        // forzar reflow mínimo
-        inputEl.getBoundingClientRect();
         return inputEl;
-    }
-
-    function ensureMessageContainerPadding(inputEl) {
-        const msgSel = 'section[data-testid="stChatMessageContainer"]';
-        const msgEl = document.querySelector(msgSel);
-        if (!msgEl) return null;
-        const inputH = (inputEl ? inputEl.getBoundingClientRect().height : 120);
-        // dejar espacio extra para que nunca tape mensajes
-        msgEl.style.paddingBottom = (inputH + 40) + 'px';
-        msgEl.style.maxHeight = 'calc(100vh - ' + (inputH + 80) + 'px)';
-        return msgEl;
-    }
-
-    function scrollChatToBottom(msgEl, smooth = true) {
-        if (!msgEl) return;
-        try {
-        msgEl.scrollTo({
-            top: msgEl.scrollHeight,
-            behavior: smooth ? 'smooth' : 'auto'
-        });
         } catch (e) {
-        msgEl.scrollTop = msgEl.scrollHeight;
+        console.error("[CHAT-FIX] Error en moveAndFixInput:", e);
+        return null;
         }
     }
 
-    // Observador para mensajes nuevos (auto-scroll)
-    let msgObserver = null;
-    function observeMessagesAndAutoScroll() {
-        const msgSel = 'section[data-testid="stChatMessageContainer"]';
-        const msgEl = document.querySelector(msgSel);
-        if (!msgEl) return;
+    function adjustMessageContainer(inputEl) {
+        try {
+        const msgEl = queryFirst(msgSelectors);
+        if (!msgEl) { console.debug("[CHAT-FIX] Contenedor de mensajes no hallado (aún)"); return null; }
 
-        // desconectar previo si existe
+        const inputH = inputEl ? Math.round(inputEl.getBoundingClientRect().height) : 120;
+        msgEl.style.paddingBottom = (inputH + 50) + 'px';
+        msgEl.style.maxHeight = 'calc(100vh - ' + (inputH + 100) + 'px)';
+        return msgEl;
+        } catch (e) {
+        console.error("[CHAT-FIX] Error en adjustMessageContainer:", e);
+        return null;
+        }
+    }
+
+    function scrollToBottom(msgEl, smooth=true) {
+        try {
+        if (!msgEl) return;
+        msgEl.scrollTo({ top: msgEl.scrollHeight, behavior: smooth ? 'smooth' : 'auto' });
+        } catch (e) {
+        try { msgEl.scrollTop = msgEl.scrollHeight; } catch(_) {}
+        }
+    }
+
+    // Observador de mensajes (auto-scroll)
+    let msgObserver = null;
+    function observeMessages(msgEl) {
+        if (!msgEl) return;
         if (msgObserver) {
-        try { msgObserver.disconnect(); } catch(e) {}
+        try { msgObserver.disconnect(); } catch(e){}
         msgObserver = null;
         }
-
         msgObserver = new MutationObserver((mutations) => {
         for (const m of mutations) {
             if (m.addedNodes && m.addedNodes.length) {
-            // pequeño timeout para esperar render interno de Streamlit
-            setTimeout(() => scrollChatToBottom(msgEl, true), 30);
+            setTimeout(() => scrollToBottom(msgEl, true), 30);
             break;
             }
         }
         });
-
         msgObserver.observe(msgEl, { childList: true, subtree: true });
-        // bajar al iniciar
-        setTimeout(() => scrollChatToBottom(msgEl, false), 60);
+        setTimeout(() => scrollToBottom(msgEl, false), 60);
+        console.debug("[CHAT-FIX] Observador de mensajes activo");
     }
 
-    // Observador del body para reaplicar cada vez que Streamlit re-renderiza DOM
-    const globalObserver = new MutationObserver(() => {
-        const inputEl = moveInputToBodyAndFix();
-        ensureMessageContainerPadding(inputEl);
-        observeMessagesAndAutoScroll();
-    });
-    globalObserver.observe(document.body, { childList: true, subtree: true });
-
-    // Reaplicar también periódicamente por si acaso (no recarga servidor)
-    setInterval(() => {
-        const inputEl = moveInputToBodyAndFix();
-        ensureMessageContainerPadding(inputEl);
-        observeMessagesAndAutoScroll();
-    }, 700);
-
-    // Primer intento al cargar
-    window.addEventListener('load', () => {
-        const inputEl = moveInputToBodyAndFix();
-        ensureMessageContainerPadding(inputEl);
-        observeMessagesAndAutoScroll();
+    // Observador global para reaplicar cuando Streamlit re-renderiza
+    const globalObserver = new MutationObserver((mutations) => {
+        const inputEl = moveAndFixInput();
+        const msgEl = adjustMessageContainer(inputEl);
+        if (msgEl) observeMessages(msgEl);
     });
 
-    // Ajustar si cambía tamaño ventana (sidebar puede cambiar)
-    window.addEventListener('resize', () => {
-        const inputEl = document.querySelector('[data-testid="stChatInputContainer"]');
-        if (inputEl) {
-        inputEl.style.left = getSidebarWidth() + 'px';
-        // reajustar padding contenedor
-        ensureMessageContainerPadding(inputEl);
+    // Reintentos con backoff si no encuentra elementos (hasta X ms)
+    function startRobustLoop() {
+        let attempts = 0;
+        const maxAttempts = 120; // ~84s con el setInterval
+        const iv = setInterval(() => {
+        attempts++;
+        const inputEl = moveAndFixInput();
+        const msgEl = adjustMessageContainer(inputEl);
+        if (msgEl) observeMessages(msgEl);
+
+        if (document.body && !globalObserver) {
+            try {
+            globalObserver.observe(document.body, { childList: true, subtree: true });
+            } catch(e){}
         }
+
+        if (attempts >= maxAttempts) {
+            clearInterval(iv);
+            console.warn("[CHAT-FIX] Máximos intentos alcanzados; si no funciona, mirá la consola para debug.");
+        }
+        }, 700);
+    }
+
+    // Forzar corrección al hacer click en botones importantes (ej: Guardar)
+    function attachButtonsHook() {
+        document.addEventListener('click', (ev) => {
+        try {
+            const target = ev.target;
+            if (!target) return;
+            // detecta botones con emoji o textos frecuentes
+            const text = (target.innerText || '').toLowerCase();
+            if (text.includes('guardar') || text.includes('save') || text.includes('cargar') || text.includes('nuevo chat')) {
+            setTimeout(() => {
+                const inputEl = moveAndFixInput();
+                const msgEl = adjustMessageContainer(inputEl);
+                if (msgEl) scrollToBottom(msgEl, false);
+                console.debug("[CHAT-FIX] Trigger por botón: reaplicado");
+            }, 120);
+            }
+        } catch(e) { /* ignore */ }
+        }, true);
+    }
+
+    // Resize listener
+    window.addEventListener('resize', () => {
+        const inputEl = queryFirst(inputSelectors);
+        if (inputEl) inputEl.style.left = getSidebarWidth() + 'px';
     });
+
+    // Inicio
+    window.addEventListener('load', () => {
+        console.debug("[CHAT-FIX] load -> iniciando loop");
+        moveAndFixInput();
+        adjustMessageContainer(queryFirst(inputSelectors));
+        startRobustLoop();
+        attachButtonsHook();
+    });
+
+    // También arrancar inmediatamente (en caso de hot reload)
+    moveAndFixInput();
+    adjustMessageContainer(queryFirst(inputSelectors));
+    startRobustLoop();
+    attachButtonsHook();
 
     })();
     </script>
 """, unsafe_allow_html=True)
+
 
 
 class CharacterCreatorApp:
@@ -255,6 +305,23 @@ class CharacterCreatorApp:
         except Exception as e:
             st.error(f"Error al crear el personaje: {str(e)}")
 
+ # ===================== Guardar personaje =====================
+    def save_character(self, character_instance):
+        characters_folder = "characters"
+        if not os.path.exists(characters_folder):
+            os.makedirs(characters_folder)
+        filename = f"{character_instance.name}.json"
+        filepath = os.path.join(characters_folder, filename)
+        data = {
+            "name": character_instance.name,
+            "personality": character_instance.personality,
+            "greeting": character_instance.greeting,
+            "profile_image_path": character_instance.profile_image_path,
+            "model_name": character_instance.model_name
+        }
+        with open(filepath, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+            
     # ===================== Interfaz de creación de personaje =====================
     def render_character_creator(self, available_images):
         st.subheader("🧠 Crear Personaje")
@@ -454,6 +521,7 @@ class CharacterCreatorApp:
             st.success("📂 Chat cargado correctamente.")
         except Exception as e:
             st.error(f"⚠ Error cargando chat: {e}")
+
 
     # ===================== Main =====================
     def run(self):
