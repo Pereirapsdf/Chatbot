@@ -89,15 +89,14 @@ section.main > div {
 
 /* --- Chat input fijo --- */
 .stChatInputContainer {
-  position: fixed !important;
+  position: sticky !important;
   bottom: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
-  z-index: 999 !important;
   background-color: #0e1117 !important;
   padding: 1rem !important;
   border-top: 1px solid #262730 !important;
+  z-index: 10 !important;
 }
+
 
 .stChatInput {
   max-width: 900px !important;
