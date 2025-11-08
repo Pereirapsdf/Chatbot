@@ -510,29 +510,32 @@ class CharacterCreatorApp:
         try:
             with open(selected_file, "r", encoding="utf-8") as f:
                 messages = json.load(f)
+            
             st.session_state.messages = messages
             
             # Restaurar el personaje
             if messages:
+                # Encuentra el primer mensaje con el rol del personaje
                 first_message = next(
-                    (m for m in messages if m.get("role") == "assistant"), None
+                    (m for m in messages if m.get("role") != "user"), None
                 )
+                
                 if first_message:
-                    name = first_message.get("character", "Personaje")
+                    name = first_message.get("character", "Desconocido")
                     avatar_path = first_message.get("avatar_path", None)
                     st.session_state.current_character = name
                     st.session_state.character_instance = CharacterAI(
                         name=name,
-                        personality="(restaurado desde chat guardado)",
-                        greeting="(continuación de conversación anterior)",
+                        personality=first_message.get("role", "(sin personalidad)"),
+                        greeting="(continuación del chat guardado)",  # Puedes restaurar el saludo original si lo guardas en el JSON
                         profile_image_path=avatar_path,
-                        model_name=self.available_models[0] if self.available_models else "unknown"
+                        model_name="Desconocido"  # El modelo puede ser restaurado también si lo deseas
                     )
                     st.session_state.creator_mode = False
             
             st.success("📂 Chat cargado correctamente.")
         except Exception as e:
-            st.error(f"⚠ Error cargando chat: {e}")
+        st.error(f"⚠ Error cargando chat: {e}")
 
 
     def render_chatbots_interface(self):
