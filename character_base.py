@@ -5,13 +5,13 @@ from dotenv import load_dotenv
 load_dotenv()
 
 class CharacterAI:
-    def __init__(self, name, personality, greeting, profile_image_path=None, model_name=None):
+    def __init__(self, name, personality, greeting, profile_image_path=None, model_name="gemini-2.0-flash"):
         self.name = name
         self.personality = personality
         self.greeting = greeting
         self.profile_image_path = profile_image_path  # ✅ Nombre corregido
         self.conversation_history = []
-        
+        self.model_name = model_name
         # Configurar la API
         genai.configure(api_key=os.getenv('GOOGLE_API_KEY'))
         
