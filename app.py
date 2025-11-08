@@ -288,6 +288,11 @@ class CharacterCreatorApp:
             # Forzamos que siempre se use el modelo 'gemini-2.0-flash'
             model_name = "gemini-2.0-flash"
 
+            # Validar que el modelo sea uno de los modelos permitidos
+            valid_models = ["gemini-2.0-flash", "gemini-2.5-flash-lite", "gemini-flash-lite-latest"]
+            if model_name not in valid_models:
+                raise ValueError(f"El modelo '{model_name}' no es válido. Usa uno de los modelos disponibles: {', '.join(valid_models)}")
+
             # Crear la instancia del personaje con el modelo fijo
             st.session_state.character_instance = CharacterAI(
                 name=name,
@@ -297,9 +302,18 @@ class CharacterCreatorApp:
                 model_name=model_name  # Siempre el modelo gemini-2.0-flash
             )
 
-            # Guardar el personaje
-            self.save_character(st.session_state.character_instance)
+            st.session_state.current_character = name
+            st.session_state.messages = [{
+                "role": personality,  # Usamos la personalidad como el role
+                "content": greeting,  # Contenido con el saludo
+                "character": name,
+                "avatar_path": profile_image_path
+            }]
+            
+            st.session_state.creator_mode = False  # Salimos del modo creador
             st.success(f"¡Personaje {name} creado exitosamente!")
+            st.rerun()
+
         except Exception as e:
             st.error(f"Error al crear el personaje: {str(e)}")
 
@@ -311,23 +325,23 @@ class CharacterCreatorApp:
         characters_folder = "characters"
         if not os.path.exists(characters_folder):
             os.makedirs(characters_folder)
-        
+
         filename = f"{character_instance.name}.json"
         filepath = os.path.join(characters_folder, filename)
-        
-        # Guardamos los datos del personaje, incluyendo el modelo
+
+        # Guardamos los datos del personaje (incluido el modelo)
         data = {
             "name": character_instance.name,
             "personality": character_instance.personality,
             "greeting": character_instance.greeting,
             "profile_image_path": character_instance.profile_image_path,
-            "model_name": character_instance.model_name,  # Aquí guardamos el modelo
-            "messages": st.session_state.messages  # Guardamos también los mensajes
+            "model_name": character_instance.model_name,  # Guardamos también el modelo
+            "messages": st.session_state.messages  # Guardamos los mensajes
         }
 
-        # Guardamos el archivo JSON con la información del personaje y su modelo
         with open(filepath, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
+
 
     # ===================== Interfaz de creación de personaje =====================
     def render_character_creator(self, available_images):
@@ -509,31 +523,22 @@ class CharacterCreatorApp:
         try:
             with open(selected_file, "r", encoding="utf-8") as f:
                 data = json.load(f)
-            
-            # Restaurar los mensajes
-            st.session_state.messages = data.get("messages", [])
-            
-            # Restaurar el personaje
-            st.session_state.current_character = data.get("character_name", "Desconocido")
-            avatar_path = data.get("profile_image_path", None)
-            model_name = data.get("model_name", "gemini-2.0-flash")  # Valor por defecto
 
-            valid_models = ["gemini-2.0-flash", "gemini-2.5-flash-lite", "gemini-flash-lite-latest"]
-            if model_name not in valid_models:
-                st.warning(f"⚠️ El modelo '{model_name}' no es válido. Se usará el modelo por defecto 'gemini-2.0-flash'.")
-                model_name = "gemini-2.0-flash"
+            # Recuperar los datos del archivo, incluyendo el modelo
+            model_name = data.get("model_name", "gemini-2.0-flash")  # Si no existe, usa el modelo por defecto
 
-            # Restaurar la instancia del personaje con el modelo válido
+            # Restaurar el personaje con el modelo recuperado
             st.session_state.character_instance = CharacterAI(
-                name=st.session_state.current_character,
-                personality="No especificada",  # Aquí puedes agregar la lógica para restaurar la personalidad si la guardas
-                greeting="(Continuación del chat guardado)",
-                profile_image_path=avatar_path,
-                model_name=model_name  # Usamos el modelo restaurado y validado
+                name=data["name"],
+                personality=data["personality"],  # Recupera la personalidad
+                greeting=data["greeting"],  # Saludo
+                profile_image_path=data["profile_image_path"],
+                model_name=model_name  # Restauramos el modelo correctamente
             )
 
-            st.session_state.creator_mode = False  # Ya no está en modo creador
-
+            # Restaurar los mensajes
+            st.session_state.messages = data["messages"]
+            
             st.success("📂 Chat cargado correctamente.")
         except Exception as e:
             st.error(f"⚠ Error cargando chat: {e}")
