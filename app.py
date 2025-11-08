@@ -285,6 +285,7 @@ class CharacterCreatorApp:
     # ===================== Crear personaje =====================
     def create_character(self, name, personality, greeting, profile_image_path, model_name=None):
         try:
+            # Crear una instancia de CharacterAI (presumiblemente un modelo de IA)
             st.session_state.character_instance = CharacterAI(
                 name=name,
                 personality=personality,
@@ -294,7 +295,7 @@ class CharacterCreatorApp:
             )
             st.session_state.current_character = name
             st.session_state.messages = [{
-                "role": "assistant",
+                "role": "character",  # Cambiar a "character" en lugar de "assistant"
                 "content": greeting,
                 "character": name,
                 "avatar_path": profile_image_path
@@ -304,6 +305,7 @@ class CharacterCreatorApp:
             st.rerun()
         except Exception as e:
             st.error(f"Error al crear el personaje: {str(e)}")
+
 
  # ===================== Guardar personaje =====================
     def save_character(self, character_instance):
