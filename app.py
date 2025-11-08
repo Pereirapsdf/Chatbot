@@ -524,7 +524,7 @@ class CharacterCreatorApp:
                 data = json.load(f)
 
             # Recuperar los datos del archivo, incluyendo el modelo
-            model_name = data.get("model_name", "gemini-2.0-flash")  # Si no existe, usa el modelo por defecto
+            model_name = data.get("gemini-2.0-flash", "gemini-2.0-flash")  # Si no existe, usa el modelo por defecto
 
             # Restaurar el personaje con el modelo recuperado
             st.session_state.character_instance = CharacterAI(
@@ -532,7 +532,7 @@ class CharacterCreatorApp:
                 personality=data["personality"],  # Recupera la personalidad
                 greeting=data["greeting"],  # Saludo
                 profile_image_path=data["profile_image_path"],
-                model_name=model_name  # Restauramos el modelo correctamente
+                model_name="gemini-2.0-flash " # Restauramos el modelo correctamente
             )
 
             # Restaurar los mensajes
