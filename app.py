@@ -288,11 +288,6 @@ class CharacterCreatorApp:
             # Forzamos que siempre se use el modelo 'gemini-2.0-flash'
             model_name = "gemini-2.0-flash"
 
-            # Validar que el modelo sea uno de los modelos permitidos
-            valid_models = ["gemini-2.0-flash", "gemini-2.5-flash-lite", "gemini-flash-lite-latest"]
-            if model_name not in valid_models:
-                raise ValueError(f"El modelo '{model_name}' no es válido. Usa uno de los modelos disponibles: {', '.join(valid_models)}")
-
             # Crear la instancia del personaje con el modelo fijo
             st.session_state.character_instance = CharacterAI(
                 name=name,
@@ -302,18 +297,9 @@ class CharacterCreatorApp:
                 model_name=model_name  # Siempre el modelo gemini-2.0-flash
             )
 
-            st.session_state.current_character = name
-            st.session_state.messages = [{
-                "role": personality,  # Usamos la personalidad como el role
-                "content": greeting,  # Contenido con el saludo
-                "character": name,
-                "avatar_path": profile_image_path
-            }]
-            
-            st.session_state.creator_mode = False  # Salimos del modo creador
+            # Guardar el personaje
+            self.save_character(st.session_state.character_instance)
             st.success(f"¡Personaje {name} creado exitosamente!")
-            st.rerun()
-
         except Exception as e:
             st.error(f"Error al crear el personaje: {str(e)}")
 
@@ -335,10 +321,11 @@ class CharacterCreatorApp:
             "personality": character_instance.personality,
             "greeting": character_instance.greeting,
             "profile_image_path": character_instance.profile_image_path,
-            "model_name": character_instance.model_name,  # Añadir el modelo
+            "model_name": character_instance.model_name,  # Aquí guardamos el modelo
             "messages": st.session_state.messages  # Guardamos también los mensajes
         }
 
+        # Guardamos el archivo JSON con la información del personaje y su modelo
         with open(filepath, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
 
