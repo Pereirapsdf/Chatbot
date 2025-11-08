@@ -266,29 +266,68 @@ class CharacterCreatorApp:
             st.warning("⚠️ No hay imagen seleccionada")
 
         st.markdown("---")
-        st.subheader("🖼️ Seleccionar Imagen")
+        st.subheader("🖼️ Seleccionar o Subir Imagen")
 
-        if available_images:
-            image_options = {os.path.basename(img): img for img in available_images}
+        # Tabs para seleccionar o subir
+        tab1, tab2 = st.tabs(["📂 Seleccionar existente", "⬆️ Subir nueva"])
 
-            cols = st.columns([1, 2, 1])
-            with cols[1]:
-                selected_image_name = st.radio(
-                    "Selecciona una imagen:",
-                    options=list(image_options.keys()),
-                    index=0,
-                    key="image_selector"
-                )
-                if selected_image_name:
-                    selected_image_path = image_options[selected_image_name]
-                    st.write("**Vista previa:**")
-                    self.display_image(selected_image_path, width=180)
+        with tab1:
+            if available_images:
+                image_options = {os.path.basename(img): img for img in available_images}
 
-                    if st.button("✅ Confirmar selección", key="confirm_selection"):
-                        st.session_state.selected_image = selected_image_path
+                cols = st.columns([1, 2, 1])
+                with cols[1]:
+                    selected_image_name = st.radio(
+                        "Selecciona una imagen:",
+                        options=list(image_options.keys()),
+                        index=0,
+                        key="image_selector"
+                    )
+                    if selected_image_name:
+                        selected_image_path = image_options[selected_image_name]
+                        st.write("**Vista previa:**")
+                        self.display_image(selected_image_path, width=180)
+
+                        if st.button("✅ Confirmar selección", key="confirm_selection"):
+                            st.session_state.selected_image = selected_image_path
+                            st.rerun()
+            else:
+                st.warning(f"📂 No hay imágenes en la carpeta '{self.images_folder}'")
+
+        with tab2:
+            uploaded_file = st.file_uploader(
+                "Sube una imagen para tu personaje:",
+                type=['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp'],
+                key="image_uploader"
+            )
+            
+            if uploaded_file is not None:
+                # Mostrar vista previa
+                st.write("**Vista previa:**")
+                image = Image.open(uploaded_file)
+                st.image(image, width=180)
+                
+                # Botón para guardar la imagen
+                if st.button("💾 Guardar y usar esta imagen", key="save_uploaded_image"):
+                    try:
+                        # Guardar la imagen en la carpeta
+                        file_path = os.path.join(self.images_folder, uploaded_file.name)
+                        
+                        # Si ya existe, agregar timestamp
+                        if os.path.exists(file_path):
+                            name, ext = os.path.splitext(uploaded_file.name)
+                            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+                            file_path = os.path.join(self.images_folder, f"{name}_{timestamp}{ext}")
+                        
+                        # Guardar la imagen
+                        image.save(file_path)
+                        
+                        # Seleccionar automáticamente
+                        st.session_state.selected_image = file_path
+                        st.success(f"✅ Imagen guardada como: {os.path.basename(file_path)}")
                         st.rerun()
-        else:
-            st.warning(f"📂 No hay imágenes en la carpeta '{self.images_folder}'")
+                    except Exception as e:
+                        st.error(f"❌ Error al guardar la imagen: {e}")
 
         st.markdown("---")
         st.subheader("📝 Datos del Personaje")
@@ -457,7 +496,8 @@ class CharacterCreatorApp:
 
                 available_images = self.get_available_images()
                 
-                if st.session_state.character_instance and not st.session_state.creator_mode:
+                # Verificar que haya personaje Y que NO esté en modo creador
+                if st.session_state.character_instance and not st.session_state.get("creator_mode", True):
                     self.render_chat_interface()
                 else:
                     self.render_character_creator(available_images)
