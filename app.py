@@ -540,16 +540,11 @@ class CharacterCreatorApp:
                         # Cargar los datos del archivo JSON
                         data = json.load(f)
 
-                        # Buscar el primer mensaje de tipo "assistant" para obtener la información del personaje
-                        assistant_message = next(
-                            (m for m in data if m.get("role") == "assistant"), None
-                        )
-                        if assistant_message:
-                            # Extraer datos del primer mensaje de "assistant"
-                            name = assistant_message.get("character", "Desconocido")
-                            image_path = assistant_message.get("avatar_path", "")
-                            personality = assistant_message.get("content", "")
-                            model_name = "Desconocido"  # El modelo no está en los mensajes, puedes agregarlo si lo tienes
+                        # Extraer datos del personaje guardado
+                        name = data.get("name", "Desconocido")
+                        image_path = data.get("profile_image_path", "")
+                        personality = data.get("personality", "")  # Extraer la personalidad
+                        model_name = data.get("model_name", "Desconocido")
 
                         # Mostrar el personaje en columnas
                         col1, col2, col3 = st.columns([1, 3, 1])
@@ -575,8 +570,8 @@ class CharacterCreatorApp:
                                     model_name=model_name
                                 )
                                 st.session_state.messages = [{
-                                    "role": "assistant",
-                                    "content": personality,
+                                    "role": "character",  # Aquí mantienes el rol correcto
+                                    "content": personality,  # Y usas la personalidad completa
                                     "character": name,
                                     "avatar_path": image_path
                                 }]
@@ -588,7 +583,6 @@ class CharacterCreatorApp:
                     st.error(f"❌ Error cargando chatbot desde el archivo {file_path}: {e}")
         else:
             st.info("No tienes chatbots creados aún. Crea uno desde 'Home'.")
-
 
 
     # ===================== Main =====================
