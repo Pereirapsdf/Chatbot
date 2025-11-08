@@ -18,18 +18,14 @@ st.set_page_config(
 # Script para mantener el botón de sidebar visible
 st.markdown("""
 <script>
-// Asegurar que el botón de colapsar sidebar sea visible
-document.addEventListener('DOMContentLoaded', function() {
-    const style = document.createElement('style');
-    style.innerHTML = `
-        [data-testid="collapsedControl"] {
-            display: block !important;
-            visibility: visible !important;
-            opacity: 1 !important;
-        }
-    `;
-    document.head.appendChild(style);
-});
+setInterval(() => {
+    const btn = document.querySelector('[data-testid="collapsedControl"]');
+    if (btn) {
+        btn.style.display = 'flex';
+        btn.style.visibility = 'visible';
+        btn.style.opacity = '1';
+    }
+}, 100);
 </script>
 """, unsafe_allow_html=True)
 
