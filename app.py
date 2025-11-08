@@ -508,33 +508,31 @@ class CharacterCreatorApp:
     def load_chat_history(self, selected_file):
         try:
             with open(selected_file, "r", encoding="utf-8") as f:
-                messages = json.load(f)
+                data = json.load(f)
             
-            st.session_state.messages = messages
+            # Restaurar los mensajes
+            st.session_state.messages = data.get("messages", [])
             
             # Restaurar el personaje
-            if messages:
-                # Encuentra el primer mensaje con el rol del personaje
-                first_message = next(
-                    (m for m in messages if m.get("role") != "user"), None
-                )
-                
-                if first_message:
-                    name = first_message.get("character", "Desconocido")
-                    avatar_path = first_message.get("avatar_path", None)
-                    st.session_state.current_character = name
-                    st.session_state.character_instance = CharacterAI(
-                        name=name,
-                        personality=first_message.get("role", "(sin personalidad)"),
-                        greeting="(continuación del chat guardado)",  # Puedes restaurar el saludo original si lo guardas en el JSON
-                        profile_image_path=avatar_path,
-                        model_name="Desconocido"  # El modelo puede ser restaurado también si lo deseas
-                    )
-                    st.session_state.creator_mode = False
-            
+            st.session_state.current_character = data.get("character_name", "Desconocido")
+            avatar_path = data.get("profile_image_path", None)
+            model_name = data.get("model_name", "gemini-2.0-flash")  # Usamos un valor predeterminado si no hay modelo
+
+            # Restaurar la instancia del personaje
+            st.session_state.character_instance = CharacterAI(
+                name=st.session_state.current_character,
+                personality="No especificada",  # Aquí puedes agregar la lógica para restaurar la personalidad si la guardas
+                greeting="(Continuación del chat guardado)",
+                profile_image_path=avatar_path,
+                model_name=model_name  # Usamos el modelo restaurado
+            )
+
+            st.session_state.creator_mode = False  # Ya no está en modo creador
+
             st.success("📂 Chat cargado correctamente.")
         except Exception as e:
             st.error(f"⚠ Error cargando chat: {e}")
+
 
     def render_chatbots_interface(self):
         st.title("🤖 Mis Chatbots")
