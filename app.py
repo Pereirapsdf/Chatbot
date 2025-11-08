@@ -16,71 +16,71 @@ st.set_page_config(
 )
 
 st.markdown("""
-    <style>
-    /* (puedes mantener aquí CSS adicional o importarlo desde styles.css) */
-    </style>
+        <style>
+            /* (puedes mantener aquí CSS adicional o importarlo desde styles.css) */
+        </style>
 
-    <script>
-    (function() {
-    // Función que realiza el ajuste
-    function fixChatInput() {
-        const inputSelector = '[data-testid="stChatInputContainer"]';
-        const messageContainerSelector = 'section[data-testid="stChatMessageContainer"]';
-        const sidebarSelector = 'section[data-testid="stSidebar"]';
+        <script>
+            (function() {
+             // Función que realiza el ajuste
+             function fixChatInput() {
+                    const inputSelector = '[data-testid="stChatInputContainer"]';
+                    const messageContainerSelector = 'section[data-testid="stChatMessageContainer"]';
+                    const sidebarSelector = 'section[data-testid="stSidebar"]';
 
-        const inputEl = document.querySelector(inputSelector);
-        const msgEl = document.querySelector(messageContainerSelector);
-        const sidebar = document.querySelector(sidebarSelector);
+                    const inputEl = document.querySelector(inputSelector);
+                    const msgEl = document.querySelector(messageContainerSelector);
+                    const sidebar = document.querySelector(sidebarSelector);
 
-        if (!inputEl) return;
+                    if (!inputEl) return;
 
-        // Mover input al body si no está ya
-        if (inputEl.parentElement !== document.body) {
-        document.body.appendChild(inputEl);
-        }
+                    // Mover input al body si no está ya
+                    if (inputEl.parentElement !== document.body) {
+                    document.body.appendChild(inputEl);
+                    }
 
-        // Calcular left para evitar superposición con la sidebar
-        const sidebarWidth = sidebar ? sidebar.getBoundingClientRect().width : 0;
-        inputEl.style.left = (sidebarWidth) + 'px';
-        inputEl.style.right = '0px';
-        inputEl.style.position = 'fixed';
-        inputEl.style.bottom = '0px';
-        inputEl.style.zIndex = 2147483647;
-        inputEl.style.boxSizing = 'border-box';
+                    // Calcular left para evitar superposición con la sidebar
+                    const sidebarWidth = sidebar ? sidebar.getBoundingClientRect().width : 0;
+                    inputEl.style.left = (sidebarWidth) + 'px';
+                    inputEl.style.right = '0px';
+                    inputEl.style.position = 'fixed';
+                    inputEl.style.bottom = '0px';
+                    inputEl.style.zIndex = 2147483647;
+                    inputEl.style.boxSizing = 'border-box';
 
-        // Esperar a que el browser calcule height real
-        setTimeout(() => {
-        const inputHeight = inputEl.getBoundingClientRect().height || 120;
-        // Ajustar padding-bottom del contenedor de mensajes para que no queden ocultos
-        if (msgEl) {
-            // poner un padding-bottom mayor que la altura del input
-            msgEl.style.paddingBottom = (inputHeight + 40) + 'px';
-            // ajustar max-height por seguridad
-            msgEl.style.maxHeight = 'calc(100vh - ' + (inputHeight + 80) + 'px)';
-        }
+                    // Esperar a que el browser calcule height real
+                    setTimeout(() => {
+                    const inputHeight = inputEl.getBoundingClientRect().height || 120;
+                    // Ajustar padding-bottom del contenedor de mensajes para que no queden ocultos
+                    if (msgEl) {
+                        // poner un padding-bottom mayor que la altura del input
+                        msgEl.style.paddingBottom = (inputHeight + 40) + 'px';
+                        // ajustar max-height por seguridad
+                        msgEl.style.maxHeight = 'calc(100vh - ' + (inputHeight + 80) + 'px)';
+                    }
 
-        // También ajustar el main container block-container si existe
-        const block = document.querySelector('.main .block-container');
-        if (block) {
-            block.style.paddingBottom = (inputHeight + 80) + 'px';
-        }
-        }, 60);
-    }
+                    // También ajustar el main container block-container si existe
+                    const block = document.querySelector('.main .block-container');
+                    if (block) {
+                        block.style.paddingBottom = (inputHeight + 80) + 'px';
+                    }
+                    }, 60);
+            }
 
-    // Observador para cuando Streamlit vuelve a renderizar y recrea elementos
-    const observer = new MutationObserver((mutations) => {
-        // cada vez que cambia el body, intentar arreglar el input
-        fixChatInput();
-    });
+            // Observador para cuando Streamlit vuelve a renderizar y recrea elementos
+            const observer = new MutationObserver((mutations) => {
+                // cada vez que cambia el body, intentar arreglar el input
+                fixChatInput();
+            });
 
-    observer.observe(document.body, { childList: true, subtree: true });
+            observer.observe(document.body, { childList: true, subtree: true });
 
-    // Ejecutar una vez al inicio
-    window.addEventListener('load', fixChatInput);
-    // Ejecutar periódicamente por si acaso (pequeña guardia)
-    setInterval(fixChatInput, 800);
-    })();
-    </script>
+            // Ejecutar una vez al inicio
+            window.addEventListener('load', fixChatInput);
+            // Ejecutar periódicamente por si acaso (pequeña guardia)
+            setInterval(fixChatInput, 800);
+            })();
+            </script>
 """, unsafe_allow_html=True)
 
 class CharacterCreatorApp:
@@ -381,8 +381,13 @@ class CharacterCreatorApp:
                                 st.session_state.active_menu = "home"
                                 st.rerun()
                     with col2:
-                        if st.button("💾 Guardar chat actual", use_container_width=True):
-                            self.save_chat_history()
+                        if st.button("🗑️ Eliminar chat", use_container_width=True):
+                            try:
+                                os.remove(file_to_load)
+                                st.success(f"✅ Chat eliminado: {os.path.basename(file_to_load)}")
+                                st.rerun()
+                            except Exception as e:
+                                st.error(f"❌ Error al eliminar: {e}")
                 else:
                     st.info("No hay chats disponibles.")
 
