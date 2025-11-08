@@ -16,6 +16,16 @@ st.set_page_config(
 )
 
 # Script para mantener el botón de sidebar visible
+st.markdown("""
+<style>
+[data-testid="collapsedControl"] {
+    display: none !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
+
+
 
 class CharacterCreatorApp:
     def __init__(self):
