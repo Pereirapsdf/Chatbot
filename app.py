@@ -223,52 +223,81 @@ class CharacterCreatorApp:
             })
 
     def run(self):
-        self.apply_custom_style()
-        self.initialize_session_state()
+         self.apply_custom_style()
+         self.initialize_session_state()
 
-        # Cabecer
-        st.title("🎭 Character AI Creator")
-        st.caption("Crea, personaliza y conversa con tus personajes de IA")
-        
-        # Input oculto para recibir el cambio de pestaña
-        tab_create, tab_chat, tab_saved = st.tabs(["🧠 Crear Personaje", "💬 Chat", "📂 Chats Guardados"])
+            # === Barra lateral ===
+         st.sidebar.title("📋 Menú principal")
+         menu = st.sidebar.radio(
+                "Navegación",
+                ["🏠 Home", "💬 Chats", "🤖 Chatbots"],
+                label_visibility="collapsed"
+            )
 
-        with tab_create:
-            available_images = self.get_available_images()
-            st.subheader("🧠 Crear Nuevo Personaje")
-            self.render_character_creator(available_images)
+        # === HOME ===
+         if menu == "🏠 Home":
+            st.title("🎭 Character AI Creator")
+            st.caption("Crea, personaliza y conversa con tus personajes de IA")
 
-        with tab_chat:
-            if st.session_state.character_instance and not st.session_state.creator_mode:
-                self.render_chat_interface()
-            else:
-                st.info("💡 Crea un personaje primero en la pestaña '🧠 Crear Personaje'")
+            tab_create, tab_chat, tab_saved = st.tabs(["🧠 Crear Personaje", "💬 Chat", "📂 Chats Guardados"])
 
-        with tab_saved:
-            st.subheader("📂 Chats Guardados")
+            with tab_create:
+                available_images = self.get_available_images()
+                st.subheader("🧠 Crear Nuevo Personaje")
+                self.render_character_creator(available_images)
+
+            with tab_chat:
+                if st.session_state.character_instance and not st.session_state.creator_mode:
+                    self.render_chat_interface()
+                else:
+                    st.info("💡 Crea un personaje primero en la pestaña '🧠 Crear Personaje'")
+
+            with tab_saved:
+                st.subheader("📂 Chats Guardados")
+                saved_files = sorted(glob.glob(f"{self.chats_folder}/*.json"))
+                if saved_files:
+                    file_to_load = st.selectbox("Selecciona un chat guardado:", saved_files)
+                    if st.button("✅ Cargar Chat Guardado"):
+                        with st.spinner("Cargando conversación..."):
+                            self.load_chat_history(file_to_load)
+                            if st.session_state.messages:
+                                first_message = next(
+                                    (m for m in st.session_state.messages if m.get("role") == "assistant"), None
+                                )
+                                if first_message:
+                                    name = first_message.get("character", "Personaje")
+                                    avatar_path = first_message.get("avatar_path", None)
+                                    st.session_state.current_character = name
+                                    st.session_state.character_instance = CharacterAI(
+                                        name=name,
+                                        personality="(restaurado desde chat guardado)",
+                                        greeting="(continuación de conversación anterior)",
+                                        profile_image_path=avatar_path,
+                                        model_name=self.available_models[0] if self.available_models else "unknown"
+                                    )
+                                    st.session_state.creator_mode = False
+                                    st.success(f"💬 Chat de {name} restaurado correctamente.")
+                                    st.rerun()
+                else:
+                    st.info("Aún no hay chats guardados.")
+
+        # === CHATS ===
+         elif menu == "💬 Chats":
+            st.title("💬 Chats guardados")
             saved_files = sorted(glob.glob(f"{self.chats_folder}/*.json"))
             if saved_files:
-                file_to_load = st.selectbox("Selecciona un chat guardado:", saved_files)
-                if st.button("✅ Cargar Chat Guardado"):
-                    self.load_chat_history(file_to_load)
-                    if st.session_state.messages:
-                        first_message = next((m for m in st.session_state.messages if m.get("role") == "assistant"), None)
-                        if first_message:
-                            name = first_message.get("character", "Personaje")
-                            avatar_path = first_message.get("avatar_path", None)
-                            st.session_state.current_character = name
-                            st.session_state.character_instance = CharacterAI(
-                                name=name,
-                                personality="(restaurado desde chat guardado)",
-                                greeting="(continuación de conversación anterior)",
-                                profile_image_path=avatar_path,
-                                model_name=self.available_models[0] if self.available_models else "unknown"
-                            )
-                            st.session_state.creator_mode = False
-                            st.success(f"💬 Chat de {name} restaurado correctamente.")
-                            st.rerun()
+                file_to_load = st.selectbox("Selecciona un chat:", saved_files)
+                if st.button("📂 Cargar chat"):
+                    with st.spinner("Cargando chat..."):
+                        self.load_chat_history(file_to_load)
             else:
-                st.info("Aún no hay chats guardados.")
+                st.info("No hay chats disponibles.")
+
+        # === CHATBOTS ===
+         elif menu == "🤖 Chatbots":
+            st.title("🤖 Mis Chatbots")
+            st.write("Aquí podrás listar, crear o gestionar tus chatbots.")
+       
       
 
 
