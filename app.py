@@ -427,7 +427,8 @@ class CharacterCreatorApp:
                 elif not st.session_state.selected_image:
                     st.error("⚠ Selecciona una imagen")
                 else:
-                    self.create_character(name, personality, greeting, st.session_state.selected_image, selected_model)
+                    self.create_character(name, personality, greeting, st.session_state.selected_image)
+
 
     # ===================== Interfaz de chat =====================
     def render_chat_interface(self):
