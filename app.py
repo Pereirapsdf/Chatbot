@@ -18,13 +18,17 @@ st.set_page_config(
 # Este script asegura que el botón de colapsar nunca sea visible
 st.markdown("""
     <style>
-    /* Oculta el botón de colapsar completamente */
+    /* Esconde permanentemente el botón de colapsar el sidebar */
     button[aria-label="Toggle sidebar"] {
         display: none !important;
     }
+    /* Forzar sidebar siempre expandido */
+    .css-1d391kg {   /* Clase contenedor del sidebar */
+        transform: none !important;
+        margin-left: 0px !important;
+    }
     </style>
 """, unsafe_allow_html=True)
-
 
 class CharacterCreatorApp:
     def __init__(self):
