@@ -21,7 +21,8 @@ class CharacterCreatorApp:
         self.chats_folder = "saved_chats"
         self.create_images_folder()
         self.create_chats_folder()
-        
+
+    # ===================== Carpetas =====================
     def create_images_folder(self):
         if not os.path.exists(self.images_folder):
             os.makedirs(self.images_folder)
@@ -29,7 +30,8 @@ class CharacterCreatorApp:
     def create_chats_folder(self):
         if not os.path.exists(self.chats_folder):
             os.makedirs(self.chats_folder)
-    
+
+    # ===================== Obtener recursos =====================
     def get_available_images(self):
         image_extensions = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp']
         available_images = []
@@ -37,25 +39,17 @@ class CharacterCreatorApp:
             available_images.extend(glob.glob(f"{self.images_folder}/*.{ext}"))
             available_images.extend(glob.glob(f"{self.images_folder}/*.{ext.upper()}"))
         return available_images
-    
+
     def get_available_models(self):
         try:
             genai.configure(api_key=os.getenv('GOOGLE_API_KEY'))
-            return ["models/gemini-2.0-flash", "models/gemini-2.0-flash-lite","models/gemini-2.5-flash-lite","models/gemini-flash-lite-latest"] 
+            return ["models/gemini-2.0-flash", "models/gemini-2.0-flash-lite",
+                    "models/gemini-2.5-flash-lite","models/gemini-flash-lite-latest"]
         except Exception as e:
             st.error(f"Error conectando a la API: {e}")
             return []
-    
-    def display_image(self, image_path, width=100):
-        try:
-            if image_path and os.path.exists(image_path):
-                image = Image.open(image_path)
-                st.image(image, width=width)
-            else:
-                st.warning("❌ Imagen no encontrada")
-        except Exception as e:
-            st.error(f"Error mostrando imagen: {e}")
-    
+
+    # ===================== Session state =====================
     def initialize_session_state(self):
         defaults = {
             "current_character": None,
@@ -68,96 +62,26 @@ class CharacterCreatorApp:
         for key, value in defaults.items():
             if key not in st.session_state:
                 st.session_state[key] = value
-    
-    def save_chat_history(self):
-        if not st.session_state.messages or not st.session_state.character_instance:
-            st.warning("⚠️ No hay conversación para guardar.")
-            return
 
-        filename = f"{st.session_state.current_character}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
-        filepath = os.path.join(self.chats_folder, filename)
-
-        try:
-            with open(filepath, "w", encoding="utf-8") as f:
-                json.dump(st.session_state.messages, f, ensure_ascii=False, indent=2)
-            st.success(f"💾 Chat guardado como `{filename}`")
-        except Exception as e:
-            st.error(f"❌ Error guardando chat: {e}")
-
-    def load_chat_history(self, selected_file):
-        try:
-            with open(selected_file, "r", encoding="utf-8") as f:
-                messages = json.load(f)
-            st.session_state.messages = messages
-            st.success("📂 Chat cargado correctamente.")
-        except Exception as e:
-            st.error(f"❌ Error cargando chat: {e}")
-
+    # ===================== Estilos =====================
     def apply_custom_style(self):
         css_path = os.path.join(os.path.dirname(__file__), "styles.css")
         if os.path.exists(css_path):
             with open(css_path) as f:
                 st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
-    def render_character_creator(self, available_images):
-        st.subheader("🧠 Crear Personaje")
-
-        if st.session_state.selected_image:
-            st.success(f"**Imagen seleccionada:** {os.path.basename(st.session_state.selected_image)}")
-            self.display_image(st.session_state.selected_image, width=120)
-        else:
-            st.warning("⚠️ No hay imagen seleccionada")
-
-        st.markdown("---")
-        st.subheader("🖼️ Seleccionar Imagen")
-
-        if available_images:
-            image_options = {os.path.basename(img): img for img in available_images}
-
-            if image_options:
-                cols = st.columns([1, 2, 1])
-                with cols[1]:
-                    selected_image_name = st.radio(
-                        "Selecciona una imagen:",
-                        options=list(image_options.keys()),
-                        index=0,
-                        key="image_selector"
-                    )
-
-                    if selected_image_name:
-                        selected_image_path = image_options[selected_image_name]
-                        st.write("**Vista previa:**")
-                        self.display_image(selected_image_path, width=180)
-
-                        if st.button("✅ Confirmar selección", key="confirm_selection"):
-                            st.session_state.selected_image = selected_image_path
-                            st.rerun()
+    # ===================== Mostrar imagen =====================
+    def display_image(self, image_path, width=100):
+        try:
+            if image_path and os.path.exists(image_path):
+                image = Image.open(image_path)
+                st.image(image, width=width)
             else:
-                st.warning("No hay imágenes disponibles")
-        else:
-            st.warning(f"📁 No hay imágenes en la carpeta '{self.images_folder}'")
-            st.info("Agrega imágenes PNG, JPG, JPEG, etc. en la carpeta")
+                st.warning("❌ Imagen no encontrada")
+        except Exception as e:
+            st.error(f"Error mostrando imagen: {e}")
 
-        st.markdown("---")
-        st.subheader("📝 Datos del Personaje")
-
-        with st.form("character_form"):
-            name = st.text_input("Nombre del Personaje:", placeholder="Ej: Merlin, Doctora Elena, etc.")
-            personality = st.text_area("Personalidad:", height=120)
-            greeting = st.text_area("Saludo Inicial:", height=80)
-            selected_model = None
-            if self.available_models:
-                selected_model = st.selectbox("Modelo de IA:", self.available_models, index=0)
-            create_btn = st.form_submit_button("🎭 Crear Personaje")
-
-            if create_btn:
-                if not name or not personality or not greeting:
-                    st.error("❌ Completa todos los campos")
-                elif not st.session_state.selected_image:
-                    st.error("❌ Selecciona una imagen")
-                else:
-                    self.create_character(name, personality, greeting, st.session_state.selected_image, selected_model)
-
+    # ===================== Crear personaje =====================
     def create_character(self, name, personality, greeting, profile_image_path, model_name=None):
         try:
             st.session_state.character_instance = CharacterAI(
@@ -175,12 +99,67 @@ class CharacterCreatorApp:
                 "avatar_path": profile_image_path
             }]
             st.session_state.creator_mode = False
-            st.success(f"¡Personaje {name} creado exitosamente! Redirigiendo al chat...")
             st.session_state.active_tab = "chat"
+            st.success(f"¡Personaje {name} creado exitosamente! Redirigiendo al chat...")
             st.rerun()
         except Exception as e:
             st.error(f"Error al crear el personaje: {str(e)}")
 
+    # ===================== Interfaz de creación de personaje =====================
+    def render_character_creator(self, available_images):
+        st.subheader("🧠 Crear Personaje")
+
+        if st.session_state.get("selected_image"):
+            st.success(f"**Imagen seleccionada:** {os.path.basename(st.session_state.selected_image)}")
+            self.display_image(st.session_state.selected_image, width=120)
+        else:
+            st.warning("⚠️ No hay imagen seleccionada")
+
+        st.markdown("---")
+        st.subheader("🖼️ Seleccionar Imagen")
+
+        if available_images:
+            image_options = {os.path.basename(img): img for img in available_images}
+
+            cols = st.columns([1, 2, 1])
+            with cols[1]:
+                selected_image_name = st.radio(
+                    "Selecciona una imagen:",
+                    options=list(image_options.keys()),
+                    index=0,
+                    key="image_selector"
+                )
+                if selected_image_name:
+                    selected_image_path = image_options[selected_image_name]
+                    st.write("**Vista previa:**")
+                    self.display_image(selected_image_path, width=180)
+
+                    if st.button("✅ Confirmar selección", key="confirm_selection"):
+                        st.session_state.selected_image = selected_image_path
+                        st.rerun()
+        else:
+            st.warning(f"📁 No hay imágenes en la carpeta '{self.images_folder}'")
+
+        st.markdown("---")
+        st.subheader("📝 Datos del Personaje")
+        with st.form("character_form"):
+            name = st.text_input("Nombre del Personaje:", placeholder="Ej: Merlin, Doctora Elena, etc.")
+            personality = st.text_area("Personalidad:", height=120)
+            greeting = st.text_area("Saludo Inicial:", height=80)
+            selected_model = None
+            if self.available_models:
+                selected_model = st.selectbox("Modelo de IA:", self.available_models, index=0)
+            create_btn = st.form_submit_button("🎭 Crear Personaje")
+
+            if create_btn:
+                if not name or not personality or not greeting:
+                    st.error("❌ Completa todos los campos")
+                elif not st.session_state.selected_image:
+                    st.error("❌ Selecciona una imagen")
+                else:
+                    self.create_character(name, personality, greeting, st.session_state.selected_image, selected_model)
+
+    # ===================== Interfaz de chat =====================
     def render_chat_interface(self):
         st.title("💬 Character AI Chat")
         st.markdown("---")
@@ -222,8 +201,37 @@ class CharacterCreatorApp:
                 "avatar_path": st.session_state.character_instance.profile_image_path
             })
 
+    # ===================== Guardar / Cargar chats =====================
+    def save_chat_history(self):
+        if not st.session_state.messages or not st.session_state.character_instance:
+            st.warning("⚠️ No hay conversación para guardar.")
+            return
+
+        filename = f"{st.session_state.current_character}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+        filepath = os.path.join(self.chats_folder, filename)
+
+        try:
+            with open(filepath, "w", encoding="utf-8") as f:
+                json.dump(st.session_state.messages, f, ensure_ascii=False, indent=2)
+            st.success(f"💾 Chat guardado como `{filename}`")
+        except Exception as e:
+            st.error(f"❌ Error guardando chat: {e}")
+
+    def load_chat_history(self, selected_file):
+        try:
+            with open(selected_file, "r", encoding="utf-8") as f:
+                messages = json.load(f)
+            st.session_state.messages = messages
+            st.success("📂 Chat cargado correctamente.")
+        except Exception as e:
+            st.error(f"❌ Error cargando chat: {e}")
+
+    # ===================== Main =====================
     def run(self):
-        # === Barra lateral ===
+        self.initialize_session_state()
+        self.apply_custom_style()
+
+        # Barra lateral
         st.sidebar.title("📋 Menú principal")
         menu = st.sidebar.radio(
             "Navegación",
@@ -231,7 +239,7 @@ class CharacterCreatorApp:
             label_visibility="collapsed"
         )
 
-        # === HOME ===
+        # ---------------- HOME ----------------
         if menu == "🏠 Home":
             st.title("🎭 Character AI Creator")
             st.caption("Crea, personaliza y conversa con tus personajes de IA")
@@ -239,7 +247,6 @@ class CharacterCreatorApp:
             tab_create, tab_chat, tab_saved = st.tabs(["🧠 Crear Personaje", "💬 Chat", "📂 Chats Guardados"])
 
             with tab_create:
-                st.subheader("🧠 Crear Nuevo Personaje")
                 available_images = self.get_available_images()
                 self.render_character_creator(available_images)
 
@@ -265,14 +272,20 @@ class CharacterCreatorApp:
                                     name = first_message.get("character", "Personaje")
                                     avatar_path = first_message.get("avatar_path", None)
                                     st.session_state.current_character = name
-                                    st.session_state.character_instance = True
+                                    st.session_state.character_instance = CharacterAI(
+                                        name=name,
+                                        personality="(restaurado desde chat guardado)",
+                                        greeting="(continuación de conversación anterior)",
+                                        profile_image_path=avatar_path,
+                                        model_name=self.available_models[0] if self.available_models else "unknown"
+                                    )
                                     st.session_state.creator_mode = False
                                     st.success(f"💬 Chat de {name} restaurado correctamente.")
                                     st.rerun()
                 else:
                     st.info("Aún no hay chats guardados.")
 
-        # === CHATS ===
+        # ---------------- CHATS ----------------
         elif menu == "💬 Chats":
             st.title("💬 Chats guardados")
             saved_files = sorted(glob.glob(f"{self.chats_folder}/*.json"))
@@ -284,18 +297,14 @@ class CharacterCreatorApp:
             else:
                 st.info("No hay chats disponibles.")
 
-        # === CHATBOTS ===
+        # ---------------- CHATBOTS ----------------
         elif menu == "🤖 Chatbots":
             st.title("🤖 Mis Chatbots")
             st.write("Aquí podrás listar, crear o gestionar tus chatbots.")
             st.button("➕ Crear nuevo chatbot")
             st.button("📦 Ver mis chatbots")
 
-          
-      
-
 
 if __name__ == "__main__":
     app = CharacterCreatorApp()
     app.run()
-
