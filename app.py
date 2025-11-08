@@ -6,6 +6,7 @@ import json
 from datetime import datetime
 from PIL import Image
 from character_base import CharacterAI
+from streamlit_autorefresh import st_autorefresh
 
 # Configurar página
 st.set_page_config(
@@ -302,6 +303,7 @@ class CharacterCreatorApp:
     def run(self):
         self.apply_custom_style()
         self.initialize_session_state()
+        st_autorefresh(interval=2000, key="auto_refresh")
 
         # === Layout principal con menú fijo a la izquierda ===
         col_menu, col_main = st.columns([1, 4])
