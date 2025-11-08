@@ -282,13 +282,13 @@ class CharacterCreatorApp:
             st.error(f"Error mostrando imagen: {e}")
 
     # ===================== Crear personaje =====================
-    def create_character(self, name, personality, greeting, profile_image_path):
+    def create_character(self, name, personality, greeting, profile_image_path,model_name):
         try:
             # Forzamos que siempre se use el modelo 'gemini-2.0-flash'
             model_name = "gemini-2.0-flash"
 
             # Validar que el modelo sea uno de los modelos permitidos
-            valid_models = ["gemini-2.0-flash", "gemini-2.5-flash-lite", "gemini-flash-lite-latest"]
+            valid_models = ["gemini-2.0-flash"]
             if model_name not in valid_models:
                 raise ValueError(f"El modelo '{model_name}' no es válido. Usa uno de los modelos disponibles: {', '.join(valid_models)}")
 
@@ -298,7 +298,7 @@ class CharacterCreatorApp:
                 personality=personality,  # Aquí se guarda la personalidad
                 greeting=greeting,
                 profile_image_path=profile_image_path,
-                model_name=model_name  # Siempre el modelo gemini-2.0-flash
+                model_name="gemini-2.0-flash"  # Siempre el modelo gemini-2.0-flash
             )
 
             st.session_state.current_character = name
