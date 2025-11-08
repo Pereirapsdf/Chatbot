@@ -320,6 +320,7 @@ class CharacterCreatorApp:
 
 
     # ===================== Guardar personaje =====================
+# Guardar los datos del personaje (incluyendo el modelo)
     def save_character(self, character_instance):
         characters_folder = "characters"
         if not os.path.exists(characters_folder):
@@ -328,22 +329,18 @@ class CharacterCreatorApp:
         filename = f"{character_instance.name}.json"
         filepath = os.path.join(characters_folder, filename)
         
-        # Guardamos los datos del personaje (no solo los mensajes)
+        # Guardamos los datos del personaje, incluyendo el modelo
         data = {
             "name": character_instance.name,
             "personality": character_instance.personality,
             "greeting": character_instance.greeting,
             "profile_image_path": character_instance.profile_image_path,
-            "model_name": character_instance.model_name,  # Guardar el nombre del modelo
+            "model_name": character_instance.model_name,  # Añadir el modelo
             "messages": st.session_state.messages  # Guardamos también los mensajes
         }
 
-        try:
-            with open(filepath, "w", encoding="utf-8") as f:
-                json.dump(data, f, ensure_ascii=False, indent=2)
-            st.success(f"✅ Personaje {character_instance.name} guardado correctamente")
-        except Exception as e:
-            st.error(f"❌ Error al guardar personaje: {str(e)}")
+        with open(filepath, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
 
     # ===================== Interfaz de creación de personaje =====================
     def render_character_creator(self, available_images):
