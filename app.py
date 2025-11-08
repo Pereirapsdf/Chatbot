@@ -222,6 +222,7 @@ class CharacterCreatorApp:
         self.chats_folder = "saved_chats"
         self.create_images_folder()
         self.create_chats_folder()
+        self.model_name = "gemini-2.0-flash"
 
     # ===================== Carpetas =====================
     def create_images_folder(self):
