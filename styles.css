@@ -83,24 +83,37 @@ section.main > div {
   padding-left: 2rem !important;
   padding-right: 2rem !important;
   padding-top: 2rem !important;
-  padding-bottom: 120px !important; /* espacio para input fijo */
+  padding-bottom: 200px !important; /* más espacio para evitar superposición */
   max-width: 100% !important;
 }
 
 /* --- Chat input fijo --- */
-.stChatInputContainer {
-  position: sticky !important;
+[data-testid="stChatInputContainer"] {
+  position: fixed !important;
   bottom: 0 !important;
+  left: 260px !important; /* deja espacio para la sidebar */
+  right: 0 !important;
   background-color: #0e1117 !important;
   padding: 1rem !important;
   border-top: 1px solid #262730 !important;
-  z-index: 10 !important;
+  z-index: 1000 !important;
 }
 
+/* Ajustar el campo de texto */
+[data-testid="stChatInputContainer"] textarea {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 20px !important;
+  color: #e5e7eb !important;
+  padding: 11px 14px !important;
+  transition: all 0.2s ease-in-out !important;
+}
 
-.stChatInput {
-  max-width: 900px !important;
-  margin: 0 auto !important;
+[data-testid="stChatInputContainer"] textarea:focus {
+  border-color: #5865f2 !important;
+  box-shadow: 0 0 0 2px rgba(88, 101, 242, 0.2) !important;
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  outline: none !important;
 }
 
 .stChatInput textarea {
@@ -121,9 +134,9 @@ section.main > div {
 
 /* --- Chat mensajes --- */
 section[data-testid="stChatMessageContainer"] {
-  max-height: calc(100vh - 250px) !important;
-  overflow-y: auto !important;
-  padding-bottom: 20px !important;
+   max-height: calc(100vh - 180px) !important;
+   overflow-y: auto !important;
+   padding-bottom: 220px !important; /* espacio para la barra fija */
 }
 
 div[data-testid="stChatMessage"] {
@@ -209,4 +222,9 @@ button:hover, .stButton > button:hover {
   section[data-testid="stChatMessageContainer"] {
     max-height: calc(100vh - 200px) !important;
   }
+}
+
+
+[data-testid="stAppViewContainer"] {
+  overflow: visible !important; 
 }
