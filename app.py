@@ -422,9 +422,11 @@ class CharacterCreatorApp:
             name = st.text_input("Nombre del Personaje:", placeholder="Ej: Merlin, Doctora Elena, etc.")
             personality = st.text_area("Personalidad:", height=120)
             greeting = st.text_area("Saludo Inicial:", height=80)
-            selected_model = None
-            if self.available_models:
-                selected_model = st.selectbox("Modelo de IA:", self.available_models, index=0)
+            
+            # Select model
+            selected_model = "gemini-2.0-flash"
+           
+            
             create_btn = st.form_submit_button("🎭 Crear Personaje")
 
             if create_btn:
@@ -432,8 +434,11 @@ class CharacterCreatorApp:
                     st.error("⚠ Completa todos los campos")
                 elif not st.session_state.selected_image:
                     st.error("⚠ Selecciona una imagen")
+                elif not selected_model:
+                    st.error("⚠ Selecciona un modelo")
                 else:
-                    self.create_character(name, personality, greeting, st.session_state.selected_image)
+                    # Pass selected model to the create_character method
+                    self.create_character(name, personality, greeting, st.session_state.selected_image, selected_model)
 
 
     # ===================== Interfaz de chat =====================
