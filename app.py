@@ -288,15 +288,15 @@ class CharacterCreatorApp:
             # Crear una instancia de CharacterAI (presumiblemente un modelo de IA)
             st.session_state.character_instance = CharacterAI(
                 name=name,
-                personality=personality,
+                personality=personality,  # Aquí se guarda la personalidad
                 greeting=greeting,
                 profile_image_path=profile_image_path,
                 model_name=model_name
             )
             st.session_state.current_character = name
             st.session_state.messages = [{
-                "role": "character",  # Cambiar a "character" en lugar de "assistant"
-                "content": greeting,
+                "role": personality,  # Usamos la personalidad como el role
+                "content": greeting,  # Contenido con el saludo
                 "character": name,
                 "avatar_path": profile_image_path
             }]
