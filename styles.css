@@ -1,13 +1,12 @@
-/* === 🎭 CHARACTER AI CREATOR - DARK MODERN STYLE === */
+/* === 🎭 CHARACTER AI CREATOR - DARK MODERN STYLE + CHAT FIXED === */
 
-/* Fondo principal oscuro */
+/* --- Fondo principal oscuro --- */
 [data-testid="stAppViewContainer"] {
   background: linear-gradient(165deg, #262a55,#222a7a, #2c38c0, #030b5e);
   color: #e5e7eb;
   font-family: "Inter", sans-serif;
   background-attachment: fixed;
 }
-
 
 /* --- Sidebar oscuro moderno --- */
 [data-testid="stSidebar"] {
@@ -16,19 +15,9 @@
   border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
   min-width: 260px !important;
   max-width: 260px !important;
+  padding-top: 1.5rem !important;
 }
 
-[data-testid="stSidebar"] > div:first-child {
-  padding: 1.5rem 1rem !important;
-}
-
-/* Botón de colapsar/expandir sidebar MUY VISIBLE */
-[data-testid="collapsedControl"] {
-  display: none !important;
-}
-
-
-/* Título del sidebar */
 [data-testid="stSidebar"] h1 {
   font-size: 16px !important;
   text-align: left !important;
@@ -38,7 +27,18 @@
   padding-left: 12px !important;
 }
 
-/* Botones del menú lateral - Estilo oscuro */
+[data-testid="stSidebar"] h3 {
+  font-size: 13px !important;
+  color: #72767d !important;
+  margin-top: 24px !important;
+  margin-bottom: 12px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  text-align: left !important;
+  padding-left: 12px !important;
+  font-weight: 600 !important;
+}
+
 [data-testid="stSidebar"] .stButton button {
   width: 100% !important;
   text-align: left !important;
@@ -62,17 +62,9 @@
   transform: translateX(4px) !important;
 }
 
-/* Subtítulo de secciones en sidebar */
-[data-testid="stSidebar"] h3 {
-  font-size: 13px !important;
-  color: #72767d !important;
-  margin-top: 24px !important;
-  margin-bottom: 12px !important;
-  text-transform: uppercase !important;
-  letter-spacing: 0.5px !important;
-  text-align: left !important;
-  padding-left: 12px !important;
-  font-weight: 600 !important;
+/* --- Ocultar botón de colapsar sidebar --- */
+[data-testid="collapsedControl"] {
+  display: none !important;
 }
 
 /* --- Contenedor principal --- */
@@ -87,107 +79,54 @@ section.main > div {
   border: 1px solid rgba(255, 255, 255, 0.05) !important;
 }
 
-/* Ajustar el contenido principal */
 .main .block-container {
   padding-left: 2rem !important;
   padding-right: 2rem !important;
+  padding-top: 2rem !important;
+  padding-bottom: 120px !important; /* espacio para input fijo */
   max-width: 100% !important;
 }
 
-/* --- Tipografía --- */
-h1 {
-  color: #ffffff !important;
-  font-weight: 700 !important;
-  text-align: center !important;
-  letter-spacing: -0.5px !important;
-  font-size: 2.5rem !important;
-  margin-bottom: 0.5rem !important;
+/* --- Chat input fijo --- */
+.stChatInputContainer {
+  position: fixed !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 999 !important;
+  background-color: #0e1117 !important;
+  padding: 1rem !important;
+  border-top: 1px solid #262730 !important;
 }
 
-h2 {
-  color: #ffffff !important;
-  font-weight: 600 !important;
-  text-align: center !important;
-  letter-spacing: -0.3px !important;
-  font-size: 1.8rem !important;
-}
-
-h3 {
-  color: #e5e7eb !important;
-  font-weight: 600 !important;
-  text-align: center !important;
-}
-
-p, span, label, textarea, input, div {
-  color: #d1d5db !important;
-  font-size: 16px !important;
-}
-
-/* Subtítulo */
-.css-10trblm, [data-testid="stCaption"] {
-  text-align: center !important;
-  color: #9ca3af !important;
-  font-size: 17px !important;
-  margin-bottom: 2rem !important;
-}
-
-/* --- Tabs (si las usas) --- */
-[data-baseweb="tab-list"] {
-  display: flex !important;
-  justify-content: center !important;
-  gap: 12px !important;
-  margin: 18px auto 26px auto !important;
-  flex-wrap: wrap !important;
-}
-
-button[data-baseweb="tab"] {
-  background: rgba(255,255,255,0.05) !important;
-  border: 1px solid rgba(255,255,255,0.08) !important;
-  color: #9ca3af !important;
-  font-weight: 600 !important;
-  border-radius: 10px !important;
-  padding: 12px 20px !important;
-  transition: all 0.25s ease !important;
-  min-width: 140px !important;
-}
-
-button[data-baseweb="tab"]:hover {
-  background: rgba(255,255,255,0.1) !important;
-  color: #e5e7eb !important;
-}
-
-button[data-baseweb="tab"][aria-selected="true"] {
-  background: linear-gradient(90deg, #5865f2, #4752c4) !important;
-  color: #fff !important;
-  box-shadow: 0 4px 20px rgba(88, 101, 242, 0.4) !important;
-  border-color: #5865f2 !important;
-}
-
-/* --- Formularios --- */
-.stForm, form {
-  width: 100% !important;
-  max-width: 800px !important;
+.stChatInput {
+  max-width: 900px !important;
   margin: 0 auto !important;
 }
 
-/* --- Alertas --- */
-.stAlert {
-  border-radius: 10px !important;
-  font-size: 15px !important;
-  padding: 12px 18px !important;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3) !important;
-  margin: 1rem auto !important;
-  max-width: 800px !important;
-  border-left: 3px solid !important;
+.stChatInput textarea {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 20px !important;
+  color: #e5e7eb !important;
+  padding: 11px 14px !important;
+  transition: all 0.2s ease-in-out !important;
 }
 
-.stAlert[data-baseweb="notification"] {
-  background-color: rgba(88, 101, 242, 0.15) !important;
-  border-left-color: #5865f2 !important;
-  color: #e0e7ff !important;
+.stChatInput textarea:focus {
+  border-color: #5865f2 !important;
+  box-shadow: 0 0 0 2px rgba(88, 101, 242, 0.2) !important;
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  outline: none !important;
 }
 
-/* --- Chat burbujas --- */
+/* --- Chat mensajes --- */
+section[data-testid="stChatMessageContainer"] {
+  max-height: calc(100vh - 250px) !important;
+  overflow-y: auto !important;
+  padding-bottom: 20px !important;
+}
+
 div[data-testid="stChatMessage"] {
   border-radius: 12px !important;
   padding: 12px 16px !important;
@@ -213,7 +152,17 @@ div[data-testid="stChatMessage"][data-testid*="assistant"] {
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
 }
 
-/* --- Botones modernos oscuros --- */
+.stChatMessage img {
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.stChatMessage [data-testid="stMarkdownContainer"] p {
+  color: #fafafa;
+  line-height: 1.6;
+}
+
+/* --- Botones generales --- */
 button, .stButton > button {
   border-radius: 10px !important;
   background: linear-gradient(135deg, #5865f2, #4752c4) !important;
@@ -230,153 +179,6 @@ button:hover, .stButton > button:hover {
   background: linear-gradient(135deg, #4752c4, #3c44a8) !important;
   box-shadow: 0 6px 25px rgba(88, 101, 242, 0.5) !important;
   transform: translateY(-2px) !important;
-}
-
-/* Botones de confirmación */
-.stButton {
-  display: flex !important;
-  justify-content: center !important;
-  margin: 1rem 0 !important;
-}
-
-/* --- Inputs oscuros --- */
-textarea, input, select, .stTextInput input, .stTextArea textarea, .stSelectbox select {
-  border-radius: 8px !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  background-color: rgba(255, 255, 255, 0.05) !important;
-  color: #e5e7eb !important;
-  transition: all 0.2s ease-in-out !important;
-  padding: 11px 14px !important;
-}
-
-textarea:focus, input:focus, select:focus {
-  border-color: #5865f2 !important;
-  box-shadow: 0 0 0 3px rgba(88, 101, 242, 0.2) !important;
-  background-color: rgba(255, 255, 255, 0.08) !important;
-  outline: none !important;
-}
-
-/* Labels */
-.stTextInput label, .stTextArea label, .stSelectbox label {
-  color: #e5e7eb !important;
-  font-weight: 500 !important;
-  margin-bottom: 8px !important;
-}
-
-/* Placeholder text */
-::placeholder {
-  color: #6b7280 !important;
-}
-
-/* --- Imágenes --- */
-.stImage {
-  display: flex !important;
-  justify-content: center !important;
-  margin: 1rem auto !important;
-}
-
-.stImage img {
-  display: block !important;
-  margin: 0 auto !important;
-  border-radius: 12px !important;
-  max-width: 220px !important;
-  transition: transform 0.25s ease !important;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
-  border: 2px solid rgba(255, 255, 255, 0.1) !important;
-}
-
-.stImage img:hover {
-  transform: scale(1.05) !important;
-  box-shadow: 0 6px 30px rgba(88, 101, 242, 0.3) !important;
-}
-
-/* --- Radio Buttons --- */
-[data-testid="stRadio"], .stRadio {
-  display: flex !important;
-  justify-content: center !important;
-  flex-direction: column !important;
-  align-items: center !important;
-  gap: 0.5rem !important;
-  margin: 1rem auto !important;
-}
-
-[data-testid="stRadio"] label {
-  background: rgba(255, 255, 255, 0.05) !important;
-  padding: 10px 16px !important;
-  border-radius: 8px !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  transition: all 0.2s ease !important;
-  cursor: pointer !important;
-  min-width: 200px !important;
-}
-
-[data-testid="stRadio"] label:hover {
-  background: rgba(255, 255, 255, 0.08) !important;
-  border-color: rgba(255, 255, 255, 0.2) !important;
-}
-
-[data-testid="stRadio"] label p {
-  color: #d1d5db !important;
-  font-weight: 500 !important;
-  margin: 0 !important;
-}
-
-/* --- Separadores --- */
-hr {
-  border: 0 !important;
-  height: 1px !important;
-  background: rgba(255, 255, 255, 0.1) !important;
-  margin: 25px auto !important;
-  max-width: 800px !important;
-}
-
-/* --- Columnas --- */
-.row-widget.stHorizontal {
-  gap: 1rem !important;
-}
-
-/* --- Spinner de carga --- */
-.stSpinner > div {
-  border-color: #5865f2 !important;
-  border-right-color: transparent !important;
-}
-
-/* --- Selectbox --- */
-.stSelectbox {
-  max-width: 800px !important;
-  margin: 0 auto !important;
-}
-
-/* --- Ocultar elementos innecesarios --- */
-#MainMenu {visibility: hidden;}
-footer {visibility: hidden;}
-header {visibility: hidden;}
-
-/* --- Chat input --- */
-.stChatInput {
-  max-width: 900px !important;
-  margin: 1rem auto !important;
-}
-
-.stChatInput textarea {
-  background: rgba(255, 255, 255, 0.05) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  border-radius: 10px !important;
-  color: #e5e7eb !important;
-}
-
-.stChatInput textarea:focus {
-  border-color: #5865f2 !important;
-  box-shadow: 0 0 0 2px rgba(88, 101, 242, 0.2) !important;
-}
-
-/* --- Ajustes finales de espaciado --- */
-.element-container {
-  margin-bottom: 1rem !important;
-}
-
-.block-container {
-  padding-top: 2rem !important;
 }
 
 /* --- Scrollbar oscuro --- */
@@ -400,27 +202,12 @@ header {visibility: hidden;}
   background: rgba(88, 101, 242, 0.7);
 }
 
-/* --- Warnings y mensajes --- */
-.stWarning {
-  background-color: rgba(251, 191, 36, 0.15) !important;
-  border-left-color: #fbbf24 !important;
-  color: #fef3c7 !important;
-}
-
-.stSuccess {
-  background-color: rgba(34, 197, 94, 0.15) !important;
-  border-left-color: #22c55e !important;
-  color: #d1fae5 !important;
-}
-
-.stError {
-  background-color: rgba(239, 68, 68, 0.15) !important;
-  border-left-color: #ef4444 !important;
-  color: #fee2e2 !important;
-}
-
-.stInfo {
-  background-color: rgba(59, 130, 246, 0.15) !important;
-  border-left-color: #3b82f6 !important;
-  color: #dbeafe !important;
+/* --- Responsive --- */
+@media (max-width: 768px) {
+  .stChatInputContainer {
+    padding: 0.5rem !important;
+  }
+  section[data-testid="stChatMessageContainer"] {
+    max-height: calc(100vh - 200px) !important;
+  }
 }
