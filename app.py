@@ -265,7 +265,7 @@ class CharacterCreatorApp:
         # === Barra lateral con botones ===
         with st.sidebar:
             st.title("📋 Menú principal")
-            st.caption("Usa el botón ◀ para colapsar/expandir")
+            
             
             # Botones de navegación
             if st.button("🏠 Home", key="btn_home", use_container_width=True):
