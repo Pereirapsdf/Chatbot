@@ -505,7 +505,6 @@ class CharacterCreatorApp:
             st.success(f"💾 Chat guardado como `{filename}`")
         except Exception as e:
             st.error(f"⚠ Error guardando chat: {e}")
-
     def load_chat_history(self, selected_file):
         try:
             with open(selected_file, "r", encoding="utf-8") as f:
@@ -535,7 +534,7 @@ class CharacterCreatorApp:
             
             st.success("📂 Chat cargado correctamente.")
         except Exception as e:
-        st.error(f"⚠ Error cargando chat: {e}")
+            st.error(f"⚠ Error cargando chat: {e}")
 
 
     def render_chatbots_interface(self):
