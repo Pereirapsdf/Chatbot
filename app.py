@@ -303,7 +303,7 @@ class CharacterCreatorApp:
     def run(self):
         self.apply_custom_style()
         self.initialize_session_state()
-        st_autorefresh(interval=3000, key="auto_refresh")
+        st_autorefresh(interval=5000, key="auto_refresh")
 
         # === Layout principal con menú fijo a la izquierda ===
         col_menu, col_main = st.columns([1, 4])
