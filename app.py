@@ -273,77 +273,81 @@ class CharacterCreatorApp:
         self.apply_custom_style()
         self.initialize_session_state()
 
-        # === Barra lateral con botones ===
-        with st.sidebar:
+        # === Layout principal con menú fijo a la izquierda ===
+        col_menu, col_main = st.columns([1, 4])
+
+        # === Menú izquierdo fijo ===
+        with col_menu:
             st.title("📋 Menú principal")
-            
-            
-            # Botones de navegación
+            st.caption("Siempre visible")
+
             if st.button("🏠 Home", key="btn_home", use_container_width=True):
                 st.session_state.active_menu = "home"
                 st.rerun()
-            
+
             if st.button("💬 Chats", key="btn_chats", use_container_width=True):
                 st.session_state.active_menu = "chats"
                 st.rerun()
-            
+
             if st.button("🤖 Chatbots", key="btn_chatbots", use_container_width=True):
                 st.session_state.active_menu = "chatbots"
                 st.rerun()
 
-        # === Contenido según menú seleccionado ===
-        menu = st.session_state.active_menu
+        # === Contenido principal según menú seleccionado ===
+        with col_main:
+            menu = st.session_state.active_menu
 
-        # === HOME ===
-        if menu == "home":
-            st.title("🎭 Character AI Creator")
-            st.caption("Crea, personaliza y conversa con tus personajes de IA")
+            # === HOME ===
+            if menu == "home":
+                st.title("🎭 Character AI Creator")
+                st.caption("Crea, personaliza y conversa con tus personajes de IA")
 
-            available_images = self.get_available_images()
-            
-            if st.session_state.character_instance and not st.session_state.creator_mode:
-                self.render_chat_interface()
-            else:
-                self.render_character_creator(available_images)
+                available_images = self.get_available_images()
+                
+                if st.session_state.character_instance and not st.session_state.creator_mode:
+                    self.render_chat_interface()
+                else:
+                    self.render_character_creator(available_images)
 
-        # === CHATS ===
-        elif menu == "chats":
-            st.title("💬 Chats guardados")
-            saved_files = sorted(glob.glob(f"{self.chats_folder}/*.json"))
-            if saved_files:
-                file_to_load = st.selectbox("Selecciona un chat:", saved_files)
-                col1, col2 = st.columns(2)
-                with col1:
-                    if st.button("📂 Cargar chat", use_container_width=True):
-                        with st.spinner("Cargando chat..."):
-                            self.load_chat_history(file_to_load)
+            # === CHATS ===
+            elif menu == "chats":
+                st.title("💬 Chats guardados")
+                saved_files = sorted(glob.glob(f"{self.chats_folder}/*.json"))
+                if saved_files:
+                    file_to_load = st.selectbox("Selecciona un chat:", saved_files)
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        if st.button("📂 Cargar chat", use_container_width=True):
+                            with st.spinner("Cargando chat..."):
+                                self.load_chat_history(file_to_load)
+                                st.session_state.active_menu = "home"
+                                st.rerun()
+                    with col2:
+                        if st.button("💾 Guardar chat actual", use_container_width=True):
+                            self.save_chat_history()
+                else:
+                    st.info("No hay chats disponibles.")
+
+            # === CHATBOTS ===
+            elif menu == "chatbots":
+                st.title("🤖 Mis Chatbots")
+                st.write("Aquí podrás listar, crear o gestionar tus chatbots.")
+                
+                if st.session_state.character_instance:
+                    st.subheader("Personaje Actual")
+                    col1, col2 = st.columns([1, 3])
+                    with col1:
+                        if os.path.exists(st.session_state.character_instance.profile_image_path):
+                            self.display_image(st.session_state.character_instance.profile_image_path, width=100)
+                    with col2:
+                        st.write(f"**Nombre:** {st.session_state.current_character}")
+                        st.write(f"**Modelo:** {st.session_state.character_instance.model_name}")
+                        if st.button("💬 Ir al chat", use_container_width=True):
                             st.session_state.active_menu = "home"
                             st.rerun()
-                with col2:
-                    if st.button("💾 Guardar chat actual", use_container_width=True):
-                        self.save_chat_history()
-            else:
-                st.info("No hay chats disponibles.")
+                else:
+                    st.info("No hay personajes creados todavía.")
 
-        # === CHATBOTS ===
-        elif menu == "chatbots":
-            st.title("🤖 Mis Chatbots")
-            st.write("Aquí podrás listar, crear o gestionar tus chatbots.")
-            
-            if st.session_state.character_instance:
-                st.subheader("Personaje Actual")
-                col1, col2 = st.columns([1, 3])
-                with col1:
-                    if os.path.exists(st.session_state.character_instance.profile_image_path):
-                        self.display_image(st.session_state.character_instance.profile_image_path, width=100)
-                with col2:
-                    st.write(f"**Nombre:** {st.session_state.current_character}")
-                    st.write(f"**Modelo:** {st.session_state.character_instance.model_name}")
-                    if st.button("💬 Ir al chat", use_container_width=True):
-                        st.session_state.active_menu = "home"
-                        st.rerun()
-            else:
-                st.info("No hay personajes creados todavía.")
 
 
 if __name__ == "__main__":
