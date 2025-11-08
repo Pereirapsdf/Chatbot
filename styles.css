@@ -29,17 +29,15 @@
   border-radius: 0 12px 12px 0 !important;
   padding: 12px 8px !important;
   transition: all 0.3s ease !important;
-  transform: translateY(-50%) !important;
-  z-index: 999999 !important;
   box-shadow: 0 4px 20px rgba(88, 101, 242, 0.5) !important;
   cursor: pointer !important;
 }
 
 [data-testid="collapsedControl"]:hover {
   background: #4752c4 !important;
-  transform: translateY(-50%) translateX(3px) !important;
   box-shadow: 0 6px 30px rgba(88, 101, 242, 0.7) !important;
 }
+
 
 [data-testid="collapsedControl"] svg {
   color: white !important;
