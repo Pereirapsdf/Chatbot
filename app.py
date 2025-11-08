@@ -11,7 +11,8 @@ from character_base import CharacterAI
 st.set_page_config(
     page_title="Character AI Creator",
     page_icon="🎭",
-    layout="wide"
+    layout="wide",
+    initial_sidebar_state="expanded"  # Asegurar que el sidebar esté expandido
 )
 
 class CharacterCreatorApp:
@@ -57,7 +58,7 @@ class CharacterCreatorApp:
             "character_instance": None,
             "creator_mode": True,
             "selected_image": None,
-            "active_tab": "create"
+            "active_menu": "home"  # Cambiar de active_tab a active_menu
         }
         for key, value in defaults.items():
             if key not in st.session_state:
@@ -99,8 +100,7 @@ class CharacterCreatorApp:
                 "avatar_path": profile_image_path
             }]
             st.session_state.creator_mode = False
-            st.session_state.active_tab = "chat"
-            st.success(f"¡Personaje {name} creado exitosamente! Redirigiendo al chat...")
+            st.success(f"¡Personaje {name} creado exitosamente!")
             st.rerun()
         except Exception as e:
             st.error(f"Error al crear el personaje: {str(e)}")
@@ -161,9 +161,6 @@ class CharacterCreatorApp:
 
     # ===================== Interfaz de chat =====================
     def render_chat_interface(self):
-        st.title("💬 Character AI Chat")
-        st.markdown("---")
-
         if not st.session_state.character_instance:
             st.info("👈 Crea un personaje primero.")
             return
@@ -222,6 +219,25 @@ class CharacterCreatorApp:
             with open(selected_file, "r", encoding="utf-8") as f:
                 messages = json.load(f)
             st.session_state.messages = messages
+            
+            # Restaurar el personaje
+            if messages:
+                first_message = next(
+                    (m for m in messages if m.get("role") == "assistant"), None
+                )
+                if first_message:
+                    name = first_message.get("character", "Personaje")
+                    avatar_path = first_message.get("avatar_path", None)
+                    st.session_state.current_character = name
+                    st.session_state.character_instance = CharacterAI(
+                        name=name,
+                        personality="(restaurado desde chat guardado)",
+                        greeting="(continuación de conversación anterior)",
+                        profile_image_path=avatar_path,
+                        model_name=self.available_models[0] if self.available_models else "unknown"
+                    )
+                    st.session_state.creator_mode = False
+            
             st.success("📂 Chat cargado correctamente.")
         except Exception as e:
             st.error(f"❌ Error cargando chat: {e}")
@@ -231,77 +247,77 @@ class CharacterCreatorApp:
         self.apply_custom_style()
         self.initialize_session_state()
 
-        # === Barra lateral ===
-        st.sidebar.title("📋 Menú principal")
-        menu = st.sidebar.radio(
-            "Navegación",
-            ["🏠 Home", "💬 Chats", "🤖 Chatbots"],
-            label_visibility="collapsed"
-        )
+        # === Barra lateral con botones ===
+        with st.sidebar:
+            st.title("📋 Menú principal")
+            
+            # Botones de navegación
+            if st.button("🏠 Home", key="btn_home", use_container_width=True):
+                st.session_state.active_menu = "home"
+                st.rerun()
+            
+            if st.button("💬 Chats", key="btn_chats", use_container_width=True):
+                st.session_state.active_menu = "chats"
+                st.rerun()
+            
+            if st.button("🤖 Chatbots", key="btn_chatbots", use_container_width=True):
+                st.session_state.active_menu = "chatbots"
+                st.rerun()
+
+        # === Contenido según menú seleccionado ===
+        menu = st.session_state.active_menu
 
         # === HOME ===
-        if menu == "🏠 Home":
+        if menu == "home":
             st.title("🎭 Character AI Creator")
             st.caption("Crea, personaliza y conversa con tus personajes de IA")
 
-            tab_create, tab_chat, tab_saved = st.tabs(["🧠 Crear Personaje", "💬 Chat", "📂 Chats Guardados"])
-
-            with tab_create:
-                available_images = self.get_available_images()
-                st.subheader("🧠 Crear Nuevo Personaje")
+            # Solo mostrar la pestaña de crear personaje
+            available_images = self.get_available_images()
+            
+            if st.session_state.character_instance and not st.session_state.creator_mode:
+                self.render_chat_interface()
+            else:
                 self.render_character_creator(available_images)
 
-            with tab_chat:
-                if st.session_state.character_instance and not st.session_state.creator_mode:
-                    self.render_chat_interface()
-                else:
-                    st.info("💡 Crea un personaje primero en la pestaña '🧠 Crear Personaje'")
-
-            with tab_saved:
-                st.subheader("📂 Chats Guardados")
-                saved_files = sorted(glob.glob(f"{self.chats_folder}/*.json"))
-                if saved_files:
-                    file_to_load = st.selectbox("Selecciona un chat guardado:", saved_files)
-                    if st.button("✅ Cargar Chat Guardado"):
-                        with st.spinner("Cargando conversación..."):
-                            self.load_chat_history(file_to_load)
-                            if st.session_state.messages:
-                                first_message = next(
-                                    (m for m in st.session_state.messages if m.get("role") == "assistant"), None
-                                )
-                                if first_message:
-                                    name = first_message.get("character", "Personaje")
-                                    avatar_path = first_message.get("avatar_path", None)
-                                    st.session_state.current_character = name
-                                    st.session_state.character_instance = CharacterAI(
-                                        name=name,
-                                        personality="(restaurado desde chat guardado)",
-                                        greeting="(continuación de conversación anterior)",
-                                        profile_image_path=avatar_path,
-                                        model_name=self.available_models[0] if self.available_models else "unknown"
-                                    )
-                                    st.session_state.creator_mode = False
-                                    st.success(f"💬 Chat de {name} restaurado correctamente.")
-                                    st.rerun()
-                else:
-                    st.info("Aún no hay chats guardados.")
-
         # === CHATS ===
-        elif menu == "💬 Chats":
+        elif menu == "chats":
             st.title("💬 Chats guardados")
             saved_files = sorted(glob.glob(f"{self.chats_folder}/*.json"))
             if saved_files:
                 file_to_load = st.selectbox("Selecciona un chat:", saved_files)
-                if st.button("📂 Cargar chat"):
-                    with st.spinner("Cargando chat..."):
-                        self.load_chat_history(file_to_load)
+                col1, col2 = st.columns(2)
+                with col1:
+                    if st.button("📂 Cargar chat", use_container_width=True):
+                        with st.spinner("Cargando chat..."):
+                            self.load_chat_history(file_to_load)
+                            st.session_state.active_menu = "home"
+                            st.rerun()
+                with col2:
+                    if st.button("💾 Guardar chat actual", use_container_width=True):
+                        self.save_chat_history()
             else:
                 st.info("No hay chats disponibles.")
 
         # === CHATBOTS ===
-        elif menu == "🤖 Chatbots":
+        elif menu == "chatbots":
             st.title("🤖 Mis Chatbots")
             st.write("Aquí podrás listar, crear o gestionar tus chatbots.")
+            
+            if st.session_state.character_instance:
+                st.subheader("Personaje Actual")
+                col1, col2 = st.columns([1, 3])
+                with col1:
+                    if os.path.exists(st.session_state.character_instance.profile_image_path):
+                        self.display_image(st.session_state.character_instance.profile_image_path, width=100)
+                with col2:
+                    st.write(f"**Nombre:** {st.session_state.current_character}")
+                    st.write(f"**Modelo:** {st.session_state.character_instance.model_name}")
+                    if st.button("💬 Ir al chat", use_container_width=True):
+                        st.session_state.active_menu = "home"
+                        st.rerun()
+            else:
+                st.info("No hay personajes creados todavía.")
 
 if __name__ == "__main__":
     app = CharacterCreatorApp()
