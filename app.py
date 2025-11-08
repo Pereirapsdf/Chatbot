@@ -6,7 +6,6 @@ import json
 from datetime import datetime
 from PIL import Image
 from character_base import CharacterAI
-from streamlit_autorefresh import st_autorefresh
 
 # Configurar página
 st.set_page_config(
@@ -15,6 +14,7 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
+
 st.markdown("""
     <style>
     /* estilos mínimos para el input fijo (puedes mantener tu styles.css para el resto) */
@@ -163,8 +163,6 @@ st.markdown("""
     })();
     </script>
 """, unsafe_allow_html=True)
-
-
 
 
 
@@ -331,12 +329,19 @@ class CharacterCreatorApp:
             if st.button("💾 Guardar", key="save_chat_btn", use_container_width=True):
                 self.save_chat_history()
             
-            # Botón para nuevo chat
+            # Botón para nuevo chat (limpia conversación pero mantiene el bot)
             if st.button("🔄 Nuevo Chat", key="new_chat_btn", use_container_width=True):
-                st.session_state.creator_mode = True
-                st.session_state.messages = []
-                st.session_state.character_instance = None
-                st.session_state.current_character = None
+                # Mantener el personaje pero reiniciar la conversación
+                greeting = st.session_state.character_instance.greeting
+                st.session_state.messages = [{
+                    "role": "assistant",
+                    "content": greeting,
+                    "character": st.session_state.current_character,
+                    "avatar_path": st.session_state.character_instance.profile_image_path
+                }]
+                # Limpiar historial del personaje
+                st.session_state.character_instance.clear_history()
+                st.success("🆕 Nueva conversación iniciada")
                 st.rerun()
 
         st.markdown("---")
@@ -416,7 +421,6 @@ class CharacterCreatorApp:
     def run(self):
         self.apply_custom_style()
         self.initialize_session_state()
-        st_autorefresh(interval=5000, key="auto_refresh")
 
         # === Layout principal con menú fijo a la izquierda ===
         col_menu, col_main = st.columns([1, 4])
