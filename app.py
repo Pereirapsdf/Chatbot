@@ -307,22 +307,28 @@ class CharacterCreatorApp:
             st.error(f"Error al crear el personaje: {str(e)}")
 
 
- # ===================== Guardar personaje =====================
+    # ===================== Guardar personaje =====================
     def save_character(self, character_instance):
         characters_folder = "characters"
         if not os.path.exists(characters_folder):
             os.makedirs(characters_folder)
+        
         filename = f"{character_instance.name}.json"
         filepath = os.path.join(characters_folder, filename)
+        
+        # Guardamos los datos del personaje (no solo los mensajes)
         data = {
             "name": character_instance.name,
             "personality": character_instance.personality,
             "greeting": character_instance.greeting,
             "profile_image_path": character_instance.profile_image_path,
-            "model_name": character_instance.model_name
+            "model_name": character_instance.model_name,
+            "messages": st.session_state.messages  # Guardamos también los mensajes
         }
+
         with open(filepath, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
+
 
     # ===================== Interfaz de creación de personaje =====================
     def render_character_creator(self, available_images):
@@ -525,7 +531,6 @@ class CharacterCreatorApp:
             st.error(f"⚠ Error cargando chat: {e}")
 
 
-
     def render_chatbots_interface(self):
         st.title("🤖 Mis Chatbots")
         
@@ -540,11 +545,12 @@ class CharacterCreatorApp:
                         # Cargar los datos del archivo JSON
                         data = json.load(f)
 
-                        # Extraer datos del personaje guardado
+                        # Extraer los datos del personaje (nombre, personalidad, imagen, etc.)
                         name = data.get("name", "Desconocido")
                         image_path = data.get("profile_image_path", "")
                         personality = data.get("personality", "")  # Extraer la personalidad
                         model_name = data.get("model_name", "Desconocido")
+                        messages = data.get("messages", [])  # Los mensajes de la conversación
 
                         # Mostrar el personaje en columnas
                         col1, col2, col3 = st.columns([1, 3, 1])
@@ -569,12 +575,8 @@ class CharacterCreatorApp:
                                     profile_image_path=image_path,
                                     model_name=model_name
                                 )
-                                st.session_state.messages = [{
-                                    "role": "character",  # Aquí mantienes el rol correcto
-                                    "content": personality,  # Y usas la personalidad completa
-                                    "character": name,
-                                    "avatar_path": image_path
-                                }]
+                                # Restaurar los mensajes de la conversación
+                                st.session_state.messages = messages
                                 st.session_state.creator_mode = False
                                 st.session_state.active_menu = "home"
                                 st.rerun()
