@@ -165,7 +165,6 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 
-
 class CharacterCreatorApp:
     def __init__(self):
         self.available_models = self.get_available_models()
@@ -430,7 +429,13 @@ class CharacterCreatorApp:
             st.title("📋 Menú principal")
             
             if st.button("🏠 Home", key="btn_home", use_container_width=True):
+                # Resetear todo para crear un nuevo bot
                 st.session_state.active_menu = "home"
+                st.session_state.creator_mode = True
+                st.session_state.messages = []
+                st.session_state.character_instance = None
+                st.session_state.current_character = None
+                st.session_state.selected_image = None
                 st.rerun()
 
             if st.button("💬 Chats", key="btn_chats", use_container_width=True):
