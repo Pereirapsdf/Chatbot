@@ -14,74 +14,44 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
-
 st.markdown("""
-    <style>
-    /* (puedes mantener aquí CSS adicional o importarlo desde styles.css) */
-    </style>
-
     <script>
-    (function() {
-    // Función que realiza el ajuste
-    function fixChatInput() {
-        const inputSelector = '[data-testid="stChatInputContainer"]';
-        const messageContainerSelector = 'section[data-testid="stChatMessageContainer"]';
-        const sidebarSelector = 'section[data-testid="stSidebar"]';
-
-        const inputEl = document.querySelector(inputSelector);
-        const msgEl = document.querySelector(messageContainerSelector);
-        const sidebar = document.querySelector(sidebarSelector);
-
-        if (!inputEl) return;
-
-        // Mover input al body si no está ya
-        if (inputEl.parentElement !== document.body) {
-        document.body.appendChild(inputEl);
-        }
-
-        // Calcular left para evitar superposición con la sidebar
-        const sidebarWidth = sidebar ? sidebar.getBoundingClientRect().width : 0;
-        inputEl.style.left = (sidebarWidth) + 'px';
-        inputEl.style.right = '0px';
-        inputEl.style.position = 'fixed';
-        inputEl.style.bottom = '0px';
-        inputEl.style.zIndex = 2147483647;
-        inputEl.style.boxSizing = 'border-box';
-
-        // Esperar a que el browser calcule height real
-        setTimeout(() => {
-        const inputHeight = inputEl.getBoundingClientRect().height || 120;
-        // Ajustar padding-bottom del contenedor de mensajes para que no queden ocultos
-        if (msgEl) {
-            // poner un padding-bottom mayor que la altura del input
-            msgEl.style.paddingBottom = (inputHeight + 40) + 'px';
-            // ajustar max-height por seguridad
-            msgEl.style.maxHeight = 'calc(100vh - ' + (inputHeight + 80) + 'px)';
-        }
-
-        // También ajustar el main container block-container si existe
-        const block = document.querySelector('.main .block-container');
-        if (block) {
-            block.style.paddingBottom = (inputHeight + 80) + 'px';
-        }
-        }, 60);
+    // --- Scroll automático hasta el último mensaje ---
+    function autoScrollChat() {
+    const chatContainer = document.querySelector('section[data-testid="stChatMessageContainer"]');
+    if (chatContainer) {
+        chatContainer.scrollTo({
+        top: chatContainer.scrollHeight,
+        behavior: 'smooth'
+        });
+    }
     }
 
-    // Observador para cuando Streamlit vuelve a renderizar y recrea elementos
-    const observer = new MutationObserver((mutations) => {
-        // cada vez que cambia el body, intentar arreglar el input
-        fixChatInput();
+    // Observar cuando se agregan nuevos mensajes
+    const chatObserver = new MutationObserver((mutations) => {
+    for (const mutation of mutations) {
+        if (mutation.addedNodes.length > 0) {
+        autoScrollChat();
+        }
+    }
     });
 
-    observer.observe(document.body, { childList: true, subtree: true });
+    const initAutoScroll = () => {
+    const chatContainer = document.querySelector('section[data-testid="stChatMessageContainer"]');
+    if (chatContainer) {
+        chatObserver.observe(chatContainer, { childList: true, subtree: true });
+        autoScrollChat(); // desplazarse al final al iniciar
+    } else {
+        setTimeout(initAutoScroll, 500); // esperar a que aparezca
+    }
+    };
 
-    // Ejecutar una vez al inicio
-    window.addEventListener('load', fixChatInput);
-    // Ejecutar periódicamente por si acaso (pequeña guardia)
-    setInterval(fixChatInput, 800);
-    })();
+    window.addEventListener('load', initAutoScroll);
+    setInterval(initAutoScroll, 2000); // reforzar en cada re-render
     </script>
 """, unsafe_allow_html=True)
+
+
 
 
 class CharacterCreatorApp:
