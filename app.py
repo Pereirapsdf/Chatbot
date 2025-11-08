@@ -524,68 +524,68 @@ class CharacterCreatorApp:
 
 
 
-def render_chatbots_interface(self):
-    st.title("🤖 Mis Chatbots")
-    
-    # Obtener los archivos JSON de la carpeta de chats guardados
-    characters_folder = self.chats_folder  # Ahora se lee desde la carpeta de chats
-    chatbot_files = sorted(glob.glob(f"{characters_folder}/*.json"))
+    def render_chatbots_interface(self):
+        st.title("🤖 Mis Chatbots")
+        
+        # Obtener los archivos JSON de la carpeta de chats guardados
+        characters_folder = self.chats_folder  # Ahora se lee desde la carpeta de chats
+        chatbot_files = sorted(glob.glob(f"{characters_folder}/*.json"))
 
-    if chatbot_files:
-        for file_path in chatbot_files:
-            try:
-                with open(file_path, "r", encoding="utf-8") as f:
-                    # Cargar los datos del archivo JSON
-                    data = json.load(f)
+        if chatbot_files:
+            for file_path in chatbot_files:
+                try:
+                    with open(file_path, "r", encoding="utf-8") as f:
+                        # Cargar los datos del archivo JSON
+                        data = json.load(f)
 
-                    # Buscar el primer mensaje de tipo "assistant" para obtener la información del personaje
-                    assistant_message = next(
-                        (m for m in data if m.get("role") == "assistant"), None
-                    )
-                    if assistant_message:
-                        # Extraer datos del primer mensaje de "assistant"
-                        name = assistant_message.get("character", "Desconocido")
-                        image_path = assistant_message.get("avatar_path", "")
-                        personality = assistant_message.get("content", "")
-                        model_name = "Desconocido"  # El modelo no está en los mensajes, puedes agregarlo si lo tienes
+                        # Buscar el primer mensaje de tipo "assistant" para obtener la información del personaje
+                        assistant_message = next(
+                            (m for m in data if m.get("role") == "assistant"), None
+                        )
+                        if assistant_message:
+                            # Extraer datos del primer mensaje de "assistant"
+                            name = assistant_message.get("character", "Desconocido")
+                            image_path = assistant_message.get("avatar_path", "")
+                            personality = assistant_message.get("content", "")
+                            model_name = "Desconocido"  # El modelo no está en los mensajes, puedes agregarlo si lo tienes
 
-                    # Mostrar el personaje en columnas
-                    col1, col2, col3 = st.columns([1, 3, 1])
+                        # Mostrar el personaje en columnas
+                        col1, col2, col3 = st.columns([1, 3, 1])
 
-                    with col1:
-                        if image_path and os.path.exists(image_path):
-                            self.display_image(image_path, width=80)  # Mostrar la imagen del personaje
+                        with col1:
+                            if image_path and os.path.exists(image_path):
+                                self.display_image(image_path, width=80)  # Mostrar la imagen del personaje
 
-                    with col2:
-                        st.subheader(name)  # Mostrar el nombre
-                        st.write(f"**Personalidad:** {personality[:120]}{'...' if len(personality) > 120 else ''}")  # Mostrar los primeros 120 caracteres de la personalidad
+                        with col2:
+                            st.subheader(name)  # Mostrar el nombre
+                            st.write(f"**Personalidad:** {personality[:120]}{'...' if len(personality) > 120 else ''}")  # Mostrar los primeros 120 caracteres de la personalidad
 
-                    with col3:
-                        # Botón para iniciar chat con el personaje
-                        if st.button(f"💬 Iniciar chat", key=f"chat_{name}"):
-                            # Restaurar el personaje en session_state
-                            st.session_state.current_character = name
-                            st.session_state.character_instance = CharacterAI(
-                                name=name,
-                                personality=personality,
-                                greeting="(Continuación del chat guardado)",  # Puedes usar el saludo original si lo guardas
-                                profile_image_path=image_path,
-                                model_name=model_name
-                            )
-                            st.session_state.messages = [{
-                                "role": "assistant",
-                                "content": personality,
-                                "character": name,
-                                "avatar_path": image_path
-                            }]
-                            st.session_state.creator_mode = False
-                            st.session_state.active_menu = "home"
-                            st.rerun()
+                        with col3:
+                            # Botón para iniciar chat con el personaje
+                            if st.button(f"💬 Iniciar chat", key=f"chat_{name}"):
+                                # Restaurar el personaje en session_state
+                                st.session_state.current_character = name
+                                st.session_state.character_instance = CharacterAI(
+                                    name=name,
+                                    personality=personality,
+                                    greeting="(Continuación del chat guardado)",  # Puedes usar el saludo original si lo guardas
+                                    profile_image_path=image_path,
+                                    model_name=model_name
+                                )
+                                st.session_state.messages = [{
+                                    "role": "assistant",
+                                    "content": personality,
+                                    "character": name,
+                                    "avatar_path": image_path
+                                }]
+                                st.session_state.creator_mode = False
+                                st.session_state.active_menu = "home"
+                                st.rerun()
 
-            except Exception as e:
-                st.error(f"❌ Error cargando chatbot desde el archivo {file_path}: {e}")
-    else:
-        st.info("No tienes chatbots creados aún. Crea uno desde 'Home'.")
+                except Exception as e:
+                    st.error(f"❌ Error cargando chatbot desde el archivo {file_path}: {e}")
+        else:
+            st.info("No tienes chatbots creados aún. Crea uno desde 'Home'.")
 
 
 
