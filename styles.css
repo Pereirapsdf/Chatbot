@@ -14,37 +14,52 @@
   to { background-position: 100% 100%; }
 }
 
-/* --- Contenedor principal --- */
-section.main > div {
-  background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(14px);
-  border-radius: 20px;
-  padding: 30px;
-  margin: 30px auto;
-  max-width: 1080px;
-  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.25);
+/* --- Sidebar más compacto --- */
+[data-testid="stSidebar"] {
+  background: rgba(255, 255, 255, 0.18) !important;
+  backdrop-filter: blur(10px) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.25) !important;
+  min-width: 220px !important;
+  max-width: 220px !important;
 }
 
-/* --- Sidebar --- */
-[data-testid="stSidebar"] {
-  background: rgba(255, 255, 255, 0.18);
-  backdrop-filter: blur(10px);
-  border-right: 1px solid rgba(255, 255, 255, 0.25);
+[data-testid="stSidebar"] > div:first-child {
+  padding: 2rem 1rem !important;
+}
+
+/* Título del sidebar */
+[data-testid="stSidebar"] h1 {
+  font-size: 18px !important;
+  text-align: center !important;
+  margin-bottom: 1.5rem !important;
+  color: #ffffff !important;
 }
 
 /* Botones del menú lateral */
-[data-testid="stSidebar"] button {
+[data-testid="stSidebar"] button,
+[data-testid="stSidebar"] [role="radiogroup"] label {
   width: 100% !important;
   text-align: left !important;
   margin-bottom: 8px !important;
   background: rgba(255, 255, 255, 0.08) !important;
   border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-radius: 10px !important;
+  padding: 12px 16px !important;
   transition: all 0.2s ease !important;
+  cursor: pointer !important;
 }
 
-[data-testid="stSidebar"] button:hover {
+[data-testid="stSidebar"] button:hover,
+[data-testid="stSidebar"] [role="radiogroup"] label:hover {
   background: rgba(255, 255, 255, 0.15) !important;
   transform: translateX(4px) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+/* Radio buttons seleccionados */
+[data-testid="stSidebar"] [role="radiogroup"] label[data-selected="true"] {
+  background: linear-gradient(90deg, #7c3aed, #4f46e5) !important;
+  border-color: #7c3aed !important;
 }
 
 /* Subtítulo de Chatbots en sidebar */
@@ -58,38 +73,62 @@ section.main > div {
   text-align: left !important;
   padding-left: 10px !important;
 }
-/* Expandir el contenido principal al 100% */
-div[data-testid="stAppViewContainer"] {
-    margin-left: 0 !important;
-    padding-left: 0 !important;
+
+/* --- Contenedor principal centrado --- */
+section.main > div {
+  background: rgba(255, 255, 255, 0.08) !important;
+  backdrop-filter: blur(14px) !important;
+  border-radius: 20px !important;
+  padding: 30px !important;
+  margin: 30px auto !important;
+  max-width: 1200px !important;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.25) !important;
+}
+
+/* Ajustar el contenido principal */
+.main .block-container {
+  padding-left: 2rem !important;
+  padding-right: 2rem !important;
+  max-width: 100% !important;
 }
 
 /* --- Tipografía --- */
-h1, h2, h3 {
-  color: #ffffff;
-  font-weight: 700;
-  text-align: center;
-  letter-spacing: -0.5px;
+h1 {
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  text-align: center !important;
+  letter-spacing: -0.5px !important;
+  font-size: 3rem !important;
+  margin-bottom: 0.5rem !important;
+}
+
+h2, h3 {
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  text-align: center !important;
+  letter-spacing: -0.3px !important;
 }
 
 p, span, label, textarea, input, div {
-  color: #e8e9ff;
-  font-size: 16px;
+  color: #e8e9ff !important;
+  font-size: 16px !important;
 }
 
-/* --- Formularios centrados --- */
-section, form, .stForm, .stAlert, .stRadio, .stSelectbox {
-  width: 90% !important;
-  max-width: 940px !important;
-  margin: 0 auto !important;
+/* Subtítulo */
+.css-10trblm, [data-testid="stCaption"] {
+  text-align: center !important;
+  color: #c7d2fe !important;
+  font-size: 18px !important;
+  margin-bottom: 2rem !important;
 }
 
-/* --- Tabs centradas --- */
+/* --- Tabs centradas y visibles --- */
 [data-baseweb="tab-list"] {
   display: flex !important;
   justify-content: center !important;
-  gap: 14px;
+  gap: 14px !important;
   margin: 18px auto 26px auto !important;
+  flex-wrap: wrap !important;
 }
 
 /* Tabs estilizadas */
@@ -99,12 +138,14 @@ button[data-baseweb="tab"] {
   color: #c7d2fe !important;
   font-weight: 600 !important;
   border-radius: 12px !important;
-  padding: 10px 18px !important;
+  padding: 12px 20px !important;
   transition: all 0.25s ease !important;
+  min-width: 150px !important;
+  white-space: nowrap !important;
 }
 
 button[data-baseweb="tab"]:hover {
-  transform: translateY(-2px);
+  transform: translateY(-2px) !important;
   background: rgba(255,255,255,0.18) !important;
 }
 
@@ -114,45 +155,55 @@ button[data-baseweb="tab"][aria-selected="true"] {
   box-shadow: 0 6px 20px rgba(79,70,229,0.35) !important;
 }
 
+/* --- Formularios centrados --- */
+.stForm, form {
+  width: 100% !important;
+  max-width: 800px !important;
+  margin: 0 auto !important;
+}
+
 /* --- Alertas --- */
 .stAlert {
-  border-radius: 12px;
-  font-size: 15px;
-  padding: 12px 18px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+  border-radius: 12px !important;
+  font-size: 15px !important;
+  padding: 12px 18px !important;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2) !important;
+  margin: 1rem auto !important;
+  max-width: 800px !important;
 }
 
 .stAlert[data-baseweb="notification"] {
-  background-color: rgba(224, 231, 255, 0.25);
-  border-left: 4px solid #818cf8;
-  color: #e0e7ff;
+  background-color: rgba(224, 231, 255, 0.25) !important;
+  border-left: 4px solid #818cf8 !important;
+  color: #e0e7ff !important;
 }
 
 /* --- Chat burbujas --- */
 div[data-testid="stChatMessage"] {
-  border-radius: 14px;
-  padding: 10px 14px;
-  margin: 8px 0;
-  backdrop-filter: blur(8px);
-  transition: all 0.2s ease;
+  border-radius: 14px !important;
+  padding: 12px 16px !important;
+  margin: 10px 0 !important;
+  backdrop-filter: blur(8px) !important;
+  transition: all 0.2s ease !important;
+  max-width: 85% !important;
 }
 
 div[data-testid="stChatMessage"]:hover {
-  transform: scale(1.01);
+  transform: scale(1.01) !important;
 }
 
-div[data-testid="stChatMessage"]:has(div[role="user"]) {
-  background: rgba(139, 92, 246, 0.3);
-  align-self: flex-end;
+div[data-testid="stChatMessage"][data-testid*="user"] {
+  background: rgba(139, 92, 246, 0.3) !important;
+  margin-left: auto !important;
 }
 
-div[data-testid="stChatMessage"]:has(div[role="assistant"]) {
-  background: rgba(59, 130, 246, 0.25);
-  align-self: flex-start;
+div[data-testid="stChatMessage"][data-testid*="assistant"] {
+  background: rgba(59, 130, 246, 0.25) !important;
+  margin-right: auto !important;
 }
 
 /* --- Botones modernos --- */
-button {
+button, .stButton > button {
   border-radius: 12px !important;
   background: linear-gradient(135deg, #6366f1, #4f46e5) !important;
   color: white !important;
@@ -160,71 +211,148 @@ button {
   font-weight: 600 !important;
   transition: all 0.3s ease !important;
   box-shadow: 0 4px 20px rgba(99,102,241,0.35) !important;
+  padding: 10px 24px !important;
+  min-height: 44px !important;
 }
 
-button:hover {
+button:hover, .stButton > button:hover {
   background: linear-gradient(135deg, #4f46e5, #4338ca) !important;
-  box-shadow: 0 0 20px rgba(99,102,241,0.6);
-  transform: translateY(-2px);
+  box-shadow: 0 0 20px rgba(99,102,241,0.6) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* Botones de confirmación */
+.stButton {
+  display: flex !important;
+  justify-content: center !important;
+  margin: 1rem 0 !important;
 }
 
 /* --- Inputs --- */
-textarea, input, select {
+textarea, input, select, .stTextInput input, .stTextArea textarea, .stSelectbox select {
   border-radius: 10px !important;
   border: 1px solid rgba(255, 255, 255, 0.25) !important;
   background-color: rgba(255, 255, 255, 0.12) !important;
   color: #f9fafb !important;
   transition: all 0.2s ease-in-out !important;
+  padding: 10px 14px !important;
 }
 
 textarea:focus, input:focus, select:focus {
   border-color: #a5b4fc !important;
   box-shadow: 0 0 0 3px rgba(99,102,241,0.4) !important;
   background-color: rgba(255, 255, 255, 0.22) !important;
+  outline: none !important;
+}
+
+/* Labels */
+.stTextInput label, .stTextArea label, .stSelectbox label {
+  color: #e0e7ff !important;
+  font-weight: 500 !important;
+  margin-bottom: 8px !important;
 }
 
 /* --- Imágenes --- */
+.stImage {
+  display: flex !important;
+  justify-content: center !important;
+  margin: 1rem auto !important;
+}
+
 .stImage img {
-  display: block;
-  margin: 0 auto;
-  border-radius: 12px;
-  max-width: 220px;
-  transition: transform 0.25s ease;
+  display: block !important;
+  margin: 0 auto !important;
+  border-radius: 12px !important;
+  max-width: 220px !important;
+  transition: transform 0.25s ease !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
 }
 
 .stImage img:hover {
-  transform: scale(1.06);
+  transform: scale(1.06) !important;
 }
 
 /* --- Radio Buttons --- */
 [data-testid="stRadio"], .stRadio {
   display: flex !important;
   justify-content: center !important;
-  flex-wrap: wrap !important;
-  gap: 1rem;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+  margin: 1rem auto !important;
+}
+
+[data-testid="stRadio"] label {
+  background: rgba(255, 255, 255, 0.08) !important;
+  padding: 10px 16px !important;
+  border-radius: 8px !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  transition: all 0.2s ease !important;
+  cursor: pointer !important;
+  min-width: 200px !important;
+}
+
+[data-testid="stRadio"] label:hover {
+  background: rgba(255, 255, 255, 0.15) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
 }
 
 [data-testid="stRadio"] label p {
   color: #f3f4f6 !important;
   font-weight: 500 !important;
+  margin: 0 !important;
 }
 
 /* --- Separadores --- */
 hr {
-  border: 0;
-  height: 1px;
-  background: rgba(255, 255, 255, 0.25);
-  margin: 25px 0;
+  border: 0 !important;
+  height: 1px !important;
+  background: rgba(255, 255, 255, 0.25) !important;
+  margin: 25px auto !important;
+  max-width: 800px !important;
 }
 
-/* --- Centrado de botones de confirmación --- */
-.css-1emrehy.edgvbvh3 {
-  display: flex;
-  justify-content: center;
+/* --- Columnas --- */
+.row-widget.stHorizontal {
+  gap: 1rem !important;
 }
 
-/* --- Ocultar input invisible (tab control) --*/
-.stTextInput input[value="create"],
-.stTextInput input[placeholder="create"] {
-  display: none !important;
+/* --- Spinner de carga --- */
+.stSpinner > div {
+  border-color: #7c3aed !important;
+  border-right-color: transparent !important;
+}
+
+/* --- Selectbox --- */
+.stSelectbox {
+  max-width: 800px !important;
+  margin: 0 auto !important;
+}
+
+/* --- Ocultar elementos innecesarios --- */
+#MainMenu {visibility: hidden;}
+footer {visibility: hidden;}
+header {visibility: hidden;}
+
+/* --- Chat input --- */
+.stChatInput {
+  max-width: 900px !important;
+  margin: 1rem auto !important;
+}
+
+.stChatInput textarea {
+  background: rgba(255, 255, 255, 0.12) !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  border-radius: 12px !important;
+  color: #f9fafb !important;
+}
+
+/* --- Ajustes finales de espaciado --- */
+.element-container {
+  margin-bottom: 1rem !important;
+}
+
+/* Centrando contenido */
+.block-container {
+  padding-top: 2rem !important;
 }
