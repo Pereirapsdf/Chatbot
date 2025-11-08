@@ -15,6 +15,24 @@ st.set_page_config(
     initial_sidebar_state="expanded"  # Asegurar que el sidebar esté expandido
 )
 
+# Script para mantener el botón de sidebar visible
+st.markdown("""
+<script>
+// Asegurar que el botón de colapsar sidebar sea visible
+document.addEventListener('DOMContentLoaded', function() {
+    const style = document.createElement('style');
+    style.innerHTML = `
+        [data-testid="collapsedControl"] {
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+    `;
+    document.head.appendChild(style);
+});
+</script>
+""", unsafe_allow_html=True)
+
 class CharacterCreatorApp:
     def __init__(self):
         self.available_models = self.get_available_models()
