@@ -279,8 +279,7 @@ class CharacterCreatorApp:
         # === Menú izquierdo fijo ===
         with col_menu:
             st.title("📋 Menú principal")
-            st.caption("Siempre visible")
-
+            
             if st.button("🏠 Home", key="btn_home", use_container_width=True):
                 st.session_state.active_menu = "home"
                 st.rerun()

@@ -2,11 +2,12 @@
 
 /* Fondo principal oscuro */
 [data-testid="stAppViewContainer"] {
-  background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1e 100%);
+  background: linear-gradient(135deg, #1f1f2e, #5865f2, #0f0f1e);
   color: #e5e7eb;
   font-family: "Inter", sans-serif;
   background-attachment: fixed;
 }
+
 
 /* --- Sidebar oscuro moderno --- */
 [data-testid="stSidebar"] {
