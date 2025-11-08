@@ -303,8 +303,6 @@ def run(self):
         st.title("🤖 Mis Chatbots")
         st.write("Aquí podrás listar, crear o gestionar tus chatbots.")
 
-   
-
 if __name__ == "__main__":
     app = CharacterCreatorApp()
     app.run()
