@@ -516,15 +516,21 @@ class CharacterCreatorApp:
             # Restaurar el personaje
             st.session_state.current_character = data.get("character_name", "Desconocido")
             avatar_path = data.get("profile_image_path", None)
-            model_name = data.get("model_name", "gemini-2.0-flash")  # Usamos un valor predeterminado si no hay modelo
+            model_name = data.get("model_name", "gemini-2.0-flash")  # Valor por defecto
 
-            # Restaurar la instancia del personaje
+            # Verificar si el modelo es válido antes de asignarlo
+            valid_models = ["gemini-2.0-flash", "gemini-2.5-flash-lite", "gemini-flash-lite-latest"]
+            if model_name not in valid_models:
+                st.warning(f"⚠️ El modelo '{model_name}' no es válido. Se usará el modelo por defecto 'gemini-2.0-flash'.")
+                model_name = "gemini-2.0-flash"
+
+            # Restaurar la instancia del personaje con el modelo válido
             st.session_state.character_instance = CharacterAI(
                 name=st.session_state.current_character,
                 personality="No especificada",  # Aquí puedes agregar la lógica para restaurar la personalidad si la guardas
                 greeting="(Continuación del chat guardado)",
                 profile_image_path=avatar_path,
-                model_name=model_name  # Usamos el modelo restaurado
+                model_name=model_name  # Usamos el modelo restaurado y validado
             )
 
             st.session_state.creator_mode = False  # Ya no está en modo creador
