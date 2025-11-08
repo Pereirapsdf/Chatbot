@@ -288,6 +288,11 @@ class CharacterCreatorApp:
             # Forzamos que siempre se use el modelo 'gemini-2.0-flash'
             model_name = "gemini-2.0-flash"
 
+            # Validar que el modelo sea uno de los modelos permitidos
+            valid_models = ["gemini-2.0-flash", "gemini-2.5-flash-lite", "gemini-flash-lite-latest"]
+            if model_name not in valid_models:
+                raise ValueError(f"El modelo '{model_name}' no es válido. Usa uno de los modelos disponibles: {', '.join(valid_models)}")
+
             # Crear la instancia del personaje con el modelo fijo
             st.session_state.character_instance = CharacterAI(
                 name=name,
@@ -313,6 +318,7 @@ class CharacterCreatorApp:
             st.error(f"Error al crear el personaje: {str(e)}")
 
 
+
     # ===================== Guardar personaje =====================
     def save_character(self, character_instance):
         characters_folder = "characters"
@@ -328,13 +334,16 @@ class CharacterCreatorApp:
             "personality": character_instance.personality,
             "greeting": character_instance.greeting,
             "profile_image_path": character_instance.profile_image_path,
-            "model_name": character_instance.model_name,
+            "model_name": character_instance.model_name,  # Guardar el nombre del modelo
             "messages": st.session_state.messages  # Guardamos también los mensajes
         }
 
-        with open(filepath, "w", encoding="utf-8") as f:
-            json.dump(data, f, ensure_ascii=False, indent=2)
-
+        try:
+            with open(filepath, "w", encoding="utf-8") as f:
+                json.dump(data, f, ensure_ascii=False, indent=2)
+            st.success(f"✅ Personaje {character_instance.name} guardado correctamente")
+        except Exception as e:
+            st.error(f"❌ Error al guardar personaje: {str(e)}")
 
     # ===================== Interfaz de creación de personaje =====================
     def render_character_creator(self, available_images):
@@ -525,7 +534,6 @@ class CharacterCreatorApp:
             avatar_path = data.get("profile_image_path", None)
             model_name = data.get("model_name", "gemini-2.0-flash")  # Valor por defecto
 
-            # Verificar si el modelo es válido antes de asignarlo
             valid_models = ["gemini-2.0-flash", "gemini-2.5-flash-lite", "gemini-flash-lite-latest"]
             if model_name not in valid_models:
                 st.warning(f"⚠️ El modelo '{model_name}' no es válido. Se usará el modelo por defecto 'gemini-2.0-flash'.")
