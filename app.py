@@ -17,27 +17,69 @@ st.set_page_config(
 
 st.markdown("""
     <style>
-        /* Oculta el botón de colapsar de manera permanente */
-        [data-testid="collapsedControl"] {
-            display: none !important;
-        }
+    /* (puedes mantener aquí CSS adicional o importarlo desde styles.css) */
     </style>
-    <script>
-        // Observador para ocultar dinámicamente el botón si aparece
-        const observer = new MutationObserver(() => {
-            const btn = document.querySelector('[data-testid="collapsedControl"]');
-            if (btn) btn.style.display = 'none';
-        });
-        observer.observe(document.body, { childList: true, subtree: true });
 
-        // Forzar sidebar siempre expandido
-        const expandSidebar = () => {
-            const sb = document.querySelector('section[data-testid="stSidebar"]');
-            if (sb && sb.style.transform !== "translateX(0%)") {
-                sb.style.transform = "translateX(0%)";
-            }
+    <script>
+    (function() {
+    // Función que realiza el ajuste
+    function fixChatInput() {
+        const inputSelector = '[data-testid="stChatInputContainer"]';
+        const messageContainerSelector = 'section[data-testid="stChatMessageContainer"]';
+        const sidebarSelector = 'section[data-testid="stSidebar"]';
+
+        const inputEl = document.querySelector(inputSelector);
+        const msgEl = document.querySelector(messageContainerSelector);
+        const sidebar = document.querySelector(sidebarSelector);
+
+        if (!inputEl) return;
+
+        // Mover input al body si no está ya
+        if (inputEl.parentElement !== document.body) {
+        document.body.appendChild(inputEl);
         }
-        setInterval(expandSidebar, 100);  // Revisar constantemente
+
+        // Calcular left para evitar superposición con la sidebar
+        const sidebarWidth = sidebar ? sidebar.getBoundingClientRect().width : 0;
+        inputEl.style.left = (sidebarWidth) + 'px';
+        inputEl.style.right = '0px';
+        inputEl.style.position = 'fixed';
+        inputEl.style.bottom = '0px';
+        inputEl.style.zIndex = 2147483647;
+        inputEl.style.boxSizing = 'border-box';
+
+        // Esperar a que el browser calcule height real
+        setTimeout(() => {
+        const inputHeight = inputEl.getBoundingClientRect().height || 120;
+        // Ajustar padding-bottom del contenedor de mensajes para que no queden ocultos
+        if (msgEl) {
+            // poner un padding-bottom mayor que la altura del input
+            msgEl.style.paddingBottom = (inputHeight + 40) + 'px';
+            // ajustar max-height por seguridad
+            msgEl.style.maxHeight = 'calc(100vh - ' + (inputHeight + 80) + 'px)';
+        }
+
+        // También ajustar el main container block-container si existe
+        const block = document.querySelector('.main .block-container');
+        if (block) {
+            block.style.paddingBottom = (inputHeight + 80) + 'px';
+        }
+        }, 60);
+    }
+
+    // Observador para cuando Streamlit vuelve a renderizar y recrea elementos
+    const observer = new MutationObserver((mutations) => {
+        // cada vez que cambia el body, intentar arreglar el input
+        fixChatInput();
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    // Ejecutar una vez al inicio
+    window.addEventListener('load', fixChatInput);
+    // Ejecutar periódicamente por si acaso (pequeña guardia)
+    setInterval(fixChatInput, 800);
+    })();
     </script>
 """, unsafe_allow_html=True)
 
