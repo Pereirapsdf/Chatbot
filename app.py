@@ -268,12 +268,7 @@ class CharacterCreatorApp:
         # === Barra lateral con botones ===
         with st.sidebar:
             st.title("📋 Menú principal")
-            
-            # Botón opcional de toggle interno
-            if st.button("⬅️ Colapsar Sidebar", key="toggle_sidebar"):
-                # Cambiamos el estado de visibilidad (ejemplo con sesión)
-                st.session_state.sidebar_visible = not st.session_state.sidebar_visible
-                st.rerun()
+            st.caption("Usa el botón ◀ para colapsar/expandir")
             
             # Botones de navegación
             if st.button("🏠 Home", key="btn_home", use_container_width=True):
