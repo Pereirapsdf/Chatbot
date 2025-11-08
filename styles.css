@@ -31,11 +31,33 @@ section.main > div {
   backdrop-filter: blur(10px);
   border-right: 1px solid rgba(255, 255, 255, 0.25);
 }
-/* Ocultar sidebar original de Streamlit */
-section[data-testid="stSidebar"] {
-    display: none;
+
+/* Botones del menú lateral */
+[data-testid="stSidebar"] button {
+  width: 100% !important;
+  text-align: left !important;
+  margin-bottom: 8px !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  transition: all 0.2s ease !important;
 }
 
+[data-testid="stSidebar"] button:hover {
+  background: rgba(255, 255, 255, 0.15) !important;
+  transform: translateX(4px) !important;
+}
+
+/* Subtítulo de Chatbots en sidebar */
+[data-testid="stSidebar"] h3 {
+  font-size: 14px !important;
+  color: #a0a0a0 !important;
+  margin-top: 20px !important;
+  margin-bottom: 10px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
+  text-align: left !important;
+  padding-left: 10px !important;
+}
 /* Expandir el contenido principal al 100% */
 div[data-testid="stAppViewContainer"] {
     margin-left: 0 !important;
