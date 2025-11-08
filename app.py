@@ -447,7 +447,7 @@ class CharacterCreatorApp:
                 # Mantener el personaje pero reiniciar la conversación
                 greeting = st.session_state.character_instance.greeting
                 st.session_state.messages = [{
-                    "role": "assistant",
+                    "role": st.session_state.character_instance.personality,  # Usamos la personalidad como rol
                     "content": greeting,
                     "character": st.session_state.current_character,
                     "avatar_path": st.session_state.character_instance.profile_image_path
@@ -461,30 +461,34 @@ class CharacterCreatorApp:
 
         # Mostrar mensajes
         for message in st.session_state.messages:
-            if message["role"] == "assistant":
-                with st.chat_message("assistant", avatar=message.get('avatar_path')):
-                    st.write(f"**{message.get('character', 'AI')}:** {message['content']}")
-            else:
+            if message["role"] == st.session_state.character_instance.personality:  # Se usa la personalidad en vez de "assistant"
                 with st.chat_message("user"):
                     st.write(message["content"])
+            else:
+                with st.chat_message("assistant", avatar=message.get('avatar_path')):
+                    st.write(f"**{message.get('character', 'AI')}:** {message['content']}")
 
         # Input de chat
         if prompt := st.chat_input("Escribe tu mensaje..."):
+            # Añadir el mensaje del usuario
             st.session_state.messages.append({"role": "user", "content": prompt})
             with st.chat_message("user"):
                 st.write(prompt)
 
-            with st.chat_message("assistant", avatar=st.session_state.character_instance.profile_image_path):
+            # Generar la respuesta del personaje
+            with st.chat_message(st.session_state.character_instance.personality, avatar=st.session_state.character_instance.profile_image_path):
                 with st.spinner(f"{st.session_state.current_character} está pensando..."):
                     response = st.session_state.character_instance.generate_response(prompt)
                     st.write(f"**{st.session_state.current_character}:** {response}")
 
+            # Añadir la respuesta al historial de mensajes
             st.session_state.messages.append({
-                "role": "assistant",
+                "role": st.session_state.character_instance.personality,  # Usar la personalidad en vez de "assistant"
                 "content": response,
                 "character": st.session_state.current_character,
                 "avatar_path": st.session_state.character_instance.profile_image_path
             })
+
 
     # ===================== Guardar / Cargar chats =====================
     def save_chat_history(self):
