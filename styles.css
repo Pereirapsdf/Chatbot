@@ -2,7 +2,7 @@
 
 /* Fondo principal oscuro */
 [data-testid="stAppViewContainer"] {
-  background: linear-gradient(135deg, #1f1f2e, #5865f2, #0f0f1e);
+  background: linear-gradient(135deg, #1f1f2e, #2c38c0, #0f0f1e);
   color: #e5e7eb;
   font-family: "Inter", sans-serif;
   background-attachment: fixed;
