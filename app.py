@@ -84,7 +84,7 @@ class CharacterCreatorApp:
             "character_instance": None,
             "creator_mode": True,
             "selected_image": None,
-            "active_menu": "home"  # Cambiar de active_tab a active_menu
+            "active_menu": "home"
         }
         for key, value in defaults.items():
             if key not in st.session_state:
@@ -104,7 +104,7 @@ class CharacterCreatorApp:
                 image = Image.open(image_path)
                 st.image(image, width=width)
             else:
-                st.warning("❌ Imagen no encontrada")
+                st.warning("⚠ Imagen no encontrada")
         except Exception as e:
             st.error(f"Error mostrando imagen: {e}")
 
@@ -164,7 +164,7 @@ class CharacterCreatorApp:
                         st.session_state.selected_image = selected_image_path
                         st.rerun()
         else:
-            st.warning(f"📁 No hay imágenes en la carpeta '{self.images_folder}'")
+            st.warning(f"📂 No hay imágenes en la carpeta '{self.images_folder}'")
 
         st.markdown("---")
         st.subheader("📝 Datos del Personaje")
@@ -179,9 +179,9 @@ class CharacterCreatorApp:
 
             if create_btn:
                 if not name or not personality or not greeting:
-                    st.error("❌ Completa todos los campos")
+                    st.error("⚠ Completa todos los campos")
                 elif not st.session_state.selected_image:
-                    st.error("❌ Selecciona una imagen")
+                    st.error("⚠ Selecciona una imagen")
                 else:
                     self.create_character(name, personality, greeting, st.session_state.selected_image, selected_model)
 
@@ -191,14 +191,30 @@ class CharacterCreatorApp:
             st.info("👈 Crea un personaje primero.")
             return
 
-        col1, col2 = st.columns([1, 4])
+        # Header con información del personaje y botones de acción
+        col1, col2, col3 = st.columns([1, 3, 1])
         with col1:
             if os.path.exists(st.session_state.character_instance.profile_image_path):
                 self.display_image(st.session_state.character_instance.profile_image_path, width=80)
         with col2:
             st.subheader(f"Conversando con: {st.session_state.current_character}")
             st.caption(f"Modelo: {st.session_state.character_instance.model_name}")
+        with col3:
+            # Botón para guardar chat
+            if st.button("💾 Guardar", key="save_chat_btn", use_container_width=True):
+                self.save_chat_history()
+            
+            # Botón para nuevo chat
+            if st.button("🔄 Nuevo Chat", key="new_chat_btn", use_container_width=True):
+                st.session_state.creator_mode = True
+                st.session_state.messages = []
+                st.session_state.character_instance = None
+                st.session_state.current_character = None
+                st.rerun()
 
+        st.markdown("---")
+
+        # Mostrar mensajes
         for message in st.session_state.messages:
             if message["role"] == "assistant":
                 with st.chat_message("assistant", avatar=message.get('avatar_path')):
@@ -207,6 +223,7 @@ class CharacterCreatorApp:
                 with st.chat_message("user"):
                     st.write(message["content"])
 
+        # Input de chat
         if prompt := st.chat_input("Escribe tu mensaje..."):
             st.session_state.messages.append({"role": "user", "content": prompt})
             with st.chat_message("user"):
@@ -238,7 +255,7 @@ class CharacterCreatorApp:
                 json.dump(st.session_state.messages, f, ensure_ascii=False, indent=2)
             st.success(f"💾 Chat guardado como `{filename}`")
         except Exception as e:
-            st.error(f"❌ Error guardando chat: {e}")
+            st.error(f"⚠ Error guardando chat: {e}")
 
     def load_chat_history(self, selected_file):
         try:
@@ -266,7 +283,7 @@ class CharacterCreatorApp:
             
             st.success("📂 Chat cargado correctamente.")
         except Exception as e:
-            st.error(f"❌ Error cargando chat: {e}")
+            st.error(f"⚠ Error cargando chat: {e}")
 
     # ===================== Main =====================
     def run(self):
