@@ -521,17 +521,23 @@ class CharacterCreatorApp:
             st.success("📂 Chat cargado correctamente.")
         except Exception as e:
             st.error(f"⚠ Error cargando chat: {e}")
+
+
+            
     def render_chatbots_interface(self):
         st.title("🤖 Mis Chatbots")
-        characters_folder = "characters"
-        chatbot_files = sorted(glob.glob(f"{characters_folder}/*.json"))
         
+        # Obtener los archivos JSON de la carpeta de chats guardados
+        characters_folder = self.chats_folder  # Ahora se lee desde la carpeta de chats
+        chatbot_files = sorted(glob.glob(f"{characters_folder}/*.json"))
+
         if chatbot_files:
             for file_path in chatbot_files:
                 try:
                     with open(file_path, "r", encoding="utf-8") as f:
                         character_data = json.load(f)
                     
+                    # Obtener los datos del personaje
                     name = character_data.get("name", "Desconocido")
                     image_path = character_data.get("profile_image_path")
                     personality = character_data.get("personality", "")
@@ -539,14 +545,18 @@ class CharacterCreatorApp:
 
                     # Mostrar el personaje en columnas
                     col1, col2, col3 = st.columns([1, 3, 1])
+
                     with col1:
                         if image_path and os.path.exists(image_path):
-                            self.display_image(image_path, width=80)
+                            self.display_image(image_path, width=80)  # Mostrar la imagen del personaje
+
                     with col2:
-                        st.subheader(name)
-                        st.write(f"**Modelo:** {model_name}")
-                        st.write(f"**Descripción:** {personality[:120]}{'...' if len(personality)>120 else ''}")
+                        st.subheader(name)  # Mostrar el nombre
+                        st.write(f"**Modelo:** {model_name}")  # Mostrar el modelo
+                        st.write(f"**Personalidad:** {personality[:120]}{'...' if len(personality) > 120 else ''}")  # Mostrar los primeros 120 caracteres de la personalidad
+
                     with col3:
+                        # Botón para iniciar chat con el personaje
                         if st.button(f"💬 Iniciar chat", key=f"chat_{name}"):
                             # Restaurar el personaje en session_state
                             st.session_state.current_character = name
@@ -568,10 +578,9 @@ class CharacterCreatorApp:
                             st.rerun()
 
                 except Exception as e:
-                    st.error(f"❌ Error cargando chatbot: {e}")
+                    st.error(f"❌ Error cargando chatbot desde el archivo {file_path}: {e}")
         else:
             st.info("No tienes chatbots creados aún. Crea uno desde 'Home'.")
-
 
 
     # ===================== Main =====================
@@ -648,8 +657,6 @@ class CharacterCreatorApp:
             # === CHATBOTS ===
             elif menu == "chatbots":
                  self.render_chatbots_interface()
-
-
 
 if __name__ == "__main__":
     app = CharacterCreatorApp()
