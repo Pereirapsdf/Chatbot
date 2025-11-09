@@ -457,6 +457,7 @@ class CharacterCreatorApp:
 
   # ===================== Interfaz de chat =====================
 # ===================== Interfaz de chat =====================
+# ===================== Interfaz de chat =====================
     def render_chat_interface(self):
         if not st.session_state.character_instance:
             st.info("👈 Crea un personaje primero.")
@@ -537,16 +538,25 @@ class CharacterCreatorApp:
                     # USUARIO A LA DERECHA: columna vacía a la izquierda
                     col_left, col_right = st.columns([1, 4])
                     with col_right:
-                        # Crear un contenedor con estilo para simular mensaje de usuario
+                        # Crear un contenedor con estilo adaptable al contenido
                         st.markdown(f"""
                             <div style="
-                                background-color: #262730;
-                                border-radius: 10px;
-                                padding: 10px 15px;
-                                margin: 5px 0;
-                                text-align: left;
+                                display: flex;
+                                justify-content: flex-end;
+                                width: 100%;
                             ">
-                                {message['content']}
+                                <div style="
+                                    background-color: #262730;
+                                    border-radius: 10px;
+                                    padding: 10px 15px;
+                                    margin: 5px 0;
+                                    text-align: left;
+                                    display: inline-block;
+                                    max-width: 80%;
+                                    word-wrap: break-word;
+                                ">
+                                    {message['content']}
+                                </div>
                             </div>
                         """, unsafe_allow_html=True)
 
@@ -554,14 +564,10 @@ class CharacterCreatorApp:
         if prompt := st.chat_input("Escribe tu mensaje..."):
             # Añadir el mensaje del usuario
             st.session_state.messages.append({"role": "user", "content": prompt})
-            with st.chat_message("user"):
-                st.write(prompt)
 
             # Generar la respuesta del personaje
-            with st.chat_message("assistant", avatar=st.session_state.character_instance.profile_image_path):
-                with st.spinner(f"{st.session_state.current_character} está pensando..."):
-                    response = st.session_state.character_instance.generate_response(prompt)
-                    st.write(f"**{st.session_state.current_character}:** {response}")
+            with st.spinner(f"{st.session_state.current_character} está pensando..."):
+                response = st.session_state.character_instance.generate_response(prompt)
 
             # Añadir la respuesta al historial de mensajes
             st.session_state.messages.append({
@@ -570,6 +576,9 @@ class CharacterCreatorApp:
                 "character": st.session_state.current_character,
                 "avatar_path": st.session_state.character_instance.profile_image_path
             })
+            
+            # FORZAR ACTUALIZACIÓN INMEDIATA
+            st.rerun()
     # ===================== Guardar / Cargar chats =====================
     def save_chat_history(self):
         """Guardar chat con TODOS los datos del personaje y sobrescribir si ya existe."""
