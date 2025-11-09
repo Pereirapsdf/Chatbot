@@ -562,7 +562,6 @@ class CharacterCreatorApp:
 
         except Exception as e:
             st.error(f"⚠ Error al guardar chat: {e}")
-
     def load_chat_history(self, selected_file):
         """Cargar chat con validación de estructura"""
         try:
