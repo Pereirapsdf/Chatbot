@@ -453,7 +453,8 @@ class CharacterCreatorApp:
 
 
 
-    # ===================== Interfaz de chat =====================
+
+  # ===================== Interfaz de chat =====================
     def render_chat_interface(self):
         if not st.session_state.character_instance:
             st.info("👈 Crea un personaje primero.")
@@ -477,7 +478,7 @@ class CharacterCreatorApp:
                 # Mantener el personaje pero reiniciar la conversación
                 greeting = st.session_state.character_instance.greeting
                 st.session_state.messages = [{
-                    "role": st.session_state.character_instance.personality,  # Usamos la personalidad como rol
+                    "role": st.session_state.character_instance.personality,
                     "content": greeting,
                     "character": st.session_state.current_character,
                     "avatar_path": st.session_state.character_instance.profile_image_path
@@ -489,20 +490,16 @@ class CharacterCreatorApp:
 
         st.markdown("---")
 
-        # Mostrar mensajes con alineación correcta (izquierda para el usuario, derecha para el bot)
+        # Mostrar mensajes con el bot a la IZQUIERDA y el usuario a la DERECHA
         for message in st.session_state.messages:
             if message["role"] == st.session_state.character_instance.personality:  # Mensaje del bot
+                # BOT A LA IZQUIERDA con avatar
                 with st.chat_message("assistant", avatar=message.get('avatar_path')):
-                    # Estilo: el mensaje del bot se alinea a la derecha
-                    col1, col2 = st.columns([1, 3])  # Columna pequeña para alineación, columna ancha para el mensaje
-                    with col2:
-                        st.write(f"**{st.session_state.current_character}:** {message['content']}")
+                    st.write(f"**{st.session_state.current_character}:** {message['content']}")
             else:  # Mensaje del usuario
+                # USUARIO A LA DERECHA sin avatar (o con avatar por defecto)
                 with st.chat_message("user"):
-                    # Estilo: el mensaje del usuario se alinea a la izquierda
-                    col1, col2 = st.columns([3, 1])  # Columna ancha para el mensaje, columna pequeña para alineación
-                    with col1:
-                        st.write(message["content"])
+                    st.write(message["content"])
 
         # Input de chat
         if prompt := st.chat_input("Escribe tu mensaje..."):
@@ -512,21 +509,18 @@ class CharacterCreatorApp:
                 st.write(prompt)
 
             # Generar la respuesta del personaje
-            with st.chat_message(st.session_state.character_instance.personality, avatar=st.session_state.character_instance.profile_image_path):
+            with st.chat_message("assistant", avatar=st.session_state.character_instance.profile_image_path):
                 with st.spinner(f"{st.session_state.current_character} está pensando..."):
                     response = st.session_state.character_instance.generate_response(prompt)
                     st.write(f"**{st.session_state.current_character}:** {response}")
 
             # Añadir la respuesta al historial de mensajes
             st.session_state.messages.append({
-                "role": st.session_state.character_instance.personality,  # Usar la personalidad en vez de "assistant"
+                "role": st.session_state.character_instance.personality,
                 "content": response,
                 "character": st.session_state.current_character,
                 "avatar_path": st.session_state.character_instance.profile_image_path
             })
-
-
- 
     # ===================== Guardar / Cargar chats =====================
     def save_chat_history(self):
         """Guardar chat con TODOS los datos del personaje y sobrescribir si ya existe."""
