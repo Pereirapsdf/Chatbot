@@ -293,7 +293,7 @@ class CharacterCreatorApp:
                     raise ValueError(f"El modelo '{model_name}' no es válido. Usa uno de los modelos disponibles: {', '.join(valid_models)}")
 
                 # Generar un identificador único para el personaje
-                unique_id = self.generate_unique_id()
+                unique_id = CharacterCreatorApp.generate_unique_id()
 
                 # Crear la instancia del personaje con el modelo fijo
                 st.session_state.character_instance = CharacterAI(
@@ -518,6 +518,7 @@ class CharacterCreatorApp:
                 "avatar_path": st.session_state.character_instance.profile_image_path
             })
 
+    @staticmethod
     def generate_unique_id():
         return str(uuid.uuid4()) 
     # ===================== Guardar / Cargar chats =====================
