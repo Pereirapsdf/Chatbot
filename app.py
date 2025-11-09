@@ -282,77 +282,74 @@ class CharacterCreatorApp:
             st.error(f"Error mostrando imagen: {e}")
 
     # ===================== Crear personaje =====================
-    def create_character(self, name, personality, greeting, profile_image_path, model_name):
-            try:
-                # Forzamos que siempre se use el modelo 'gemini-2.0-flash'
-                model_name = "gemini-2.0-flash"
+    def create_character(self, name, personality, greeting, profile_image_path, model_name): 
+        try:
+            # Forzamos que siempre se use el modelo 'gemini-2.0-flash'
+            model_name = "gemini-2.0-flash"
 
-                # Validar que el modelo sea uno de los modelos permitidos
-                valid_models = ["gemini-2.0-flash"]
-                if model_name not in valid_models:
-                    raise ValueError(f"El modelo '{model_name}' no es válido. Usa uno de los modelos disponibles: {', '.join(valid_models)}")
+            # Validar que el modelo sea uno de los modelos permitidos
+            valid_models = ["gemini-2.0-flash"]
+            if model_name not in valid_models:
+                raise ValueError(f"El modelo '{model_name}' no es válido. Usa uno de los modelos disponibles: {', '.join(valid_models)}")
 
-                # Generar un identificador único para el personaje
-                unique_id = CharacterCreatorApp.generate_unique_id()
+            # Crear la instancia del personaje con el modelo fijo
+            st.session_state.character_instance = CharacterAI(
+                name=name,
+                personality=personality,
+                greeting=greeting,
+                profile_image_path=profile_image_path,
+                model_name=model_name
+            )
 
-                # Crear la instancia del personaje con el modelo fijo
-                st.session_state.character_instance = CharacterAI(
-                    name=name,
-                    personality=personality,  # Aquí se guarda la personalidad
-                    greeting=greeting,
-                    profile_image_path=profile_image_path,
-                    model_name=model_name,  # Siempre el modelo gemini-2.0-flash
-                    unique_id=unique_id  # Asignar el ID único al personaje
-                )
+            # Generar un unique_id para el personaje
+            st.session_state.character_instance.unique_id = generate_unique_id()
 
-                st.session_state.current_character = name
-                st.session_state.messages = [{
-                    "role": personality,  # Usamos la personalidad como el role
-                    "content": greeting,  # Contenido con el saludo
-                    "character": name,
-                    "avatar_path": profile_image_path
-                }]
+            st.session_state.current_character = name
+            st.session_state.messages = [{
+                "role": personality,
+                "content": greeting,
+                "character": name,
+                "avatar_path": profile_image_path
+            }]
+            
+            st.session_state.creator_mode = False
+            st.success(f"¡Personaje {name} creado exitosamente!")
+            st.rerun()
 
-                # Llamar a la función para guardar el personaje
-                self.save_character(st.session_state.character_instance)
-
-                st.session_state.creator_mode = False  # Salimos del modo creador
-                st.success(f"¡Personaje {name} creado exitosamente!")
-                st.rerun()
-
-            except Exception as e:
-                st.error(f"Error al crear el personaje: {str(e)}")
-
+        except Exception as e:
+            st.error(f"Error al crear el personaje: {str(e)}")
 
 
 
     # ===================== Guardar personaje =====================
 # Guardar los datos del personaje (incluyendo el modelo)
     def save_character(self, character_instance):
-            """Guardar los datos del personaje (incluyendo el modelo)"""
-            characters_folder = "characters"
-            if not os.path.exists(characters_folder):
-                os.makedirs(characters_folder)
+        characters_folder = "characters"
+        if not os.path.exists(characters_folder):
+            os.makedirs(characters_folder)
 
-            # Usar el ID único como nombre del archivo
-            filename = f"{character_instance.unique_id}.json"
-            filepath = os.path.join(characters_folder, filename)
+        # Usamos el unique_id como parte del nombre del archivo
+        filename = f"{character_instance.name}_{character_instance.unique_id}.json"
+        filepath = os.path.join(characters_folder, filename)
 
-            # Guardamos los datos del personaje
-            data = {
-                "name": character_instance.name,
-                "personality": character_instance.personality,
-                "greeting": character_instance.greeting,
-                "profile_image_path": character_instance.profile_image_path,
-                "model_name": character_instance.model_name,
-                "messages": st.session_state.messages,
-                "unique_id": character_instance.unique_id  # Guardamos el ID único
-            }
-            print(f"Guardando personaje con el ID único: {character_instance.unique_id}")
-
-            # Guardamos el archivo del personaje
+        # Guardamos los datos del personaje (incluido el modelo)
+        data = {
+            "name": character_instance.name,
+            "personality": character_instance.personality,
+            "greeting": character_instance.greeting,
+            "profile_image_path": character_instance.profile_image_path,
+            "model_name": character_instance.model_name,
+            "unique_id": character_instance.unique_id,
+            "messages": st.session_state.messages
+        }
+        
+        try:
             with open(filepath, "w", encoding="utf-8") as f:
                 json.dump(data, f, ensure_ascii=False, indent=2)
+            st.success(f"Personaje {character_instance.name} guardado exitosamente con ID {character_instance.unique_id}")
+        except Exception as e:
+            st.error(f"Error al guardar el personaje: {e}")
+
 
     # ===================== Interfaz de creación de personaje =====================
     def render_character_creator(self, available_images):
@@ -583,96 +580,87 @@ class CharacterCreatorApp:
                         model_name=model_name
                     )
                     
+                    # Asignar el unique_id al objeto del personaje
+                    st.session_state.character_instance.unique_id = data.get("unique_id", generate_unique_id())
+                    
                     st.session_state.current_character = data["name"]
                     
                     # Procesar los mensajes
                     processed_messages = []
                     for msg in data["messages"]:
                         if "role" in msg:
-                            # Si el mensaje tiene el rol "user" o el rol del personaje, procesarlo
-                            if msg["role"] == "user":
-                                # Mensajes de usuario (sin character ni avatar_path)
-                                processed_messages.append({
-                                    "role": "user",
-                                    "content": msg["content"]
-                                })
-                            else:
-                                # Mensajes de personaje (con character y avatar_path)
-                                processed_messages.append({
-                                    "role": msg["role"],
-                                    "content": msg["content"],
-                                    "character": msg.get("character", data["name"]),
-                                    "avatar_path": msg.get("avatar_path", data["profile_image_path"])
-                                })
+                            processed_messages.append({
+                                "role": msg["role"],
+                                "content": msg["content"],
+                                "character": msg.get("character", data["name"]),
+                                "avatar_path": msg.get("avatar_path", data["profile_image_path"])
+                            })
                     
                     st.session_state.messages = processed_messages
                     st.session_state.creator_mode = False
-                    
                     st.success(f"📂 Chat cargado correctamente. Modelo: {model_name}")
                 else:
                     st.error("❌ El archivo no contiene la información completa del personaje.")
             else:
-                # Si no tiene la clave 'messages' o la estructura no es un diccionario
-                st.error("❌ El archivo no tiene la estructura esperada (debe contener una clave 'messages' con una lista de mensajes).")
-                    
+                st.error("❌ El archivo no tiene la estructura esperada.")
+                        
         except Exception as e:
             st.error(f"⚠ Error cargando chat: {e}")
 
     def render_chatbots_interface(self):
-            st.title("🤖 Mis Chatbots")
-            
-            # Obtener los archivos JSON de la carpeta de chats guardados
-            characters_folder = self.chats_folder
-            chatbot_files = sorted(glob.glob(f"{characters_folder}/*.json"))
+        st.title("🤖 Mis Chatbots")
+        
+        # Obtener los archivos JSON de la carpeta de chats guardados
+        characters_folder = "characters"
+        chatbot_files = sorted(glob.glob(f"{characters_folder}/*.json"))
 
-            if chatbot_files:
-                for file_path in chatbot_files:
-                    try:
-                        with open(file_path, "r", encoding="utf-8") as f:
-                            # Cargar los datos del archivo JSON
-                            data = json.load(f)
-                            
-                            # Verificar que el archivo contiene la estructura correcta
-                            if "messages" in data and "name" in data and "personality" in data:
+        if chatbot_files:
+            for file_path in chatbot_files:
+                try:
+                    with open(file_path, "r", encoding="utf-8") as f:
+                        # Cargar los datos del archivo JSON
+                        data = json.load(f)
+                        
+                        # Comprobar que los datos están en formato dict y contienen 'messages'
+                        if isinstance(data, dict) and "messages" in data:
+                            # Asegurarse de que tiene la información del personaje
+                            if "name" in data and "personality" in data and "greeting" in data:
+                                model_name = data.get("model_name", "gemini-2.0-flash")
+                                
                                 # Mostrar la imagen, nombre y personalidad
                                 col1, col2, col3 = st.columns([1, 3, 1])
                                 
                                 with col1:
-                                    # Mostrar la imagen del personaje si existe
-                                    if data["profile_image_path"] and os.path.exists(data["profile_image_path"]):
+                                    if os.path.exists(data["profile_image_path"]):
                                         self.display_image(data["profile_image_path"], width=80)
                                 
                                 with col2:
-                                    # Mostrar el nombre y personalidad del personaje
                                     st.subheader(data["name"])
                                     st.write(f"**Personalidad:** {data['personality']}")
                                 
                                 with col3:
-                                    # Botón para iniciar chat con el personaje
-                                    if st.button(f"💬 Iniciar chat con {data['name']}", key=f"chat_{data['name']}"):
-                                        # Restaurar el personaje en session_state
+                                    if st.button(f"💬 Iniciar chat con {data['name']}", key=f"chat_{data['unique_id']}"):
                                         st.session_state.current_character = data["name"]
                                         st.session_state.character_instance = CharacterAI(
                                             name=data["name"],
                                             personality=data["personality"],
-                                            greeting="(Continuación del chat guardado)",  # Ajustar si es necesario
+                                            greeting="(Continuación del chat guardado)",
                                             profile_image_path=data["profile_image_path"],
-                                            model_name=data["model_name"],
-                                            unique_id=data["unique_id"]
+                                            model_name=model_name
                                         )
-                                        # Restaurar los mensajes de la conversación
+                                        st.session_state.character_instance.unique_id = data["unique_id"]  # Asignar el unique_id
                                         st.session_state.messages = data["messages"]
                                         st.session_state.creator_mode = False
-                                        st.session_state.active_menu = "home"
                                         st.rerun()
-
                             else:
                                 st.error(f"❌ El archivo {file_path} no contiene la información completa del personaje.")
-                    except Exception as e:
-                        st.error(f"❌ Error cargando chatbot desde el archivo {file_path}: {e}")
-            else:
-                st.info("No tienes chatbots creados aún. Crea uno desde 'Home'.")
-   
+                        else:
+                            st.error(f"❌ El archivo {file_path} no tiene la estructura esperada.")
+                except Exception as e:
+                    st.error(f"⚠ Error al cargar el chatbot desde {file_path}: {e}")
+        else:
+            st.write("No tienes chatbots guardados.")
+
     # ===================== Main =====================
     def run(self):
         self.apply_custom_style()
