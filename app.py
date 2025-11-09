@@ -17,6 +17,7 @@ st.set_page_config(
 )
 
 st.markdown("""
+            
     <style>
     /* Mantener espacio y estilo mínimo para el input */
     [data-testid="stAppViewContainer"] { overflow: visible !important; }
@@ -513,22 +514,41 @@ class CharacterCreatorApp:
 
         st.markdown("---")
 
-        # Mostrar mensajes con el bot a la IZQUIERDA y el usuario a la DERECHA
-        for message in st.session_state.messages:
-            # Verificar si es mensaje del bot (por role o por character)
-            is_bot_message = (
-                message["role"] == st.session_state.character_instance.personality or
-                message.get("character") == st.session_state.current_character
-            )
-            
-            if is_bot_message:  # Mensaje del bot
-                # BOT A LA IZQUIERDA con avatar
-                with st.chat_message("assistant", avatar=message.get('avatar_path')):
-                    st.write(f"**{st.session_state.current_character}:** {message['content']}")
-            else:  # Mensaje del usuario
-                # USUARIO A LA DERECHA sin avatar (o con avatar por defecto)
-                with st.chat_message("user"):
-                    st.write(message["content"])
+        # Contenedor de mensajes con scroll
+        chat_container = st.container()
+        
+        with chat_container:
+            # Mostrar mensajes con el bot a la IZQUIERDA y el usuario a la DERECHA
+            for i, message in enumerate(st.session_state.messages):
+                # Verificar si es mensaje del bot (por role o por character)
+                is_bot_message = (
+                    message["role"] == st.session_state.character_instance.personality or
+                    message.get("character") == st.session_state.current_character
+                )
+                
+                if is_bot_message:  # Mensaje del bot
+                    # BOT A LA IZQUIERDA: columna completa
+                    col_left, col_right = st.columns([4, 1])
+                    with col_left:
+                        with st.chat_message("assistant", avatar=message.get('avatar_path')):
+                            st.write(f"**{st.session_state.current_character}:** {message['content']}")
+                
+                else:  # Mensaje del usuario
+                    # USUARIO A LA DERECHA: columna vacía a la izquierda
+                    col_left, col_right = st.columns([1, 4])
+                    with col_right:
+                        # Crear un contenedor con estilo para simular mensaje de usuario
+                        st.markdown(f"""
+                            <div style="
+                                background-color: #262730;
+                                border-radius: 10px;
+                                padding: 10px 15px;
+                                margin: 5px 0;
+                                text-align: left;
+                            ">
+                                {message['content']}
+                            </div>
+                        """, unsafe_allow_html=True)
 
         # Input de chat
         if prompt := st.chat_input("Escribe tu mensaje..."):
