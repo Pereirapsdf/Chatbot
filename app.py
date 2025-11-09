@@ -489,19 +489,18 @@ class CharacterCreatorApp:
 
         st.markdown("---")
 
-        # Mostrar mensajes con alineación
+        # Mostrar mensajes con alineación (izquierda para el usuario, derecha para el bot)
         for message in st.session_state.messages:
-            # Verificar si es mensaje del usuario o del bot
-            if message["role"] == st.session_state.character_instance.personality:  # Mensajes del bot
+            if message["role"] == st.session_state.character_instance.personality:  # Mensaje del bot
                 with st.chat_message("assistant", avatar=message.get('avatar_path')):
-                    # Colocamos el mensaje del bot en la parte derecha
-                    col1, col2 = st.columns([3, 1])  # Columna 1 más ancha para el mensaje
+                    # Estilo: el mensaje del bot se alinea a la derecha
+                    col1, col2 = st.columns([3, 1])  # Columna ancha para el mensaje, columna pequeña para alineación
                     with col2:
                         st.write(f"**{st.session_state.current_character}:** {message['content']}")
-            else:  # Mensajes del usuario
+            else:  # Mensaje del usuario
                 with st.chat_message("user"):
-                    # Colocamos el mensaje del usuario en la parte izquierda
-                    col1, col2 = st.columns([1, 3])  # Columna 1 más pequeña para el mensaje del usuario
+                    # Estilo: el mensaje del usuario se alinea a la izquierda
+                    col1, col2 = st.columns([1, 3])  # Columna pequeña para el mensaje, columna ancha para alineación
                     with col1:
                         st.write(message["content"])
 
@@ -525,6 +524,7 @@ class CharacterCreatorApp:
                 "character": st.session_state.current_character,
                 "avatar_path": st.session_state.character_instance.profile_image_path
             })
+
 
 
  
