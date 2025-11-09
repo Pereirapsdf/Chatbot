@@ -489,14 +489,21 @@ class CharacterCreatorApp:
 
         st.markdown("---")
 
-        # Mostrar mensajes
+        # Mostrar mensajes con alineación
         for message in st.session_state.messages:
-            if message["role"] == st.session_state.character_instance.personality:  # Se usa la personalidad en vez de "assistant"
-                with st.chat_message("user"):
-                    st.write(message["content"])
-            else:
+            # Verificar si es mensaje del usuario o del bot
+            if message["role"] == st.session_state.character_instance.personality:  # Mensajes del bot
                 with st.chat_message("assistant", avatar=message.get('avatar_path')):
-                    st.write(f"**{message.get('character', 'AI')}:** {message['content']}")
+                    # Colocamos el mensaje del bot en la parte derecha
+                    col1, col2 = st.columns([3, 1])  # Columna 1 más ancha para el mensaje
+                    with col2:
+                        st.write(f"**{st.session_state.current_character}:** {message['content']}")
+            else:  # Mensajes del usuario
+                with st.chat_message("user"):
+                    # Colocamos el mensaje del usuario en la parte izquierda
+                    col1, col2 = st.columns([1, 3])  # Columna 1 más pequeña para el mensaje del usuario
+                    with col1:
+                        st.write(message["content"])
 
         # Input de chat
         if prompt := st.chat_input("Escribe tu mensaje..."):
@@ -518,6 +525,7 @@ class CharacterCreatorApp:
                 "character": st.session_state.current_character,
                 "avatar_path": st.session_state.character_instance.profile_image_path
             })
+
 
  
     # ===================== Guardar / Cargar chats =====================
