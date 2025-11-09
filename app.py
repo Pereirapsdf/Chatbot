@@ -591,7 +591,6 @@ class CharacterCreatorApp:
         except Exception as e:
             st.error(f"⚠ Error cargando chat: {e}")
 
-
     def render_chatbots_interface(self):
         st.title("🤖 Mis Chatbots")
         
@@ -613,40 +612,37 @@ class CharacterCreatorApp:
                                 # Verificar el modelo si está presente
                                 model_name = data.get("model_name", "gemini-2.0-flash")
                                 
-                                # Crear el objeto de personaje en session_state
-                                st.session_state.character_instance = CharacterAI(
-                                    name=data["name"],
-                                    personality=data["personality"],
-                                    greeting=data["greeting"],
-                                    profile_image_path=data["profile_image_path"],
-                                    model_name=model_name
-                                )
+                                # Mostrar la imagen, nombre y personalidad
+                                col1, col2, col3 = st.columns([1, 3, 1])
                                 
-                                st.session_state.current_character = data["name"]
+                                with col1:
+                                    # Mostrar la imagen del personaje si existe
+                                    if data["profile_image_path"] and os.path.exists(data["profile_image_path"]):
+                                        self.display_image(data["profile_image_path"], width=80)
+                                
+                                with col2:
+                                    # Mostrar el nombre y personalidad del personaje
+                                    st.subheader(data["name"])
+                                    st.write(f"**Personalidad:** {data['personality']}")
+                                
+                                with col3:
+                                    # Botón para iniciar chat con el personaje
+                                    if st.button(f"💬 Iniciar chat con {data['name']}", key=f"chat_{data['name']}"):
+                                        # Restaurar el personaje en session_state
+                                        st.session_state.current_character = data["name"]
+                                        st.session_state.character_instance = CharacterAI(
+                                            name=data["name"],
+                                            personality=data["personality"],
+                                            greeting="(Continuación del chat guardado)",  # Puede ajustarse si se guarda el saludo
+                                            profile_image_path=data["profile_image_path"],
+                                            model_name=model_name
+                                        )
+                                        # Restaurar los mensajes de la conversación
+                                        st.session_state.messages = data["messages"]
+                                        st.session_state.creator_mode = False
+                                        st.session_state.active_menu = "home"
+                                        st.rerun()
 
-                                # Procesar los mensajes como en la función de "Chats guardados"
-                                processed_messages = []
-                                for msg in data["messages"]:
-                                    if "role" in msg:
-                                        if msg["role"] == "user":
-                                            # Mensajes de usuario (sin character ni avatar_path)
-                                            processed_messages.append({
-                                                "role": "user",
-                                                "content": msg["content"]
-                                            })
-                                        else:
-                                            # Mensajes de personaje (con character y avatar_path)
-                                            processed_messages.append({
-                                                "role": msg["role"],
-                                                "content": msg["content"],
-                                                "character": msg.get("character", data["name"]),
-                                                "avatar_path": msg.get("avatar_path", data["profile_image_path"])
-                                            })
-
-                                st.session_state.messages = processed_messages
-                                st.session_state.creator_mode = False
-
-                                st.success(f"📂 Chat cargado correctamente. Modelo: {model_name}")
                             else:
                                 st.error(f"❌ El archivo {file_path} no contiene la información completa del personaje.")
                         else:
@@ -655,9 +651,6 @@ class CharacterCreatorApp:
                     st.error(f"❌ Error cargando chatbot desde el archivo {file_path}: {e}")
         else:
             st.info("No tienes chatbots creados aún. Crea uno desde 'Home'.")
-
-
-
 
     # ===================== Main =====================
     def run(self):
