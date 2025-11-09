@@ -612,8 +612,8 @@ class CharacterCreatorApp:
     def render_chatbots_interface(self):
         st.title("🤖 Mis Chatbots")
         
-        # Obtener los archivos JSON de la carpeta de chats guardados
-        characters_folder = "characters"
+        # Ruta correcta para buscar los archivos JSON
+        characters_folder = self.chats_folder  # Asegúrate de que esta carpeta existe
         chatbot_files = sorted(glob.glob(f"{characters_folder}/*.json"))
 
         if chatbot_files:
@@ -627,41 +627,48 @@ class CharacterCreatorApp:
                         if isinstance(data, dict) and "messages" in data:
                             # Asegurarse de que tiene la información del personaje
                             if "name" in data and "personality" in data and "greeting" in data:
+                                # Verificar el modelo si está presente
                                 model_name = data.get("model_name", "gemini-2.0-flash")
                                 
                                 # Mostrar la imagen, nombre y personalidad
                                 col1, col2, col3 = st.columns([1, 3, 1])
                                 
                                 with col1:
-                                    if os.path.exists(data["profile_image_path"]):
+                                    # Mostrar la imagen del personaje si existe
+                                    if data["profile_image_path"] and os.path.exists(data["profile_image_path"]):
                                         self.display_image(data["profile_image_path"], width=80)
                                 
                                 with col2:
+                                    # Mostrar el nombre y personalidad del personaje
                                     st.subheader(data["name"])
                                     st.write(f"**Personalidad:** {data['personality']}")
                                 
                                 with col3:
-                                    if st.button(f"💬 Iniciar chat con {data['name']}", key=f"chat_{data['unique_id']}"):
+                                    # Botón para iniciar chat con el personaje
+                                    if st.button(f"💬 Iniciar chat con {data['name']}", key=f"chat_{data['name']}"):
+                                        # Restaurar el personaje en session_state
                                         st.session_state.current_character = data["name"]
                                         st.session_state.character_instance = CharacterAI(
                                             name=data["name"],
                                             personality=data["personality"],
-                                            greeting="(Continuación del chat guardado)",
+                                            greeting="(Continuación del chat guardado)",  # Puede ajustarse si se guarda el saludo
                                             profile_image_path=data["profile_image_path"],
                                             model_name=model_name
                                         )
-                                        st.session_state.character_instance.unique_id = data["unique_id"]  # Asignar el unique_id
+                                        # Restaurar los mensajes de la conversación
                                         st.session_state.messages = data["messages"]
                                         st.session_state.creator_mode = False
+                                        st.session_state.active_menu = "home"
                                         st.rerun()
+
                             else:
                                 st.error(f"❌ El archivo {file_path} no contiene la información completa del personaje.")
                         else:
-                            st.error(f"❌ El archivo {file_path} no tiene la estructura esperada.")
+                            st.error(f"❌ El archivo {file_path} no tiene la estructura esperada (debe contener una clave 'messages' con una lista de mensajes).")
                 except Exception as e:
-                    st.error(f"⚠ Error al cargar el chatbot desde {file_path}: {e}")
+                    st.error(f"❌ Error cargando chatbot desde el archivo {file_path}: {e}")
         else:
-            st.write("No tienes chatbots guardados.")
+            st.info("No tienes chatbots creados aún. Crea uno desde 'Home'.")
 
     # ===================== Main =====================
     def run(self):
