@@ -248,7 +248,11 @@ class CharacterCreatorApp:
         except Exception as e:
             st.error(f"Error conectando a la API: {e}")
             return []
-
+        
+    @staticmethod
+    def generate_unique_id():
+        return str(uuid.uuid4()) 
+    
     # ===================== Session state =====================
     def initialize_session_state(self):
         defaults = {
@@ -302,7 +306,7 @@ class CharacterCreatorApp:
             )
 
             # Generar un unique_id para el personaje
-            st.session_state.character_instance.unique_id = generate_unique_id()
+            st.session_state.character_instance.unique_id = CharacterCreatorApp.generate_unique_id()
 
             st.session_state.current_character = name
             st.session_state.messages = [{
@@ -515,9 +519,7 @@ class CharacterCreatorApp:
                 "avatar_path": st.session_state.character_instance.profile_image_path
             })
 
-    @staticmethod
-    def generate_unique_id():
-        return str(uuid.uuid4()) 
+ 
     # ===================== Guardar / Cargar chats =====================
     def save_chat_history(self):
         """Guardar chat con TODOS los datos del personaje y sobrescribir si ya existe."""
@@ -527,7 +529,7 @@ class CharacterCreatorApp:
 
         # Si el personaje no tiene un ID único asignado, lo creamos
         if not hasattr(st.session_state.character_instance, 'unique_id'):
-            st.session_state.character_instance.unique_id = generate_unique_id()
+            st.session_state.character_instance.unique_id = CharacterCreatorApp.generate_unique_id() 
 
         # Usamos el unique_id como nombre del archivo
         file_name = f"{st.session_state.character_instance.unique_id}.json"
@@ -581,7 +583,7 @@ class CharacterCreatorApp:
                     )
                     
                     # Asignar el unique_id al objeto del personaje
-                    st.session_state.character_instance.unique_id = data.get("unique_id", generate_unique_id())
+                    st.session_state.character_instance.unique_id = data.get("unique_id", CharacterCreatorApp.generate_unique_id())
                     
                     st.session_state.current_character = data["name"]
                     
