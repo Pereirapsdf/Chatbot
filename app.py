@@ -575,6 +575,15 @@ class CharacterCreatorApp:
                     # Cargar la información del personaje
                     model_name = data.get("model_name", "gemini-2.0-flash")
                     
+                    # *** EXTRAER unique_id ANTES de crear el personaje ***
+                    # Si el archivo tiene unique_id, usarlo; si no, extraerlo del nombre del archivo
+                    if "unique_id" in data:
+                        unique_id = data["unique_id"]
+                    else:
+                        # Extraer el unique_id del nombre del archivo (sin la extensión .json)
+                        file_name = os.path.basename(selected_file)
+                        unique_id = os.path.splitext(file_name)[0]
+                    
                     # Crear el objeto de personaje
                     st.session_state.character_instance = CharacterAI(
                         name=data["name"],
@@ -584,15 +593,8 @@ class CharacterCreatorApp:
                         model_name=model_name
                     )
                     
-                    # *** CORRECCIÓN: Asignar el unique_id del archivo cargado ***
-                    # Si el archivo tiene unique_id, usarlo; si no, extraerlo del nombre del archivo
-                    if "unique_id" in data:
-                        st.session_state.character_instance.unique_id = data["unique_id"]
-                    else:
-                        # Extraer el unique_id del nombre del archivo (sin la extensión .json)
-                        file_name = os.path.basename(selected_file)
-                        unique_id = os.path.splitext(file_name)[0]
-                        st.session_state.character_instance.unique_id = unique_id
+                    # Asignar el unique_id al personaje
+                    st.session_state.character_instance.unique_id = unique_id
                     
                     st.session_state.current_character = data["name"]
                     
@@ -609,7 +611,7 @@ class CharacterCreatorApp:
                     
                     st.session_state.messages = processed_messages
                     st.session_state.creator_mode = False
-                    st.success(f"📂 Chat cargado correctamente. Modelo: {model_name}")
+                    st.success(f"📂 Chat cargado correctamente. ID: {unique_id}, Modelo: {model_name}")
                 else:
                     st.error("❌ El archivo no contiene la información completa del personaje.")
             else:
@@ -617,6 +619,8 @@ class CharacterCreatorApp:
                         
         except Exception as e:
             st.error(f"⚠️ Error cargando chat: {e}")
+
+
     def render_chatbots_interface(self):
         st.title("🤖 Mis Chatbots")
         
@@ -638,6 +642,14 @@ class CharacterCreatorApp:
                                 # Verificar el modelo si está presente
                                 model_name = data.get("model_name", "gemini-2.0-flash")
                                 
+                                # *** EXTRAER unique_id del archivo ***
+                                if "unique_id" in data:
+                                    unique_id = data["unique_id"]
+                                else:
+                                    # Extraer del nombre del archivo
+                                    file_name = os.path.basename(file_path)
+                                    unique_id = os.path.splitext(file_name)[0]
+                                
                                 # Mostrar la imagen, nombre y personalidad
                                 col1, col2, col3 = st.columns([1, 3, 1])
                                 
@@ -653,16 +665,20 @@ class CharacterCreatorApp:
                                 
                                 with col3:
                                     # Botón para iniciar chat con el personaje
-                                    if st.button(f"💬 Iniciar chat con {data['name']}", key=f"chat_{data['name']}"):
+                                    if st.button(f"💬 Iniciar chat con {data['name']}", key=f"chat_{unique_id}"):
                                         # Restaurar el personaje en session_state
                                         st.session_state.current_character = data["name"]
                                         st.session_state.character_instance = CharacterAI(
                                             name=data["name"],
                                             personality=data["personality"],
-                                            greeting="(Continuación del chat guardado)",  # Puede ajustarse si se guarda el saludo
+                                            greeting="(Continuación del chat guardado)",
                                             profile_image_path=data["profile_image_path"],
                                             model_name=model_name
                                         )
+                                        
+                                        # *** ASIGNAR unique_id AL PERSONAJE ***
+                                        st.session_state.character_instance.unique_id = unique_id
+                                        
                                         # Restaurar los mensajes de la conversación
                                         st.session_state.messages = data["messages"]
                                         st.session_state.creator_mode = False
@@ -677,7 +693,6 @@ class CharacterCreatorApp:
                     st.error(f"❌ Error cargando chatbot desde el archivo {file_path}: {e}")
         else:
             st.info("No tienes chatbots creados aún. Crea uno desde 'Home'.")
-
     # ===================== Main =====================
     def run(self):
         self.apply_custom_style()
