@@ -533,7 +533,7 @@ class CharacterCreatorApp:
         except Exception as e:
             st.error(f"⚠ Error guardando chat: {e}")
 
-            
+
     def load_chat_history(self, selected_file):
         """Cargar chat con validación de estructura"""
         try:
@@ -544,10 +544,10 @@ class CharacterCreatorApp:
             if isinstance(data, dict) and "messages" in data:
                 # Verificar si tiene los datos del personaje
                 if "name" in data and "personality" in data and "greeting" in data:
-                    # Nuevo formato con los datos del personaje
+                    # Cargar la información del personaje
                     model_name = data.get("model_name", "gemini-2.0-flash")
                     
-                    # Cargar la información del personaje
+                    # Crear el objeto de personaje
                     st.session_state.character_instance = CharacterAI(
                         name=data["name"],
                         personality=data["personality"],
@@ -557,7 +557,28 @@ class CharacterCreatorApp:
                     )
                     
                     st.session_state.current_character = data["name"]
-                    st.session_state.messages = data["messages"]  # Los mensajes ya están bajo la clave "messages"
+                    
+                    # Procesar los mensajes
+                    processed_messages = []
+                    for msg in data["messages"]:
+                        if "role" in msg:
+                            # Si el mensaje tiene el rol "user" o el rol del personaje, procesarlo
+                            if msg["role"] == "user":
+                                # Mensajes de usuario (sin character ni avatar_path)
+                                processed_messages.append({
+                                    "role": "user",
+                                    "content": msg["content"]
+                                })
+                            else:
+                                # Mensajes de personaje (con character y avatar_path)
+                                processed_messages.append({
+                                    "role": msg["role"],
+                                    "content": msg["content"],
+                                    "character": msg.get("character", data["name"]),
+                                    "avatar_path": msg.get("avatar_path", data["profile_image_path"])
+                                })
+                    
+                    st.session_state.messages = processed_messages
                     st.session_state.creator_mode = False
                     
                     st.success(f"📂 Chat cargado correctamente. Modelo: {model_name}")
