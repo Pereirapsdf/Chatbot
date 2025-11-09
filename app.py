@@ -585,8 +585,15 @@ class CharacterCreatorApp:
                         model_name=model_name
                     )
                     
-                    # Asignar el unique_id al objeto del personaje
-                    st.session_state.character_instance.unique_id = data.get("unique_id", CharacterCreatorApp.generate_unique_id())
+                    # *** CORRECCIÓN: Asignar el unique_id del archivo cargado ***
+                    # Si el archivo tiene unique_id, usarlo; si no, extraerlo del nombre del archivo
+                    if "unique_id" in data:
+                        st.session_state.character_instance.unique_id = data["unique_id"]
+                    else:
+                        # Extraer el unique_id del nombre del archivo (sin la extensión .json)
+                        file_name = os.path.basename(selected_file)
+                        unique_id = os.path.splitext(file_name)[0]
+                        st.session_state.character_instance.unique_id = unique_id
                     
                     st.session_state.current_character = data["name"]
                     
@@ -610,8 +617,7 @@ class CharacterCreatorApp:
                 st.error("❌ El archivo no tiene la estructura esperada.")
                         
         except Exception as e:
-            st.error(f"⚠ Error cargando chat: {e}")
-
+            st.error(f"⚠️ Error cargando chat: {e}")
     def render_chatbots_interface(self):
         st.title("🤖 Mis Chatbots")
         
