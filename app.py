@@ -455,10 +455,33 @@ class CharacterCreatorApp:
 
 
   # ===================== Interfaz de chat =====================
+# ===================== Interfaz de chat =====================
     def render_chat_interface(self):
         if not st.session_state.character_instance:
             st.info("👈 Crea un personaje primero.")
             return
+
+        # CSS para forzar mensajes del usuario a la derecha
+        st.markdown("""
+            <style>
+            /* Mensajes del usuario a la DERECHA */
+            [data-testid="stChatMessage"]:has([data-testid="chatAvatarIcon-user"]) {
+                flex-direction: row-reverse !important;
+                justify-content: flex-start !important;
+            }
+            
+            [data-testid="stChatMessage"]:has([data-testid="chatAvatarIcon-user"]) > div {
+                margin-left: auto !important;
+                margin-right: 0 !important;
+            }
+            
+            /* Mensajes del asistente a la IZQUIERDA */
+            [data-testid="stChatMessage"]:has([data-testid="chatAvatarIcon-assistant"]) {
+                flex-direction: row !important;
+                justify-content: flex-start !important;
+            }
+            </style>
+        """, unsafe_allow_html=True)
 
         # Header con información del personaje y botones de acción
         col1, col2, col3 = st.columns([1, 3, 1])
@@ -492,7 +515,13 @@ class CharacterCreatorApp:
 
         # Mostrar mensajes con el bot a la IZQUIERDA y el usuario a la DERECHA
         for message in st.session_state.messages:
-            if message["role"] == st.session_state.character_instance.personality:  # Mensaje del bot
+            # Verificar si es mensaje del bot (por role o por character)
+            is_bot_message = (
+                message["role"] == st.session_state.character_instance.personality or
+                message.get("character") == st.session_state.current_character
+            )
+            
+            if is_bot_message:  # Mensaje del bot
                 # BOT A LA IZQUIERDA con avatar
                 with st.chat_message("assistant", avatar=message.get('avatar_path')):
                     st.write(f"**{st.session_state.current_character}:** {message['content']}")
