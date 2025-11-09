@@ -536,13 +536,6 @@ class CharacterCreatorApp:
         filepath = os.path.join(self.chats_folder, file_name)
 
         try:
-            # Revisamos si el archivo ya existe
-            if os.path.exists(filepath):
-                # Avisar que será sobrescrito
-                st.warning(f"⚠️ El archivo con el ID `{st.session_state.character_instance.unique_id}` ya existe. Será sobrescrito.")
-            else:
-                st.success(f"💾 Guardando chat como nuevo archivo `{file_name}`")
-
             # Preparar los datos a guardar
             data = {
                 "name": st.session_state.character_instance.name,
@@ -554,7 +547,14 @@ class CharacterCreatorApp:
                 "unique_id": st.session_state.character_instance.unique_id  # Guardamos el ID único
             }
 
-            # Guardamos el archivo con el nombre basado en el ID único
+            # Revisamos si el archivo ya existe
+            if os.path.exists(filepath):
+                # Avisar que será sobrescrito
+                st.warning(f"⚠️ El archivo con el ID `{st.session_state.character_instance.unique_id}` ya existe. Será sobrescrito.")
+            else:
+                st.success(f"💾 Guardando chat como nuevo archivo `{file_name}`")
+
+            # Guardamos el archivo con el nombre basado en el ID único (si el archivo existe o no)
             with open(filepath, "w", encoding="utf-8") as f:
                 json.dump(data, f, ensure_ascii=False, indent=2)
 
