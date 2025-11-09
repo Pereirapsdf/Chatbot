@@ -606,55 +606,56 @@ class CharacterCreatorApp:
                         # Cargar los datos del archivo JSON
                         data = json.load(f)
                         
-                        # Comprobar que los datos están en formato lista
-                        if isinstance(data, list):
-                            # Extraer el primer mensaje que tiene el "role" de "assistant"
-                            assistant_message = next((msg for msg in data if msg["role"] != "user"), None)
-                            
-                            if assistant_message:
-                                # Extraer información básica
-                                name = assistant_message.get("character", "Desconocido")
-                                personality = assistant_message.get("role", "No especificada")  # Usamos el "role" como personalidad
-                                image_path = assistant_message.get("avatar_path", "")
-                                first_message = assistant_message.get("content", "Hola, ¿cómo estás?")
+                        # Comprobar que los datos están en formato dict y contienen 'messages'
+                        if isinstance(data, dict) and "messages" in data:
+                            # Asegurarse de que tiene la información del personaje
+                            if "name" in data and "personality" in data and "greeting" in data:
+                                # Verificar el modelo si está presente
+                                model_name = data.get("model_name", "gemini-2.0-flash")
                                 
-                                # Mostrar la imagen, nombre y personalidad del personaje
-                                col1, col2, col3 = st.columns([1, 3, 1])
+                                # Crear el objeto de personaje en session_state
+                                st.session_state.character_instance = CharacterAI(
+                                    name=data["name"],
+                                    personality=data["personality"],
+                                    greeting=data["greeting"],
+                                    profile_image_path=data["profile_image_path"],
+                                    model_name=model_name
+                                )
+                                
+                                st.session_state.current_character = data["name"]
 
-                                with col1:
-                                    if image_path and os.path.exists(image_path):
-                                        self.display_image(image_path, width=80)  # Mostrar la imagen del personaje
+                                # Procesar los mensajes como en la función de "Chats guardados"
+                                processed_messages = []
+                                for msg in data["messages"]:
+                                    if "role" in msg:
+                                        if msg["role"] == "user":
+                                            # Mensajes de usuario (sin character ni avatar_path)
+                                            processed_messages.append({
+                                                "role": "user",
+                                                "content": msg["content"]
+                                            })
+                                        else:
+                                            # Mensajes de personaje (con character y avatar_path)
+                                            processed_messages.append({
+                                                "role": msg["role"],
+                                                "content": msg["content"],
+                                                "character": msg.get("character", data["name"]),
+                                                "avatar_path": msg.get("avatar_path", data["profile_image_path"])
+                                            })
 
-                                with col2:
-                                    st.subheader(name)  # Mostrar el nombre
-                                    st.write(f"**Personalidad:** {personality}")
-                                    st.write(f"**Mensaje inicial:** {first_message[:120]}{'...' if len(first_message) > 120 else ''}")  # Mostrar el mensaje inicial
+                                st.session_state.messages = processed_messages
+                                st.session_state.creator_mode = False
 
-                                with col3:
-                                    # Botón para iniciar chat con el personaje
-                                    if st.button(f"💬 Iniciar chat", key=f"chat_{name}"):
-                                        # Restaurar el personaje en session_state
-                                        st.session_state.current_character = name
-                                        st.session_state.character_instance = CharacterAI(
-                                            name=name,
-                                            personality=personality,  # Restauramos la personalidad
-                                            greeting="(Continuación del chat guardado)",  # Puedes usar el saludo original si lo guardas
-                                            profile_image_path=image_path,
-                                            model_name="Desconocido"  # Aquí puedes poner el modelo que quieras
-                                        )
-                                        # Restaurar los mensajes de la conversación
-                                        st.session_state.messages = data
-                                        st.session_state.creator_mode = False
-                                        st.session_state.active_menu = "home"
-                                        st.rerun()
-
+                                st.success(f"📂 Chat cargado correctamente. Modelo: {model_name}")
+                            else:
+                                st.error(f"❌ El archivo {file_path} no contiene la información completa del personaje.")
                         else:
-                            st.error(f"❌ El archivo {file_path} no tiene la estructura esperada (debe ser una lista de mensajes).")
-
+                            st.error(f"❌ El archivo {file_path} no tiene la estructura esperada (debe contener una clave 'messages' con una lista de mensajes).")
                 except Exception as e:
                     st.error(f"❌ Error cargando chatbot desde el archivo {file_path}: {e}")
         else:
             st.info("No tienes chatbots creados aún. Crea uno desde 'Home'.")
+
 
 
 
