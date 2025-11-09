@@ -455,9 +455,8 @@ class CharacterCreatorApp:
 
 
 
-  # ===================== Interfaz de chat =====================
-# ===================== Interfaz de chat =====================
-# ===================== Interfaz de chat =====================
+
+    # ===================== Interfaz de chat =====================
     def render_chat_interface(self):
         if not st.session_state.character_instance:
             st.info("👈 Crea un personaje primero.")
