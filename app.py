@@ -507,6 +507,7 @@ class CharacterCreatorApp:
 
     # ===================== Guardar / Cargar chats =====================
     def save_chat_history(self):
+        """Guardar chat con TODOS los datos del personaje"""
         if not st.session_state.messages or not st.session_state.character_instance:
             st.warning("⚠️ No hay conversación para guardar.")
             return
@@ -515,35 +516,76 @@ class CharacterCreatorApp:
         filepath = os.path.join(self.chats_folder, filename)
 
         try:
+            # ✅ Guardar TODOS los datos del personaje + mensajes
+            data = {
+                "name": st.session_state.character_instance.name,
+                "personality": st.session_state.character_instance.personality,
+                "greeting": st.session_state.character_instance.greeting,
+                "profile_image_path": st.session_state.character_instance.profile_image_path,
+                "model_name": st.session_state.character_instance.model_name,  # ✅ Ahora sí se guarda
+                "messages": st.session_state.messages
+            }
+            
             with open(filepath, "w", encoding="utf-8") as f:
-                json.dump(st.session_state.messages, f, ensure_ascii=False, indent=2)
+                json.dump(data, f, ensure_ascii=False, indent=2)
+            
             st.success(f"💾 Chat guardado como `{filename}`")
         except Exception as e:
             st.error(f"⚠ Error guardando chat: {e}")
+
     def load_chat_history(self, selected_file):
+        """Cargar chat con validación de estructura"""
         try:
             with open(selected_file, "r", encoding="utf-8") as f:
                 data = json.load(f)
 
-            # Recuperar los datos del archivo, incluyendo el modelo
-            model_name = data.get("gemini-2.0-flash", "gemini-2.0-flash")  # Si no existe, usa el modelo por defecto
-
-            # Restaurar el personaje con el modelo recuperado
-            st.session_state.character_instance = CharacterAI(
-                name=data["name"],
-                personality=data["personality"],  # Recupera la personalidad
-                greeting=data["greeting"],  # Saludo
-                profile_image_path=data["profile_image_path"],
-                model_name="gemini-2.0-flash " # Restauramos el modelo correctamente
-            )
-
-            # Restaurar los mensajes
-            st.session_state.messages = data["messages"]
-            
-            st.success("📂 Chat cargado correctamente.")
+            # ✅ Validar que tenga la estructura correcta
+            if isinstance(data, dict) and "messages" in data:
+                # Nuevo formato (con datos del personaje)
+                model_name = data.get("model_name", "gemini-2.0-flash")
+                
+                st.session_state.character_instance = CharacterAI(
+                    name=data["name"],
+                    personality=data["personality"],
+                    greeting=data["greeting"],
+                    profile_image_path=data["profile_image_path"],
+                    model_name=model_name
+                )
+                
+                st.session_state.current_character = data["name"]
+                st.session_state.messages = data["messages"]
+                st.session_state.creator_mode = False
+                
+                st.success(f"📂 Chat cargado correctamente. Modelo: {model_name}")
+                
+            elif isinstance(data, list):
+                # ⚠️ Formato antiguo (solo mensajes, sin datos del personaje)
+                st.warning("⚠️ Este chat usa el formato antiguo (sin datos del personaje). Se cargará con valores por defecto.")
+                
+                # Intentar extraer datos del primer mensaje
+                first_msg = data[0] if data else {}
+                name = first_msg.get("character", "Personaje Desconocido")
+                personality = first_msg.get("role", "Un personaje de IA")
+                avatar_path = first_msg.get("avatar_path", "")
+                
+                st.session_state.character_instance = CharacterAI(
+                    name=name,
+                    personality=personality,
+                    greeting="(Continuación del chat guardado)",
+                    profile_image_path=avatar_path,
+                    model_name="gemini-2.0-flash"
+                )
+                
+                st.session_state.current_character = name
+                st.session_state.messages = data
+                st.session_state.creator_mode = False
+                
+                st.info("💡 Guarda el chat nuevamente para actualizar al nuevo formato.")
+            else:
+                st.error("❌ Formato de archivo no reconocido.")
+                
         except Exception as e:
             st.error(f"⚠ Error cargando chat: {e}")
-
 
     def render_chatbots_interface(self):
         st.title("🤖 Mis Chatbots")
