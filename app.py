@@ -586,24 +586,21 @@ class CharacterCreatorApp:
                     )
                     
                     # *** CORRECCIÓN: Asignar el unique_id del archivo cargado ***
+                    # Si el archivo tiene unique_id, usarlo; si no, extraerlo del nombre del archivo
                     if "unique_id" in data:
                         st.session_state.character_instance.unique_id = data["unique_id"]
                     else:
+                        # Extraer el unique_id del nombre del archivo (sin la extensión .json)
                         file_name = os.path.basename(selected_file)
                         unique_id = os.path.splitext(file_name)[0]
                         st.session_state.character_instance.unique_id = unique_id
                     
                     st.session_state.current_character = data["name"]
                     
-                    # Procesar los mensajes e invertir los roles
+                    # Procesar los mensajes
                     processed_messages = []
                     for msg in data["messages"]:
                         if "role" in msg:
-                            # Intercambiamos los roles de bot y usuario
-                            if msg["role"] == st.session_state.character_instance.personality:
-                                msg["role"] = "assistant"  # El bot es el asistente
-                            elif msg["role"] == "user":
-                                msg["role"] = "user"  # Los mensajes del usuario siguen siendo "user"
                             processed_messages.append({
                                 "role": msg["role"],
                                 "content": msg["content"],
@@ -621,7 +618,6 @@ class CharacterCreatorApp:
                         
         except Exception as e:
             st.error(f"⚠️ Error cargando chat: {e}")
-
     def render_chatbots_interface(self):
         st.title("🤖 Mis Chatbots")
         
