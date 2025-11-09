@@ -533,19 +533,21 @@ class CharacterCreatorApp:
         except Exception as e:
             st.error(f"⚠ Error guardando chat: {e}")
 
+            
     def load_chat_history(self, selected_file):
         """Cargar chat con validación de estructura"""
         try:
             with open(selected_file, "r", encoding="utf-8") as f:
                 data = json.load(f)
 
-            # Verificamos si los datos tienen la estructura correcta
+            # Verificar si el archivo tiene los campos necesarios
             if isinstance(data, dict) and "messages" in data:
-                # Comprobar si tiene los datos del personaje
+                # Verificar si tiene los datos del personaje
                 if "name" in data and "personality" in data and "greeting" in data:
-                    # Nuevo formato con datos del personaje
+                    # Nuevo formato con los datos del personaje
                     model_name = data.get("model_name", "gemini-2.0-flash")
                     
+                    # Cargar la información del personaje
                     st.session_state.character_instance = CharacterAI(
                         name=data["name"],
                         personality=data["personality"],
@@ -555,17 +557,16 @@ class CharacterCreatorApp:
                     )
                     
                     st.session_state.current_character = data["name"]
-                    st.session_state.messages = data["messages"]
+                    st.session_state.messages = data["messages"]  # Los mensajes ya están bajo la clave "messages"
                     st.session_state.creator_mode = False
                     
                     st.success(f"📂 Chat cargado correctamente. Modelo: {model_name}")
-                    
                 else:
-                    st.error("❌ El archivo no contiene la información del personaje correctamente.")
-                    
+                    st.error("❌ El archivo no contiene la información completa del personaje.")
             else:
-                st.error("❌ Formato de archivo no reconocido, debe contener una lista de mensajes bajo la clave 'messages'.")
-                
+                # Si no tiene la clave 'messages' o la estructura no es un diccionario
+                st.error("❌ El archivo no tiene la estructura esperada (debe contener una clave 'messages' con una lista de mensajes).")
+                    
         except Exception as e:
             st.error(f"⚠ Error cargando chat: {e}")
 
