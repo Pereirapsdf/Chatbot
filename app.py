@@ -507,32 +507,45 @@ class CharacterCreatorApp:
 
     # ===================== Guardar / Cargar chats =====================
     def save_chat_history(self):
-        """Guardar chat con TODOS los datos del personaje"""
+        """Guardar chat con TODOS los datos del personaje y sobrescribir si ya existe."""
         if not st.session_state.messages or not st.session_state.character_instance:
             st.warning("⚠️ No hay conversación para guardar.")
             return
 
+        # Formato del nombre del archivo
         filename = f"{st.session_state.current_character}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
         filepath = os.path.join(self.chats_folder, filename)
 
+        # Comprobar si el archivo ya existe con el mismo nombre
+        existing_file_path = os.path.join(self.chats_folder, f"{st.session_state.current_character}.json")
+        
         try:
-            # ✅ Guardar TODOS los datos del personaje + mensajes
+            # Si ya existe un archivo con el mismo nombre, sobrescribirlo
+            if os.path.exists(existing_file_path):
+                filepath = existing_file_path  # Sobrescribimos el archivo existente
+
+            # Preparar los datos a guardar
             data = {
                 "name": st.session_state.character_instance.name,
                 "personality": st.session_state.character_instance.personality,
                 "greeting": st.session_state.character_instance.greeting,
                 "profile_image_path": st.session_state.character_instance.profile_image_path,
-                "model_name": st.session_state.character_instance.model_name,  # ✅ Ahora sí se guarda
+                "model_name": st.session_state.character_instance.model_name,
                 "messages": st.session_state.messages
             }
-            
+
+            # Guardar el archivo en el directorio correspondiente
             with open(filepath, "w", encoding="utf-8") as f:
                 json.dump(data, f, ensure_ascii=False, indent=2)
-            
-            st.success(f"💾 Chat guardado como `{filename}`")
-        except Exception as e:
-            st.error(f"⚠ Error guardando chat: {e}")
 
+            # Confirmar que el chat fue guardado correctamente
+            if os.path.exists(existing_file_path):
+                st.success(f"💾 Chat sobrescrito con éxito: `{os.path.basename(existing_file_path)}`")
+            else:
+                st.success(f"💾 Chat guardado como `{os.path.basename(filepath)}`")
+
+        except Exception as e:
+            st.error(f"⚠ Error al guardar chat: {e}")
 
     def load_chat_history(self, selected_file):
         """Cargar chat con validación de estructura"""
