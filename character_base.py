@@ -5,13 +5,13 @@ from dotenv import load_dotenv
 load_dotenv()
 
 class CharacterAI:
-    def __init__(self, name, personality, greeting, profile_image_path=None, model_name=None):
+    def __init__(self, name, personality, greeting, profile_image_path=None, model_name="gemini-2.0-flash"):
         self.name = name
         self.personality = personality
         self.greeting = greeting
-        self.profile_image_path = profile_image_path  # ✅ Nombre corregido
+        self.profile_image_path = profile_image_path 
         self.conversation_history = []
-        
+        self.model_name = model_name
         # Configurar la API
         genai.configure(api_key=os.getenv('GOOGLE_API_KEY'))
         
@@ -24,41 +24,16 @@ class CharacterAI:
         self.model = genai.GenerativeModel(self.model_name)
         
     def _get_available_model(self):
-        """Detectar automáticamente modelos disponibles"""
+        """Devolver siempre el modelo 'models/gemini-1.5-flash'"""
         try:
-            models = genai.list_models()
-            
-            # Priorizar estos modelos (orden de preferencia)
-            preferred_models = [
-                "models/gemini-1.5-flash",
-                "models/gemini-1.5-pro",
-                "models/gemini-pro",
-                "models/gemini-1.0-pro",
-            ]
-            
-            available_models = []
-            for model in models:
-                if 'generateContent' in model.supported_generation_methods:
-                    available_models.append(model.name)
-            
-            # Buscar modelos preferidos disponibles
-            for preferred in preferred_models:
-                if preferred in available_models:
-                    print(f"Usando modelo: {preferred}")
-                    return preferred
-            
-            # Si no encuentra los preferidos, usar el primero disponible
-            if available_models:
-                print(f"Usando modelo disponible: {available_models[0]}")
-                return available_models[0]
-            else:
-                raise Exception("No hay modelos disponibles con generateContent")
-                
-        except Exception as e:
-            print(f"Error detectando modelos: {e}")
-            # Modelo por defecto como fallback
+            # Aquí solo devolvemos 'models/gemini-1.5-flash' directamente
+            print("Usando modelo: models/gemini-1.5-flash")
             return "models/gemini-1.5-flash"
-        
+        except Exception as e:
+            print(f"Error al seleccionar el modelo: {e}")
+            return "models/gemini-1.5-flash"  # Fallback, aunque nunca debería llegar aquí.
+
+
     def get_system_prompt(self):
         return f"""
         Eres {self.name}. {self.personality}

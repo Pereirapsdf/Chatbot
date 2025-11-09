@@ -1,0 +1,237 @@
+/* === 🎭 CHARACTER AI CREATOR - DARK MODERN STYLE + CHAT FIXED === */
+
+/* --- Fondo principal oscuro --- */
+[data-testid="stAppViewContainer"] {
+  background: linear-gradient(165deg, #262a55,#222a7a, #2c38c0, #030b5e);
+  color: #e5e7eb;
+  font-family: "Inter", sans-serif;
+  background-attachment: fixed;
+}
+
+/* --- Sidebar oscuro moderno --- */
+[data-testid="stSidebar"] {
+  background: #16213e !important;
+  backdrop-filter: blur(10px) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
+  min-width: 260px !important;
+  max-width: 260px !important;
+  padding-top: 1.5rem !important;
+}
+
+[data-testid="stSidebar"] h1 {
+  font-size: 16px !important;
+  text-align: left !important;
+  margin-bottom: 1.5rem !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  padding-left: 12px !important;
+}
+
+[data-testid="stSidebar"] h3 {
+  font-size: 13px !important;
+  color: #72767d !important;
+  margin-top: 24px !important;
+  margin-bottom: 12px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  text-align: left !important;
+  padding-left: 12px !important;
+  font-weight: 600 !important;
+}
+
+[data-testid="stSidebar"] .stButton button {
+  width: 100% !important;
+  text-align: left !important;
+  margin-bottom: 8px !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 8px !important;
+  padding: 14px 16px !important;
+  transition: all 0.2s ease !important;
+  cursor: pointer !important;
+  font-size: 15px !important;
+  box-shadow: none !important;
+  color: #b9bbbe !important;
+  font-weight: 500 !important;
+}
+
+[data-testid="stSidebar"] .stButton button:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  color: #ffffff !important;
+  transform: translateX(4px) !important;
+}
+
+/* --- Ocultar botón de colapsar sidebar --- */
+[data-testid="collapsedControl"] {
+  display: none !important;
+}
+
+/* --- Contenedor principal --- */
+section.main > div {
+  background: rgba(30, 30, 50, 0.5) !important;
+  backdrop-filter: blur(14px) !important;
+  border-radius: 16px !important;
+  padding: 30px !important;
+  margin: 30px auto !important;
+  max-width: 1200px !important;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.4) !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+.main .block-container {
+  padding-left: 2rem !important;
+  padding-right: 2rem !important;
+  padding-top: 2rem !important;
+  padding-bottom: 200px !important; /* más espacio para evitar superposición */
+  max-width: 100% !important;
+}
+
+/* --- Chat input fijo --- */
+[data-testid="stChatInputContainer"] {
+   position: fixed !important;
+  bottom: 0 !important;
+  left: 260px !important; /* ajusta si tu sidebar tiene otro ancho */
+  right: 0 !important;
+  z-index: 2147483647 !important; /* muy arriba para evitar solapamientos */
+  background-color: #0e1117 !important;
+  padding: 1rem !important;
+  border-top: 1px solid #262730 !important;
+  box-sizing: border-box !important;
+}
+
+/* Ajustar el campo de texto */
+[data-testid="stChatInputContainer"] textarea,
+[data-testid="stChatInputContainer"] .stTextArea {
+  width: 100% !important;
+  max-width: 1200px !important;
+  margin: 0 auto !important;
+  background: rgba(255,255,255,0.04) !important;
+  border-radius: 20px !important;
+  padding: 11px 14px !important;
+  color: #e5e7eb !important;
+  border: 1px solid rgba(255,255,255,0.08) !important;
+  resize: none !important;
+}
+
+
+[data-testid="stChatInputContainer"] textarea:focus {
+  border-color: #5865f2 !important;
+  box-shadow: 0 0 0 2px rgba(88, 101, 242, 0.2) !important;
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  outline: none !important;
+}
+
+.stChatInput textarea {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 20px !important;
+  color: #e5e7eb !important;
+  padding: 11px 14px !important;
+  transition: all 0.2s ease-in-out !important;
+}
+
+.stChatInput textarea:focus {
+  border-color: #5865f2 !important;
+  box-shadow: 0 0 0 2px rgba(88, 101, 242, 0.2) !important;
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  outline: none !important;
+}
+
+/* --- Chat mensajes --- */
+section[data-testid="stChatMessageContainer"] {
+    max-height: calc(100vh - 160px) !important; /* se ajustará por JS también */
+   overflow-y: auto !important;
+   padding-bottom: 40px !important; /* base, JS lo incrementará dinámicamente */
+   box-sizing: border-box !important;
+}
+
+div[data-testid="stChatMessage"] {
+  border-radius: 12px !important;
+  padding: 12px 16px !important;
+  margin: 10px 0 !important;
+  backdrop-filter: blur(8px) !important;
+  transition: all 0.2s ease !important;
+  max-width: 85% !important;
+}
+
+div[data-testid="stChatMessage"]:hover {
+  transform: scale(1.01) !important;
+}
+
+div[data-testid="stChatMessage"][data-testid*="user"] {
+  background: rgba(88, 101, 242, 0.25) !important;
+  margin-left: auto !important;
+  border: 1px solid rgba(88, 101, 242, 0.3) !important;
+}
+
+div[data-testid="stChatMessage"][data-testid*="assistant"] {
+  background: rgba(255, 255, 255, 0.05) !important;
+  margin-right: auto !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.stChatMessage img {
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.stChatMessage [data-testid="stMarkdownContainer"] p {
+  color: #fafafa;
+  line-height: 1.6;
+}
+
+/* --- Botones generales --- */
+button, .stButton > button {
+  border-radius: 10px !important;
+  background: linear-gradient(135deg, #5865f2, #4752c4) !important;
+  color: white !important;
+  border: none !important;
+  font-weight: 600 !important;
+  transition: all 0.3s ease !important;
+  box-shadow: 0 4px 15px rgba(88, 101, 242, 0.3) !important;
+  padding: 11px 24px !important;
+  min-height: 44px !important;
+}
+
+button:hover, .stButton > button:hover {
+  background: linear-gradient(135deg, #4752c4, #3c44a8) !important;
+  box-shadow: 0 6px 25px rgba(88, 101, 242, 0.5) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* --- Scrollbar oscuro --- */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(88, 101, 242, 0.5);
+  border-radius: 10px;
+  border: 2px solid rgba(0, 0, 0, 0.2);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(88, 101, 242, 0.7);
+}
+
+/* --- Responsive --- */
+@media (max-width: 768px) {
+  .stChatInputContainer {
+    padding: 0.5rem !important;
+  }
+  section[data-testid="stChatMessageContainer"] {
+    max-height: calc(100vh - 200px) !important;
+  }
+}
+
+
+[data-testid="stAppViewContainer"] {
+  overflow: visible !important; 
+}
