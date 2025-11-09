@@ -527,18 +527,20 @@ class CharacterCreatorApp:
             st.warning("⚠️ No hay conversación para guardar.")
             return
 
-        # Si el personaje no tiene un ID único asignado, lo creamos
+        # Usar el unique_id del personaje o crear uno si no existe
         if not hasattr(st.session_state.character_instance, 'unique_id'):
-            st.session_state.character_instance.unique_id = CharacterCreatorApp.generate_unique_id() 
+            st.session_state.character_instance.unique_id = CharacterCreatorApp.generate_unique_id()
 
         # Usamos el unique_id como nombre del archivo
         file_name = f"{st.session_state.character_instance.unique_id}.json"
         filepath = os.path.join(self.chats_folder, file_name)
 
         try:
-            # Si el archivo ya existe, lo sobrescribimos
+            # Revisamos si el archivo ya existe. Si existe, lo sobrescribimos
             if os.path.exists(filepath):
                 st.warning(f"⚠️ El archivo con el ID `{st.session_state.character_instance.unique_id}` ya existe. Será sobrescrito.")
+            else:
+                st.success(f"💾 Guardando chat como nuevo archivo `{file_name}`")
 
             # Preparar los datos a guardar
             data = {
@@ -612,8 +614,8 @@ class CharacterCreatorApp:
     def render_chatbots_interface(self):
         st.title("🤖 Mis Chatbots")
         
-        # Ruta correcta para buscar los archivos JSON
-        characters_folder = self.chats_folder  # Asegúrate de que esta carpeta existe
+        # Obtener los archivos JSON de la carpeta de chats guardados
+        characters_folder = self.chats_folder  # Usar la carpeta correcta
         chatbot_files = sorted(glob.glob(f"{characters_folder}/*.json"))
 
         if chatbot_files:
