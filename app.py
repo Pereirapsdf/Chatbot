@@ -536,8 +536,9 @@ class CharacterCreatorApp:
         filepath = os.path.join(self.chats_folder, file_name)
 
         try:
-            # Revisamos si el archivo ya existe. Si existe, lo sobrescribimos
+            # Revisamos si el archivo ya existe
             if os.path.exists(filepath):
+                # Avisar que será sobrescrito
                 st.warning(f"⚠️ El archivo con el ID `{st.session_state.character_instance.unique_id}` ya existe. Será sobrescrito.")
             else:
                 st.success(f"💾 Guardando chat como nuevo archivo `{file_name}`")
