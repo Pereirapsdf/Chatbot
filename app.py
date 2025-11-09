@@ -671,7 +671,7 @@ class CharacterCreatorApp:
                         st.error(f"❌ Error cargando chatbot desde el archivo {file_path}: {e}")
             else:
                 st.info("No tienes chatbots creados aún. Crea uno desde 'Home'.")
-    Cambios realizados:
+   
     # ===================== Main =====================
     def run(self):
         self.apply_custom_style()
