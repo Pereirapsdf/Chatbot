@@ -191,56 +191,6 @@ div[data-testid="stChatMessage"]:hover {
   transform: scale(1.01) !important;
 }
 
-/* User Message - Alineado a la derecha */
-/* Se mantiene tu selector original: */
-div[data-testid="stChatMessage"]:has([data-testid="chatAvatarIcon-user"]), 
-/* Se agrega el selector para el mensaje con role="user" */
-div[data-testid="stChatMessage"][data-testid="chat-message-container-user"] { 
-  background: rgba(88, 101, 242, 0.25) !important;
-  margin-left: auto !important;
-  margin-right: 0 !important;
-  border: 1px solid rgba(88, 101, 242, 0.3) !important;
-  flex-direction: row-reverse !important;
-  justify-self: flex-end !important;
-  align-self: flex-end !important;
-}
-
-/* --- CHAT MESSAGES FIX (Asegurar que el usuario esté a la derecha) --- */
-
-/* Contenedor del chat message para forzar alineación (Aplica a todos los mensajes) */
-/* Es crucial que el padre sea display: flex */
-section[data-testid="stVerticalBlock"]:has(div[data-testid="stChatMessage"]) {
-  display: flex !important;
-  flex-direction: column !important; /* Mantiene la dirección de apilamiento */
-}
-
-/* 1. ESTILOS BASE DEL MENSAJE (General) */
-div[data-testid="stChatMessage"] {
-  border-radius: 12px !important;
-  padding: 12px 16px !important;
-  margin: 10px 0 !important;
-  backdrop-filter: blur(8px) !important;
-  transition: all 0.2s ease !important;
-  max-width: 85% !important;
-  display: flex !important;
-  width: fit-content !important;
-}
-
-div[data-testid="stChatMessage"]:hover {
-  transform: scale(1.01) !important;
-}
-
-/* 2. ESTILOS DEL BOT (Por defecto: alinea a la izquierda) */
-/* Aplica a cualquier mensaje que NO sea el de usuario */
-div[data-testid="stChatMessage"]:not([data-testid="chat-message-container-user"]) { 
-    background: rgba(255, 255, 255, 0.05) !important;
-    margin-right: auto !important;
-    margin-left: 0 !important;
-    border: 1px solid rgba(255, 255, 255, 0.08) !important;
-    flex-direction: row !important; /* Avatar a la izquierda */
-    align-self: flex-start !important; /* Alinear el bloque a la izquierda */
-}
-
 /* --- CHAT MESSAGES FIX (Asegurar que el usuario esté a la derecha) --- */
 
 /* 1. ESTILOS BASE DEL MENSAJE (General) */
@@ -310,6 +260,12 @@ section[data-testid="stVerticalBlock"] > div[data-testid="stChatMessage"][data-t
 }
 
 /* --- Fin de CHAT MESSAGES FIX --- */
+
+div[data-testid="stChatMessage"]:hover {
+  transform: scale(1.01) !important;
+}
+
+
 
 
 .stChatMessage img {
