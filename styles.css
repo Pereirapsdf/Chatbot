@@ -205,24 +205,67 @@ div[data-testid="stChatMessage"][data-testid="chat-message-container-user"] {
   align-self: flex-end !important;
 }
 
-/* Además, modifica el selector redundante que intenta capturar el usuario */
-/* (Alrededor de la línea 192 - Esto reemplaza tu bloque anterior, asegurando que cubrimos el rol "user") */
-div[data-testid="stChatMessage"].stChatMessage:has([data-testid="chatAvatarIcon-user"]),
-div[data-testid="stChatMessage"]:has(img[alt="user avatar"]),
-div[data-testid="stChatMessage"][data-testid="chat-message-container-user"] { /* <-- Aseguramos el selector */
-  background: rgba(88, 101, 242, 0.25) !important;
-  margin-left: auto !important;
-  margin-right: 0 !important;
-  border: 1px solid rgba(88, 101, 242, 0.3) !important;
+/* --- CHAT MESSAGES FIX (Asegurar que el usuario esté a la derecha) --- */
+
+/* Contenedor del chat message para forzar alineación (Aplica a todos los mensajes) */
+/* Es crucial que el padre sea display: flex */
+section[data-testid="stVerticalBlock"]:has(div[data-testid="stChatMessage"]) {
+  display: flex !important;
+  flex-direction: column !important; /* Mantiene la dirección de apilamiento */
 }
 
-/* Y para el bot, aseguramos que cualquier cosa que NO sea "user" se alinee a la izquierda */
-div[data-testid="stChatMessage"]:not([data-testid="chat-message-container-user"]) { /* <-- Aseguramos el selector */
+/* 1. ESTILOS BASE DEL MENSAJE (General) */
+div[data-testid="stChatMessage"] {
+  border-radius: 12px !important;
+  padding: 12px 16px !important;
+  margin: 10px 0 !important;
+  backdrop-filter: blur(8px) !important;
+  transition: all 0.2s ease !important;
+  max-width: 85% !important;
+  display: flex !important;
+  width: fit-content !important;
+}
+
+div[data-testid="stChatMessage"]:hover {
+  transform: scale(1.01) !important;
+}
+
+/* 2. ESTILOS DEL BOT (Por defecto: alinea a la izquierda) */
+/* Aplica a cualquier mensaje que NO sea el de usuario */
+div[data-testid="stChatMessage"]:not([data-testid="chat-message-container-user"]) { 
     background: rgba(255, 255, 255, 0.05) !important;
     margin-right: auto !important;
     margin-left: 0 !important;
     border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    flex-direction: row !important; /* Avatar a la izquierda */
+    align-self: flex-start !important; /* Alinear el bloque a la izquierda */
 }
+
+
+/* 3. ESTILOS DEL USUARIO (Forzar alineación a la derecha) */
+/* Selector potente que cubre el ícono por defecto y el atributo role="user" */
+div[data-testid="stChatMessage"]:has([data-testid="chatAvatarIcon-user"]),
+div[data-testid="stChatMessage"][data-testid="chat-message-container-user"] { 
+  background: rgba(88, 101, 242, 0.25) !important;
+  
+  /* Claves de alineación horizontal: */
+  margin-left: auto !important; /* Empuja el mensaje a la derecha */
+  margin-right: 0 !important;
+  
+  /* Clave de orden interno: */
+  flex-direction: row-reverse !important; /* Pone el avatar a la derecha del texto */
+  
+  /* Clave de alineación del bloque: */
+  align-self: flex-end !important; /* Alinear el bloque del mensaje a la derecha */
+  
+  border: 1px solid rgba(88, 101, 242, 0.3) !important;
+}
+
+/* Asegurar que el contenedor padre también alinee correctamente el elemento */
+section[data-testid="stVerticalBlock"] > div:has([data-testid="chatAvatarIcon-user"]) {
+  align-self: flex-end !important;
+}
+
 
 .stChatMessage img {
   border-radius: 50%;
