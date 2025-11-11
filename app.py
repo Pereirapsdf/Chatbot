@@ -244,58 +244,52 @@ class CharacterCreatorApp:
                     self.create_character(name, personality, greeting, st.session_state.selected_image)
 
     def render_chat_interface(self):
-        """Renderiza la interfaz de chat con el personaje activo."""
-        character = st.session_state.character_instance
-        
-        if not character:
-            st.warning("⚠️ No hay personaje activo")
-            return
-        
-        # Header del chat
-        col1, col2, col3 = st.columns([1, 3, 1])
-        with col1:
-            self.display_image(character.profile_image_path, width=100)
-        with col2:
-            st.title(f"💬 Chat con {character.name}")
-            st.caption(f"**Personalidad:** {character.personality[:100]}...")
-        with col3:
-            if st.button("💾 Guardar Chat", use_container_width=True):
-                self.save_character_and_chat(character, is_chat=True)
-            if st.button("🔄 Nuevo Chat", use_container_width=True):
-                st.session_state.update({
-                    "creator_mode": True, 
-                    "messages": [], 
-                    "character_instance": None, 
-                    "current_character": None
+            """Renderiza la interfaz de chat con el personaje activo."""
+            character = st.session_state.character_instance
+            
+            if not character:
+                st.warning("⚠️ No hay personaje activo")
+                return
+            
+            # Header del chat
+            col1, col2, col3 = st.columns([1, 3, 1])
+            with col1:
+                self.display_image(character.profile_image_path, width=100)
+            with col2:
+                st.title(f"💬 Chat con {character.name}")
+                st.caption(f"**Personalidad:** {character.personality[:100]}...")
+            with col3:
+                if st.button("💾 Guardar Chat", use_container_width=True):
+                    self.save_character_and_chat(character, is_chat=True)
+                if st.button("🔄 Nuevo Chat", use_container_width=True):
+                    st.session_state.update({
+                        "creator_mode": True, 
+                        "messages": [], 
+                        "character_instance": None, 
+                        "current_character": None
+                    })
+                    st.rerun()
+            
+            st.markdown("---")
+            
+            # Mostrar mensajes
+            for msg in st.session_state.messages:
+                with st.chat_message(msg["role"], avatar=msg.get("avatar_path")):
+                    st.markdown(msg["content"])
+            
+            # Input del usuario
+            if user_input := st.chat_input("Escribe tu mensaje...", key="chat_input_main"):
+                # Agregar mensaje del usuario
+                st.session_state.messages.append({
+                    "role": "user",
+                    "content": user_input,
+                    "avatar_path": None
                 })
-                st.rerun()
-        
-        st.markdown("---")
-        
-        # Mostrar mensajes
-        for msg in st.session_state.messages:
-            with st.chat_message(msg["role"], avatar=msg.get("avatar_path")):
-                st.markdown(msg["content"])
-        
-        # Input del usuario
-        if user_input := st.chat_input("Escribe tu mensaje..."):
-            # Agregar mensaje del usuario
-            st.session_state.messages.append({
-                "role": "user",
-                "content": user_input,
-                "avatar_path": None
-            })
-            
-            # Mostrar mensaje del usuario
-            with st.chat_message("user"):
-                st.markdown(user_input)
-            
-            # Obtener respuesta del personaje
-            with st.chat_message(character.name, avatar=character.profile_image_path):
+                
+                # Obtener respuesta del personaje
                 with st.spinner("Pensando..."):
                     try:
                         response = character.generate_response(user_input)
-                        st.markdown(response)
                         
                         # Guardar respuesta
                         st.session_state.messages.append({
@@ -303,6 +297,10 @@ class CharacterCreatorApp:
                             "content": response,
                             "avatar_path": character.profile_image_path
                         })
+                        
+                        # Rerun para actualizar la interfaz y limpiar el input
+                        st.rerun()
+                        
                     except Exception as e:
                         st.error(f"Error generando respuesta: {e}")
 
