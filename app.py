@@ -228,37 +228,70 @@ class CharacterCreatorApp:
                     st.error("⚠ Completa todos los campos y selecciona una imagen.")
                 else:
                     self.create_character(name, personality, greeting, st.session_state.selected_image)
-    # --- Fragmento de la Clase CharacterCreatorApp (Código Corregido) ---
-        def render_chatbots_interface(self):
-            st.title("🤖 Mis Chatbots")
-            chatbot_files = sorted(Path(self.CHATS_FOLDER).glob("*.json"))
 
-            if chatbot_files:
-                for file_path in chatbot_files:
+    def render_chat_interface(self):
+        """Renderiza la interfaz de chat con el personaje activo."""
+        character = st.session_state.character_instance
+        
+        if not character:
+            st.warning("⚠️ No hay personaje activo")
+            return
+        
+        # Header del chat
+        col1, col2, col3 = st.columns([1, 3, 1])
+        with col1:
+            self.display_image(character.profile_image_path, width=100)
+        with col2:
+            st.title(f"💬 Chat con {character.name}")
+            st.caption(f"**Personalidad:** {character.personality[:100]}...")
+        with col3:
+            if st.button("💾 Guardar Chat", use_container_width=True):
+                self.save_character_and_chat(character, is_chat=True)
+            if st.button("🔄 Nuevo Chat", use_container_width=True):
+                st.session_state.update({
+                    "creator_mode": True, 
+                    "messages": [], 
+                    "character_instance": None, 
+                    "current_character": None
+                })
+                st.rerun()
+        
+        st.markdown("---")
+        
+        # Mostrar mensajes
+        for msg in st.session_state.messages:
+            with st.chat_message(msg["role"], avatar=msg.get("avatar_path")):
+                st.markdown(msg["content"])
+        
+        # Input del usuario
+        if user_input := st.chat_input("Escribe tu mensaje..."):
+            # Agregar mensaje del usuario
+            st.session_state.messages.append({
+                "role": "user",
+                "content": user_input,
+                "avatar_path": None
+            })
+            
+            # Mostrar mensaje del usuario
+            with st.chat_message("user"):
+                st.markdown(user_input)
+            
+            # Obtener respuesta del personaje
+            with st.chat_message(character.name, avatar=character.profile_image_path):
+                with st.spinner("Pensando..."):
                     try:
-                        data = json.loads(file_path.read_text(encoding="utf-8"))
+                        response = character.generate_response(user_input)
+                        st.markdown(response)
                         
-                        if not all(k in data for k in ["name", "personality", "profile_image_path"]): continue
-                        
-                        unique_id = data.get("unique_id", file_path.stem)
-                        
-                        col1, col2, col3 = st.columns([1, 3, 1])
-                        with col1: self.display_image(data["profile_image_path"], width=80)
-                        with col2:
-                            st.subheader(data["name"])
-                            st.caption(f"**Personalidad:** {data['personality']}")
-                            st.caption(f"Último chat: {len(data['messages'])} mensajes")
-                        with col3:
-                            # Al hacer clic, cargamos el chat completo y el load_chat_history hace el rerun y cambia el menú
-                            if st.button(f"💬 Iniciar chat con {data['name']}", key=f"chat_{unique_id}", use_container_width=True):
-                                self.load_chat_history(str(file_path))
-                                # ¡El rerun ya lo hace load_chat_history, no necesitamos nada más aquí!
-
+                        # Guardar respuesta
+                        st.session_state.messages.append({
+                            "role": character.name,
+                            "content": response,
+                            "avatar_path": character.profile_image_path
+                        })
                     except Exception as e:
-                        st.error(f"❌ Error cargando chatbot desde {file_path.name}: {e}")
-            else:
-                st.info("No tienes chatbots guardados. Crea y guarda un chat desde 'Home'.")
-
+                        st.error(f"Error generando respuesta: {e}")
+                        
     def render_chatbots_interface(self):
         st.title("🤖 Mis Chatbots")
         chatbot_files = sorted(Path(self.CHATS_FOLDER).glob("*.json"))
@@ -268,20 +301,27 @@ class CharacterCreatorApp:
                 try:
                     data = json.loads(file_path.read_text(encoding="utf-8"))
                     
-                    if not all(k in data for k in ["name", "personality", "profile_image_path"]): continue
+                    if not all(k in data for k in ["name", "personality", "profile_image_path"]): 
+                        continue
                     
                     unique_id = data.get("unique_id", file_path.stem)
                     
                     col1, col2, col3 = st.columns([1, 3, 1])
-                    with col1: self.display_image(data["profile_image_path"], width=80)
+                    with col1: 
+                        self.display_image(data["profile_image_path"], width=80)
                     with col2:
                         st.subheader(data["name"])
-                        st.caption(f"**Personalidad:** {data['personality']}")
-                        st.caption(f"Último chat: {len(data['messages'])} mensajes")
+                        st.caption(f"**Personalidad:** {data['personality'][:100]}...")
+                        st.caption(f"Último chat: {len(data.get('messages', []))} mensajes")
                     with col3:
-                        if st.button(f"💬 Iniciar chat con {data['name']}", key=f"chat_{unique_id}", use_container_width=True):
+                        if st.button(f"💬 Chatear", key=f"chat_{unique_id}", use_container_width=True):
+                            # Cargar el chat
                             self.load_chat_history(str(file_path))
+                            # Cambiar al menú home para mostrar el chat
                             st.session_state.active_menu = "home"
+                            # El rerun ya está en load_chat_history, pero aseguramos el cambio de menú
+                    
+                    st.markdown("---")
 
                 except Exception as e:
                     st.error(f"❌ Error cargando chatbot desde {file_path.name}: {e}")
