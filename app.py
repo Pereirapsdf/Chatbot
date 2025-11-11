@@ -175,6 +175,8 @@ class CharacterCreatorApp:
 
             except Exception as e:
                 st.error(f"❌ Error cargando chat: {e}")
+
+
     def delete_chat(self, file_path):
             """Elimina el archivo JSON del chat y refresca la vista."""
             try:
@@ -186,9 +188,7 @@ class CharacterCreatorApp:
                     st.warning(f"⚠️ Archivo no encontrado: {path.name}")
             except Exception as e:
                 st.error(f"❌ Error al eliminar el chat: {e}")
-            
-            # Después de la eliminación, necesitamos recargar la interfaz
-            st.rerun()
+            st.rerun() 
     # ===================== Renderizado de Vistas =====================
     def render_character_creator(self, available_images):
         st.subheader("🧠 Crear Personaje")
@@ -248,6 +248,7 @@ class CharacterCreatorApp:
                 else:
                     self.create_character(name, personality, greeting, st.session_state.selected_image)
 
+
     def render_chatbots_interface(self):
             st.title("🤖 Mis Chatbots")
             chatbot_files = sorted(Path(self.CHATS_FOLDER).glob("*.json"))
@@ -280,15 +281,12 @@ class CharacterCreatorApp:
                                 st.session_state.active_menu = "home"
                         
                         with col4:
-                            # Botón para eliminar el chat
-                            # Usamos un form para manejar la acción de eliminar aisladamente
-                            with st.form(key=f"delete_form_{unique_id}"):
-                                # st.button debe estar dentro del form si queremos evitar problemas con st.rerun
+                            # Botón para eliminar el chat DENTRO DE UN FORMULARIO
+                            with st.form(key=f"delete_form_{unique_id}", clear_on_submit=False):
                                 delete_submitted = st.form_submit_button("🗑️ Eliminar", use_container_width=True)
                                 
-                            if delete_submitted: # Si el botón dentro del form fue presionado
+                            if delete_submitted: 
                                 self.delete_chat(str(file_path))
-                                # El rerun ya está en delete_chat
 
                         st.markdown("---")
 
@@ -296,43 +294,6 @@ class CharacterCreatorApp:
                         st.error(f"❌ Error cargando chatbot desde {file_path.name}: {e}")
             else:
                 st.info("No tienes chatbots guardados. Crea y guarda un chat desde 'Home'.")
-
-    def render_chatbots_interface(self):
-        st.title("🤖 Mis Chatbots")
-        chatbot_files = sorted(Path(self.CHATS_FOLDER).glob("*.json"))
-
-        if chatbot_files:
-            for file_path in chatbot_files:
-                try:
-                    data = json.loads(file_path.read_text(encoding="utf-8"))
-                    
-                    if not all(k in data for k in ["name", "personality", "profile_image_path"]): 
-                        continue
-                    
-                    unique_id = data.get("unique_id", file_path.stem)
-                    
-                    col1, col2, col3 = st.columns([1, 3, 1])
-                    with col1: 
-                        self.display_image(data["profile_image_path"], width=80)
-                    with col2:
-                        st.subheader(data["name"])
-                        st.caption(f"**Personalidad:** {data['personality'][:100]}...")
-                        st.caption(f"Último chat: {len(data.get('messages', []))} mensajes")
-                    with col3:
-                        if st.button(f"💬 Chatear", key=f"chat_{unique_id}", use_container_width=True):
-                            # Cargar el chat
-                            self.load_chat_history(str(file_path))
-                            # Cambiar al menú home para mostrar el chat
-                            st.session_state.active_menu = "home"
-                            # El rerun ya está en load_chat_history, pero aseguramos el cambio de menú
-                    
-                    st.markdown("---")
-
-                except Exception as e:
-                    st.error(f"❌ Error cargando chatbot desde {file_path.name}: {e}")
-        else:
-            st.info("No tienes chatbots guardados. Crea y guarda un chat desde 'Home'.")
-
     # ===================== Main Loop =====================
     def run(self):
         col_menu, col_main = st.columns([1, 4])
