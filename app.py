@@ -138,38 +138,51 @@ class CharacterCreatorApp:
 
         except Exception as e:
             st.error(f"⚠ Error al guardar: {e}")
-
-    def load_chat_history(self, selected_file):
-        try:
-            with open(selected_file, "r", encoding="utf-8") as f:
-                data = json.load(f)
-
-            # Validar y cargar datos del personaje
-            if not all(k in data for k in ["name", "personality", "greeting", "messages"]):
-                st.error("❌ El archivo no contiene la información mínima requerida (nombre, personalidad, saludo, mensajes).")
-                return
-
-            model_name = data.get("model_name", "gemini-2.0-flash")
-            unique_id = data.get("unique_id", Path(selected_file).stem)
-
-            st.session_state.character_instance = CharacterAI(
-                name=data["name"], personality=data["personality"], greeting=data["greeting"],
-                profile_image_path=data["profile_image_path"], model_name=model_name
-            )
-            st.session_state.character_instance.unique_id = unique_id
-            st.session_state.current_character = data["name"]
-            st.session_state.messages = data["messages"]
-            st.session_state.creator_mode = False
             
-            # Limpiar historial de chat para la instancia nueva si es necesario (el contexto se recrea desde 'messages')
-            st.session_state.character_instance.clear_history() 
+    def load_chat_history(self, selected_file):
+            try:
+                # Leer el archivo JSON
+                with open(selected_file, "r", encoding="utf-8") as f:
+                    data = json.load(f)
 
-            st.success(f"📂 Chat cargado. ID: {unique_id}, Modelo: {model_name}")
-            st.rerun()
+                # Validar campos mínimos requeridos
+                required_keys = ["name", "personality", "greeting", "messages"]
+                if not all(k in data for k in required_keys):
+                    st.error("⚠️ El archivo no contiene la información mínima requerida (nombre, personalidad, saludo, mensajes).")
+                    return
 
-        except Exception as e:
-            st.error(f"⚠️ Error cargando chat: {e}")
+                # Cargar datos con valores por defecto
+                model_name = data.get("model_name", "gemini-2.0-flash")
+                unique_id = data.get("unique_id", Path(selected_file).stem)
+                profile_image_path = data.get("profile_image_path", None)
 
+                # Crear instancia del personaje
+                st.session_state.character_instance = CharacterAI(
+                    name=data["name"],
+                    personality=data["personality"],
+                    greeting=data["greeting"],
+                    profile_image_path=profile_image_path,
+                    model_name=model_name
+                )
+                st.session_state.character_instance.unique_id = unique_id
+                st.session_state.current_character = data["name"]
+                st.session_state.messages = data["messages"]
+
+                # Configurar modo y menú
+                st.session_state.creator_mode = False
+                st.session_state.active_menu = "home"  # Ir al menú principal antes del rerun
+
+                # Limpiar historial del modelo (se recrea desde messages)
+                st.session_state.character_instance.clear_history()
+
+                # Mensaje de éxito
+                st.success(f"✅ Chat cargado correctamente.\nID: {unique_id}\nModelo: {model_name}")
+
+                # Rerun de la app
+                st.rerun()
+
+            except Exception as e:
+                st.error(f"❌ Error cargando chat: {e}")
     # ===================== Renderizado de Vistas =====================
     def render_character_creator(self, available_images):
         st.subheader("🧠 Crear Personaje")
@@ -291,7 +304,7 @@ class CharacterCreatorApp:
                         })
                     except Exception as e:
                         st.error(f"Error generando respuesta: {e}")
-                        
+
     def render_chatbots_interface(self):
         st.title("🤖 Mis Chatbots")
         chatbot_files = sorted(Path(self.CHATS_FOLDER).glob("*.json"))
