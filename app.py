@@ -303,7 +303,7 @@ class CharacterCreatorApp:
                         
                     except Exception as e:
                         st.error(f"Error generando respuesta: {e}")
-
+   
     def render_chatbots_interface(self):
         st.title("🤖 Mis Chatbots")
         chatbot_files = sorted(Path(self.CHATS_FOLDER).glob("*.json"))
