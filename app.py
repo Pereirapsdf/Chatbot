@@ -228,51 +228,37 @@ class CharacterCreatorApp:
                     st.error("⚠ Completa todos los campos y selecciona una imagen.")
                 else:
                     self.create_character(name, personality, greeting, st.session_state.selected_image)
+    # --- Fragmento de la Clase CharacterCreatorApp (Código Corregido) ---
 
-    def render_chat_interface(self):
-        char = st.session_state.character_instance
-        if not char:
-            st.info("👈 Crea un personaje primero.")
-            return
+        def render_chatbots_interface(self):
+            st.title("🤖 Mis Chatbots")
+            chatbot_files = sorted(Path(self.CHATS_FOLDER).glob("*.json"))
 
-        # Header y botones de acción
-        col1, col2, col3 = st.columns([1, 3, 1])
-        with col1: self.display_image(char.profile_image_path, width=80)
-        with col2:
-            st.subheader(f"Conversando con: **{char.name}**")
-            st.caption(f"Modelo: {char.model_name}")
-        with col3:
-            if st.button("💾 Guardar", key="save_chat_btn", use_container_width=True): self.save_character_and_chat(char)
-            if st.button("🔄 Nuevo Chat", key="new_chat_btn", use_container_width=True):
-                st.session_state.messages = [{"role": char.name, "content": char.greeting, "avatar_path": char.profile_image_path}]
-                char.clear_history()
-                st.success("🆕 Nueva conversación iniciada")
-                st.rerun()
+            if chatbot_files:
+                for file_path in chatbot_files:
+                    try:
+                        data = json.loads(file_path.read_text(encoding="utf-8"))
+                        
+                        if not all(k in data for k in ["name", "personality", "profile_image_path"]): continue
+                        
+                        unique_id = data.get("unique_id", file_path.stem)
+                        
+                        col1, col2, col3 = st.columns([1, 3, 1])
+                        with col1: self.display_image(data["profile_image_path"], width=80)
+                        with col2:
+                            st.subheader(data["name"])
+                            st.caption(f"**Personalidad:** {data['personality']}")
+                            st.caption(f"Último chat: {len(data['messages'])} mensajes")
+                        with col3:
+                            # Al hacer clic, cargamos el chat completo y el load_chat_history hace el rerun y cambia el menú
+                            if st.button(f"💬 Iniciar chat con {data['name']}", key=f"chat_{unique_id}", use_container_width=True):
+                                self.load_chat_history(str(file_path))
+                                # ¡El rerun ya lo hace load_chat_history, no necesitamos nada más aquí!
 
-        st.markdown("---")
-
-        # Mostrar mensajes
-        for message in st.session_state.messages:
-            is_bot_message = (message["role"] == char.name) 
-            
-            with st.chat_message("assistant" if is_bot_message else "user", 
-                                 avatar=message.get('avatar_path') if is_bot_message else '🧑‍💻'):
-                if is_bot_message:
-                    st.write(f"**{char.name}:** {message['content']}")
-                else:
-                    st.write(message['content'])
-
-        # Input de chat
-        if prompt := st.chat_input("Escribe tu mensaje..."):
-            st.session_state.messages.append({"role": "user", "content": prompt})
-
-            with st.spinner(f"{char.name} está pensando..."):
-                response = char.generate_response(prompt)
-
-            st.session_state.messages.append({
-                "role": char.name, "content": response, "avatar_path": char.profile_image_path
-            })
-            st.rerun()
+                    except Exception as e:
+                        st.error(f"❌ Error cargando chatbot desde {file_path.name}: {e}")
+            else:
+                st.info("No tienes chatbots guardados. Crea y guarda un chat desde 'Home'.")
 
     def render_chatbots_interface(self):
         st.title("🤖 Mis Chatbots")
