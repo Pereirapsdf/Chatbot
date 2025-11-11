@@ -16,17 +16,25 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
-def load_css(file_name):
-    """Lee el archivo CSS y lo inyecta en la aplicación usando st.markdown."""
-    try:
-        # Abrir y leer el contenido completo del archivo CSS
-        with open(file_name) as f:
-            st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
-    except FileNotFoundError:
-        # Mensaje de advertencia si el archivo no existe
-        st.warning(f"⚠️ Archivo CSS '{file_name}' no encontrado. Usando estilos por defecto.")
 
-load_css("styles.css")
+# Estilo crítico para fijar el input de chat (necesario para la UX)
+st.markdown("""
+    <style>
+    .main .block-container { padding-bottom: 260px !important; }
+    [data-testid="stChatInputContainer"] {
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 260px !important; /* Ajuste manual sin JS complejo */
+        right: 0 !important;
+        z-index: 2147483647 !important;
+        background-color: #0e1117 !important;
+        padding: 10px 16px !important;
+        border-top: 1px solid #262730 !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
+# Se elimina el script robusto de JS por ser demasiado verboso.
+
 class CharacterCreatorApp:
     IMAGES_FOLDER = "character_images"
     CHATS_FOLDER = "saved_chats"
@@ -132,63 +140,36 @@ class CharacterCreatorApp:
             st.error(f"⚠ Error al guardar: {e}")
 
     def load_chat_history(self, selected_file):
-            try:
-                # Leer el archivo JSON
-                with open(selected_file, "r", encoding="utf-8") as f:
-                    data = json.load(f)
+        try:
+            with open(selected_file, "r", encoding="utf-8") as f:
+                data = json.load(f)
 
-                # Validar campos mínimos requeridos
-                required_keys = ["name", "personality", "greeting", "messages"]
-                if not all(k in data for k in required_keys):
-                    st.error("⚠️ El archivo no contiene la información mínima requerida (nombre, personalidad, saludo, mensajes).")
-                    return
+            # Validar y cargar datos del personaje
+            if not all(k in data for k in ["name", "personality", "greeting", "messages"]):
+                st.error("❌ El archivo no contiene la información mínima requerida (nombre, personalidad, saludo, mensajes).")
+                return
 
-                # Cargar datos con valores por defecto
-                model_name = data.get("model_name", "gemini-2.0-flash")
-                unique_id = data.get("unique_id", Path(selected_file).stem)
-                profile_image_path = data.get("profile_image_path", None)
+            model_name = data.get("model_name", "gemini-2.0-flash")
+            unique_id = data.get("unique_id", Path(selected_file).stem)
 
-                # Crear instancia del personaje
-                st.session_state.character_instance = CharacterAI(
-                    name=data["name"],
-                    personality=data["personality"],
-                    greeting=data["greeting"],
-                    profile_image_path=profile_image_path,
-                    model_name=model_name
-                )
-                st.session_state.character_instance.unique_id = unique_id
-                st.session_state.current_character = data["name"]
-                st.session_state.messages = data["messages"]
+            st.session_state.character_instance = CharacterAI(
+                name=data["name"], personality=data["personality"], greeting=data["greeting"],
+                profile_image_path=data["profile_image_path"], model_name=model_name
+            )
+            st.session_state.character_instance.unique_id = unique_id
+            st.session_state.current_character = data["name"]
+            st.session_state.messages = data["messages"]
+            st.session_state.creator_mode = False
+            
+            # Limpiar historial de chat para la instancia nueva si es necesario (el contexto se recrea desde 'messages')
+            st.session_state.character_instance.clear_history() 
 
-                # Configurar modo y menú
-                st.session_state.creator_mode = False
-                st.session_state.active_menu = "home"  # Ir al menú principal antes del rerun
+            st.success(f"📂 Chat cargado. ID: {unique_id}, Modelo: {model_name}")
+            st.rerun()
 
-                # Limpiar historial del modelo (se recrea desde messages)
-                st.session_state.character_instance.clear_history()
+        except Exception as e:
+            st.error(f"⚠️ Error cargando chat: {e}")
 
-                # Mensaje de éxito
-                st.success(f"✅ Chat cargado correctamente.\nID: {unique_id}\nModelo: {model_name}")
-
-                # Rerun de la app
-                st.rerun()
-
-            except Exception as e:
-                st.error(f"❌ Error cargando chat: {e}")
-
-
-    def delete_chat(self, file_path):
-            """Elimina el archivo JSON del chat y refresca la vista."""
-            try:
-                path = Path(file_path)
-                if path.exists():
-                    path.unlink() # Elimina el archivo
-                    st.success(f"❌ Chat '{path.name}' eliminado correctamente.")
-                else:
-                    st.warning(f"⚠️ Archivo no encontrado: {path.name}")
-            except Exception as e:
-                st.error(f"❌ Error al eliminar el chat: {e}")
-            st.rerun() 
     # ===================== Renderizado de Vistas =====================
     def render_character_creator(self, available_images):
         st.subheader("🧠 Crear Personaje")
@@ -249,126 +230,104 @@ class CharacterCreatorApp:
                     self.create_character(name, personality, greeting, st.session_state.selected_image)
 
     def render_chat_interface(self):
-            """Maneja la lógica y el renderizado de la interfaz de chat."""
-            
-            # 1. Configuración de la cabecera
-            name = st.session_state.current_character
-            st.subheader(f"💬 Conversando con **{name}**")
-            
-            # Guardar y Resetear
-            col_save, col_reset = st.columns([1, 1])
-            with col_save:
-                if st.button("💾 Guardar Chat", use_container_width=True):
-                    self.save_character_and_chat(st.session_state.character_instance, is_chat=True)
-            with col_reset:
-                # Resetear solo elimina los mensajes, no el personaje (vuelve al saludo inicial)
-                if st.button("🔄 Resetear Chat", use_container_width=True):
-                    st.session_state.messages = [{
-                        "role": name, 
-                        "content": st.session_state.character_instance.greeting,
-                        "avatar_path": st.session_state.character_instance.profile_image_path
-                    }]
-                    st.session_state.character_instance.clear_history() # Limpia el historial del modelo
-                    st.info("Chat reiniciado al saludo inicial.")
-                    st.rerun()
-
-            st.markdown("---")
-            
-            # 2. Mostrar Historial de Mensajes
-            for message in st.session_state.messages:
+        """Renderiza la interfaz de chat con el personaje activo."""
+        character = st.session_state.character_instance
         
-                if message["role"] == name:
-                 
-                    avatar_path = message.get("avatar_path")
-                    if avatar_path and Path(avatar_path).exists():
-                        avatar = avatar_path 
-                    else:
-                        avatar = "🎭" 
-                    
-                else: 
-                    avatar = "👤" 
-                
-                
-             
-                with st.chat_message(name=message["role"], avatar=avatar):
-                    st.write(message["content"])
-
-
-            # 3. Manejar la Entrada del Usuario
-            prompt = st.chat_input("Escribe tu mensaje aquí...")
+        if not character:
+            st.warning("⚠️ No hay personaje activo")
+            return
+        
+        # Header del chat
+        col1, col2, col3 = st.columns([1, 3, 1])
+        with col1:
+            self.display_image(character.profile_image_path, width=100)
+        with col2:
+            st.title(f"💬 Chat con {character.name}")
+            st.caption(f"**Personalidad:** {character.personality[:100]}...")
+        with col3:
+            if st.button("💾 Guardar Chat", use_container_width=True):
+                self.save_character_and_chat(character, is_chat=True)
+            if st.button("🔄 Nuevo Chat", use_container_width=True):
+                st.session_state.update({
+                    "creator_mode": True, 
+                    "messages": [], 
+                    "character_instance": None, 
+                    "current_character": None
+                })
+                st.rerun()
+        
+        st.markdown("---")
+        
+        # Mostrar mensajes
+        for msg in st.session_state.messages:
+            with st.chat_message(msg["role"], avatar=msg.get("avatar_path")):
+                st.markdown(msg["content"])
+        
+        # Input del usuario
+        if user_input := st.chat_input("Escribe tu mensaje..."):
+            # Agregar mensaje del usuario
+            st.session_state.messages.append({
+                "role": "user",
+                "content": user_input,
+                "avatar_path": None
+            })
             
-            if prompt:
-                # Añadir mensaje del usuario
-                st.session_state.messages.append({"role": "user", "content": prompt, "avatar_path": "👤"})
-                
-                # Mostrar el mensaje del usuario
-                with st.chat_message("user", avatar="👤"):
-                    st.write(prompt)
-                    
-                # Generar respuesta del personaje (IA)
-                with st.spinner(f"**{name}** está pensando..."):
+            # Mostrar mensaje del usuario
+            with st.chat_message("user"):
+                st.markdown(user_input)
+            
+            # Obtener respuesta del personaje
+            with st.chat_message(character.name, avatar=character.profile_image_path):
+                with st.spinner("Pensando..."):
                     try:
-                        # La instancia CharacterAI debe tener un método `send_message` que interactúe con el modelo.
-                        response = st.session_state.character_instance.send_message(prompt)
+                        response = character.generate_response(user_input)
+                        st.markdown(response)
                         
-                        # Añadir mensaje del personaje
+                        # Guardar respuesta
                         st.session_state.messages.append({
-                            "role": name,
+                            "role": character.name,
                             "content": response,
-                            "avatar_path": st.session_state.character_instance.profile_image_path
+                            "avatar_path": character.profile_image_path
                         })
-                        
-                        # Mostrar la respuesta del personaje
-                        with st.chat_message(name=name, avatar=avatar): # Usar el avatar del personaje
-                            st.write(response)
-                            
                     except Exception as e:
-                        st.error(f"Error al obtener respuesta de la IA: {e}")
+                        st.error(f"Error generando respuesta: {e}")
+                        
     def render_chatbots_interface(self):
-            st.title("🤖 Mis Chatbots")
-            chatbot_files = sorted(Path(self.CHATS_FOLDER).glob("*.json"))
+        st.title("🤖 Mis Chatbots")
+        chatbot_files = sorted(Path(self.CHATS_FOLDER).glob("*.json"))
 
-            if chatbot_files:
-                # Iterar sobre los archivos de chat
-                for file_path in chatbot_files:
-                    try:
-                        data = json.loads(file_path.read_text(encoding="utf-8"))
-                        
-                        if not all(k in data for k in ["name", "personality", "profile_image_path"]): 
-                            continue
-                        
-                        unique_id = data.get("unique_id", file_path.stem)
-                        
-                        # Usamos 4 columnas para imagen, info, chatear y eliminar
-                        col1, col2, col3, col4 = st.columns([1, 3, 1, 1]) 
-                        
-                        with col1: 
-                            self.display_image(data["profile_image_path"], width=80)
-                        with col2:
-                            st.subheader(data["name"])
-                            st.caption(f"**Personalidad:** {data['personality'][:100]}...")
-                            st.caption(f"Último chat: {len(data.get('messages', []))} mensajes")
-                        
-                        with col3:
-                            # Botón para cargar y chatear
-                            if st.button(f"💬 Chatear", key=f"chat_{unique_id}", use_container_width=True):
-                                self.load_chat_history(str(file_path))
-                                st.session_state.active_menu = "home"
-                        
-                        with col4:
-                            # Botón para eliminar el chat DENTRO DE UN FORMULARIO
-                            with st.form(key=f"delete_form_{unique_id}", clear_on_submit=False):
-                                delete_submitted = st.form_submit_button("🗑️ Eliminar", use_container_width=True)
-                                
-                            if delete_submitted: 
-                                self.delete_chat(str(file_path))
+        if chatbot_files:
+            for file_path in chatbot_files:
+                try:
+                    data = json.loads(file_path.read_text(encoding="utf-8"))
+                    
+                    if not all(k in data for k in ["name", "personality", "profile_image_path"]): 
+                        continue
+                    
+                    unique_id = data.get("unique_id", file_path.stem)
+                    
+                    col1, col2, col3 = st.columns([1, 3, 1])
+                    with col1: 
+                        self.display_image(data["profile_image_path"], width=80)
+                    with col2:
+                        st.subheader(data["name"])
+                        st.caption(f"**Personalidad:** {data['personality'][:100]}...")
+                        st.caption(f"Último chat: {len(data.get('messages', []))} mensajes")
+                    with col3:
+                        if st.button(f"💬 Chatear", key=f"chat_{unique_id}", use_container_width=True):
+                            # Cargar el chat
+                            self.load_chat_history(str(file_path))
+                            # Cambiar al menú home para mostrar el chat
+                            st.session_state.active_menu = "home"
+                            # El rerun ya está en load_chat_history, pero aseguramos el cambio de menú
+                    
+                    st.markdown("---")
 
-                        st.markdown("---")
+                except Exception as e:
+                    st.error(f"❌ Error cargando chatbot desde {file_path.name}: {e}")
+        else:
+            st.info("No tienes chatbots guardados. Crea y guarda un chat desde 'Home'.")
 
-                    except Exception as e:
-                        st.error(f"❌ Error cargando chatbot desde {file_path.name}: {e}")
-            else:
-                st.info("No tienes chatbots guardados. Crea y guarda un chat desde 'Home'.")
     # ===================== Main Loop =====================
     def run(self):
         col_menu, col_main = st.columns([1, 4])
