@@ -276,15 +276,20 @@ class CharacterCreatorApp:
             
             # 2. Mostrar Historial de Mensajes
             for message in st.session_state.messages:
-                # Determinar el avatar y la etiqueta del autor
+        
                 if message["role"] == name:
-                    avatar = Path(message["avatar_path"]).name if message.get("avatar_path") else "🎭"
-                    is_user = False
-                else:
+                 
+                    avatar_path = message.get("avatar_path")
+                    if avatar_path and Path(avatar_path).exists():
+                        avatar = avatar_path 
+                    else:
+                        avatar = "🎭" 
+                    
+                else: 
                     avatar = "👤" 
-                    is_user = True
                 
-                # Usar el formato de mensaje de Streamlit (st.chat_message)
+                
+             
                 with st.chat_message(name=message["role"], avatar=avatar):
                     st.write(message["content"])
 
