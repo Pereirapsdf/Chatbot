@@ -16,7 +16,6 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
-
 def load_css(file_name):
     """Lee el archivo CSS y lo inyecta en la aplicación usando st.markdown."""
     try:
@@ -26,23 +25,6 @@ def load_css(file_name):
     except FileNotFoundError:
         # Mensaje de advertencia si el archivo no existe
         st.warning(f"⚠️ Archivo CSS '{file_name}' no encontrado. Usando estilos por defecto.")
-
-# Estilo crítico para fijar el input de chat (necesario para la UX)
-    st.markdown("""
-        <style>
-        .main .block-container { padding-bottom: 260px !important; }
-        [data-testid="stChatInputContainer"] {
-            position: fixed !important;
-            bottom: 0 !important;
-            left: 260px !important; /* Ajuste manual sin JS complejo */
-            right: 0 !important;
-            z-index: 2147483647 !important;
-            background-color: #0e1117 !important;
-            padding: 10px 16px !important;
-            border-top: 1px solid #262730 !important;
-        }
-        </style>
-    """, unsafe_allow_html=True)
 
 load_css("styles.css")
 class CharacterCreatorApp:
