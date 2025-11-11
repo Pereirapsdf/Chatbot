@@ -192,20 +192,36 @@ div[data-testid="stChatMessage"]:hover {
 }
 
 /* User Message - Alineado a la derecha */
+/* Se mantiene tu selector original: */
+div[data-testid="stChatMessage"]:has([data-testid="chatAvatarIcon-user"]), 
+/* Se agrega el selector para el mensaje con role="user" */
+div[data-testid="stChatMessage"][data-testid="chat-message-container-user"] { 
+  background: rgba(88, 101, 242, 0.25) !important;
+  margin-left: auto !important;
+  margin-right: 0 !important;
+  border: 1px solid rgba(88, 101, 242, 0.3) !important;
+  flex-direction: row-reverse !important;
+  justify-self: flex-end !important;
+  align-self: flex-end !important;
+}
+
+/* Además, modifica el selector redundante que intenta capturar el usuario */
+/* (Alrededor de la línea 192 - Esto reemplaza tu bloque anterior, asegurando que cubrimos el rol "user") */
 div[data-testid="stChatMessage"].stChatMessage:has([data-testid="chatAvatarIcon-user"]),
-div[data-testid="stChatMessage"]:has(img[alt="user avatar"]) {
+div[data-testid="stChatMessage"]:has(img[alt="user avatar"]),
+div[data-testid="stChatMessage"][data-testid="chat-message-container-user"] { /* <-- Aseguramos el selector */
   background: rgba(88, 101, 242, 0.25) !important;
   margin-left: auto !important;
   margin-right: 0 !important;
   border: 1px solid rgba(88, 101, 242, 0.3) !important;
 }
 
-/* Assistant/Character Message - Alineado a la izquierda */
-div[data-testid="stChatMessage"]:not(:has([data-testid="chatAvatarIcon-user"])):not(:has(img[alt="user avatar"])) {
-  background: rgba(255, 255, 255, 0.05) !important;
-  margin-right: auto !important;
-  margin-left: 0 !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+/* Y para el bot, aseguramos que cualquier cosa que NO sea "user" se alinee a la izquierda */
+div[data-testid="stChatMessage"]:not([data-testid="chat-message-container-user"]) { /* <-- Aseguramos el selector */
+    background: rgba(255, 255, 255, 0.05) !important;
+    margin-right: auto !important;
+    margin-left: 0 !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
 }
 
 .stChatMessage img {
