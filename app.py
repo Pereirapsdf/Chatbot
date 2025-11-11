@@ -248,7 +248,77 @@ class CharacterCreatorApp:
                 else:
                     self.create_character(name, personality, greeting, st.session_state.selected_image)
 
+    def render_chat_interface(self):
+            """Maneja la lógica y el renderizado de la interfaz de chat."""
+            
+            # 1. Configuración de la cabecera
+            name = st.session_state.current_character
+            st.subheader(f"💬 Conversando con **{name}**")
+            
+            # Guardar y Resetear
+            col_save, col_reset = st.columns([1, 1])
+            with col_save:
+                if st.button("💾 Guardar Chat", use_container_width=True):
+                    self.save_character_and_chat(st.session_state.character_instance, is_chat=True)
+            with col_reset:
+                # Resetear solo elimina los mensajes, no el personaje (vuelve al saludo inicial)
+                if st.button("🔄 Resetear Chat", use_container_width=True):
+                    st.session_state.messages = [{
+                        "role": name, 
+                        "content": st.session_state.character_instance.greeting,
+                        "avatar_path": st.session_state.character_instance.profile_image_path
+                    }]
+                    st.session_state.character_instance.clear_history() # Limpia el historial del modelo
+                    st.info("Chat reiniciado al saludo inicial.")
+                    st.rerun()
 
+            st.markdown("---")
+            
+            # 2. Mostrar Historial de Mensajes
+            for message in st.session_state.messages:
+                # Determinar el avatar y la etiqueta del autor
+                if message["role"] == name:
+                    avatar = Path(message["avatar_path"]).name if message.get("avatar_path") else "🎭"
+                    is_user = False
+                else:
+                    avatar = "👤" 
+                    is_user = True
+                
+                # Usar el formato de mensaje de Streamlit (st.chat_message)
+                with st.chat_message(name=message["role"], avatar=avatar):
+                    st.write(message["content"])
+
+
+            # 3. Manejar la Entrada del Usuario
+            prompt = st.chat_input("Escribe tu mensaje aquí...")
+            
+            if prompt:
+                # Añadir mensaje del usuario
+                st.session_state.messages.append({"role": "user", "content": prompt, "avatar_path": "👤"})
+                
+                # Mostrar el mensaje del usuario
+                with st.chat_message("user", avatar="👤"):
+                    st.write(prompt)
+                    
+                # Generar respuesta del personaje (IA)
+                with st.spinner(f"**{name}** está pensando..."):
+                    try:
+                        # La instancia CharacterAI debe tener un método `send_message` que interactúe con el modelo.
+                        response = st.session_state.character_instance.send_message(prompt)
+                        
+                        # Añadir mensaje del personaje
+                        st.session_state.messages.append({
+                            "role": name,
+                            "content": response,
+                            "avatar_path": st.session_state.character_instance.profile_image_path
+                        })
+                        
+                        # Mostrar la respuesta del personaje
+                        with st.chat_message(name=name, avatar=avatar): # Usar el avatar del personaje
+                            st.write(response)
+                            
+                    except Exception as e:
+                        st.error(f"Error al obtener respuesta de la IA: {e}")
     def render_chatbots_interface(self):
             st.title("🤖 Mis Chatbots")
             chatbot_files = sorted(Path(self.CHATS_FOLDER).glob("*.json"))
