@@ -17,24 +17,16 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Estilo crítico para fijar el input de chat (necesario para la UX)
-st.markdown("""
-    <style>
-    .main .block-container { padding-bottom: 260px !important; }
-    [data-testid="stChatInputContainer"] {
-        position: fixed !important;
-        bottom: 0 !important;
-        left: 260px !important; /* Ajuste manual sin JS complejo */
-        right: 0 !important;
-        z-index: 2147483647 !important;
-        background-color: #0e1117 !important;
-        padding: 10px 16px !important;
-        border-top: 1px solid #262730 !important;
-    }
-    </style>
-""", unsafe_allow_html=True)
-# Se elimina el script robusto de JS por ser demasiado verboso.
-
+def load_css(file_name):
+    """Lee el archivo CSS y lo inyecta en la aplicación usando st.markdown."""
+    try:
+        # Abrir y leer el contenido completo del archivo CSS
+        with open(file_name) as f:
+            st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
+    except FileNotFoundError:
+        # Mensaje de advertencia si el archivo no existe
+        st.warning(f"⚠️ Archivo CSS '{file_name}' no encontrado. Usando estilos por defecto.")
+load_css("styles.css")
 class CharacterCreatorApp:
     IMAGES_FOLDER = "character_images"
     CHATS_FOLDER = "saved_chats"
@@ -140,36 +132,49 @@ class CharacterCreatorApp:
             st.error(f"⚠ Error al guardar: {e}")
 
     def load_chat_history(self, selected_file):
-        try:
-            with open(selected_file, "r", encoding="utf-8") as f:
-                data = json.load(f)
+            try:
+                # Leer el archivo JSON
+                with open(selected_file, "r", encoding="utf-8") as f:
+                    data = json.load(f)
 
-            # Validar y cargar datos del personaje
-            if not all(k in data for k in ["name", "personality", "greeting", "messages"]):
-                st.error("❌ El archivo no contiene la información mínima requerida (nombre, personalidad, saludo, mensajes).")
-                return
+                # Validar campos mínimos requeridos
+                required_keys = ["name", "personality", "greeting", "messages"]
+                if not all(k in data for k in required_keys):
+                    st.error("⚠️ El archivo no contiene la información mínima requerida (nombre, personalidad, saludo, mensajes).")
+                    return
 
-            model_name = data.get("model_name", "gemini-2.0-flash")
-            unique_id = data.get("unique_id", Path(selected_file).stem)
+                # Cargar datos con valores por defecto
+                model_name = data.get("model_name", "gemini-2.0-flash")
+                unique_id = data.get("unique_id", Path(selected_file).stem)
+                profile_image_path = data.get("profile_image_path", None)
 
-            st.session_state.character_instance = CharacterAI(
-                name=data["name"], personality=data["personality"], greeting=data["greeting"],
-                profile_image_path=data["profile_image_path"], model_name=model_name
-            )
-            st.session_state.character_instance.unique_id = unique_id
-            st.session_state.current_character = data["name"]
-            st.session_state.messages = data["messages"]
-            st.session_state.creator_mode = False
-            
-            # Limpiar historial de chat para la instancia nueva si es necesario (el contexto se recrea desde 'messages')
-            st.session_state.character_instance.clear_history() 
+                # Crear instancia del personaje
+                st.session_state.character_instance = CharacterAI(
+                    name=data["name"],
+                    personality=data["personality"],
+                    greeting=data["greeting"],
+                    profile_image_path=profile_image_path,
+                    model_name=model_name
+                )
+                st.session_state.character_instance.unique_id = unique_id
+                st.session_state.current_character = data["name"]
+                st.session_state.messages = data["messages"]
 
-            st.success(f"📂 Chat cargado. ID: {unique_id}, Modelo: {model_name}")
-            st.rerun()
+                # Configurar modo y menú
+                st.session_state.creator_mode = False
+                st.session_state.active_menu = "home"  # Ir al menú principal antes del rerun
 
-        except Exception as e:
-            st.error(f"⚠️ Error cargando chat: {e}")
+                # Limpiar historial del modelo (se recrea desde messages)
+                st.session_state.character_instance.clear_history()
 
+                # Mensaje de éxito
+                st.success(f"✅ Chat cargado correctamente.\nID: {unique_id}\nModelo: {model_name}")
+
+                # Rerun de la app
+                st.rerun()
+
+            except Exception as e:
+                st.error(f"❌ Error cargando chat: {e}")
     # ===================== Renderizado de Vistas =====================
     def render_character_creator(self, available_images):
         st.subheader("🧠 Crear Personaje")
@@ -291,7 +296,7 @@ class CharacterCreatorApp:
                         })
                     except Exception as e:
                         st.error(f"Error generando respuesta: {e}")
-                        
+
     def render_chatbots_interface(self):
         st.title("🤖 Mis Chatbots")
         chatbot_files = sorted(Path(self.CHATS_FOLDER).glob("*.json"))
