@@ -88,15 +88,21 @@ section.main > div {
 
 /* --- Chat Input Fixed Container & Textarea Styling --- */
 [data-testid="stChatInputContainer"] {
-   position: fixed !important;
+  position: fixed !important;
   bottom: 0 !important;
-  left: 260px !important;
+  left: 0 !important;
   right: 0 !important;
   z-index: 2147483647 !important;
   background-color: #0e1117 !important;
   padding: 1rem !important;
   border-top: 1px solid #262730 !important;
   box-sizing: border-box !important;
+  margin-left: 260px !important; /* Cambiado de left a margin-left */
+}
+
+/* Ajuste cuando sidebar está colapsado */
+[data-testid="stSidebar"][aria-expanded="false"] ~ * [data-testid="stChatInputContainer"] {
+  margin-left: 0 !important;
 }
 
 /* Target both textarea and stTextArea for uniformity */
@@ -134,10 +140,10 @@ section.main > div {
 
 /* --- Chat Messages Container --- */
 section[data-testid="stChatMessageContainer"] {
-   max-height: calc(100vh - 160px) !important;
-   overflow-y: auto !important;
-   padding-bottom: 40px !important;
-   box-sizing: border-box !important;
+  max-height: calc(100vh - 160px) !important;
+  overflow-y: auto !important;
+  padding-bottom: 40px !important;
+  box-sizing: border-box !important;
 }
 
 /* --- Chat Message Styling (General) --- */
@@ -148,23 +154,28 @@ div[data-testid="stChatMessage"] {
   backdrop-filter: blur(8px) !important;
   transition: all 0.2s ease !important;
   max-width: 85% !important;
+  display: flex !important;
+  width: fit-content !important;
 }
 
 div[data-testid="stChatMessage"]:hover {
   transform: scale(1.01) !important;
 }
 
-/* User Message */
-div[data-testid="stChatMessage"][data-testid*="user"] {
+/* User Message - Alineado a la derecha */
+div[data-testid="stChatMessage"].stChatMessage:has([data-testid="chatAvatarIcon-user"]),
+div[data-testid="stChatMessage"]:has(img[alt="user avatar"]) {
   background: rgba(88, 101, 242, 0.25) !important;
   margin-left: auto !important;
+  margin-right: 0 !important;
   border: 1px solid rgba(88, 101, 242, 0.3) !important;
 }
 
-/* Assistant Message */
-div[data-testid="stChatMessage"][data-testid*="assistant"] {
+/* Assistant/Character Message - Alineado a la izquierda */
+div[data-testid="stChatMessage"]:not(:has([data-testid="chatAvatarIcon-user"])):not(:has(img[alt="user avatar"])) {
   background: rgba(255, 255, 255, 0.05) !important;
   margin-right: auto !important;
+  margin-left: 0 !important;
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
 }
 
@@ -222,8 +233,13 @@ button:hover, .stButton > button:hover {
 @media (max-width: 768px) {
   [data-testid="stChatInputContainer"] {
     padding: 0.5rem !important;
+    margin-left: 0 !important;
   }
   section[data-testid="stChatMessageContainer"] {
     max-height: calc(100vh - 200px) !important;
+  }
+  
+  [data-testid="stSidebar"] {
+    min-width: 0 !important;
   }
 }
