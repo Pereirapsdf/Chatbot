@@ -137,16 +137,27 @@ section.main > div {
   color: #e5e7eb !important;
   padding: 11px 14px !important;
 }
+
 /* User Message - Alineado a la derecha */
-div[data-testid="stChatMessage"][data-testid*="user"],
-div[data-testid="stChatMessage"]:has([data-testid="chatAvatarIcon-user"]),
-div[data-testid="stChatMessage"].stChatMessage:has([data-testid="chatAvatarIcon-user"]),
-div[data-testid="stChatMessage"]:has(img[alt="user avatar"]) {
+
+div[data-testid="stChatMessage"]:has([data-testid="chatAvatarIcon-user"]) {
   background: rgba(88, 101, 242, 0.25) !important;
   margin-left: auto !important;
   margin-right: 0 !important;
   border: 1px solid rgba(88, 101, 242, 0.3) !important;
   flex-direction: row-reverse !important;
+  justify-self: flex-end !important;
+  align-self: flex-end !important;
+}
+
+/* Contenedor del chat message para forzar alineación */
+section[data-testid="stVerticalBlock"]:has(div[data-testid="stChatMessage"]) {
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+section[data-testid="stVerticalBlock"] > div:has([data-testid="chatAvatarIcon-user"]) {
+  align-self: flex-end !important;
 }
 
 /* Asegurar que el contenedor padre también alinee correctamente */
