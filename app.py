@@ -131,6 +131,15 @@ class CharacterCreatorApp:
         except Exception as e:
             st.error(f"⚠ Error al guardar: {e}")
 
+    def delete_chat(self, file_path):
+        """Elimina un archivo de chat del sistema."""
+        try:
+            Path(file_path).unlink()
+            st.success(f"🗑️ Chat eliminado exitosamente.")
+            st.rerun()
+        except Exception as e:
+            st.error(f"❌ Error al eliminar chat: {e}")
+
     def load_chat_history(self, selected_file):
             try:
                 # Leer el archivo JSON
@@ -311,7 +320,7 @@ class CharacterCreatorApp:
                     
                     unique_id = data.get("unique_id", file_path.stem)
                     
-                    col1, col2, col3 = st.columns([1, 3, 1])
+                    col1, col2, col3, col4 = st.columns([1, 3, 1, 1])
                     with col1: 
                         self.display_image(data["profile_image_path"], width=80)
                     with col2:
@@ -325,6 +334,28 @@ class CharacterCreatorApp:
                             # Cambiar al menú home para mostrar el chat
                             st.session_state.active_menu = "home"
                             # El rerun ya está en load_chat_history, pero aseguramos el cambio de menú
+                    with col4:
+                        if st.button(f"🗑️ Eliminar", key=f"delete_{unique_id}", use_container_width=True, type="secondary"):
+                            # Confirmación antes de eliminar
+                            if f"confirm_delete_{unique_id}" not in st.session_state:
+                                st.session_state[f"confirm_delete_{unique_id}"] = True
+                                st.warning(f"⚠️ ¿Seguro que quieres eliminar a **{data['name']}**?")
+                                st.rerun()
+                            else:
+                                self.delete_chat(str(file_path))
+                                del st.session_state[f"confirm_delete_{unique_id}"]
+                    
+                    # Mostrar confirmación si existe
+                    if st.session_state.get(f"confirm_delete_{unique_id}", False):
+                        col_confirm1, col_confirm2 = st.columns(2)
+                        with col_confirm1:
+                            if st.button(f"✅ Sí, eliminar", key=f"yes_{unique_id}", use_container_width=True):
+                                self.delete_chat(str(file_path))
+                                del st.session_state[f"confirm_delete_{unique_id}"]
+                        with col_confirm2:
+                            if st.button(f"❌ Cancelar", key=f"no_{unique_id}", use_container_width=True):
+                                del st.session_state[f"confirm_delete_{unique_id}"]
+                                st.rerun()
                     
                     st.markdown("---")
 
