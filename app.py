@@ -17,6 +17,16 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+def load_css(file_name):
+    """Lee el archivo CSS y lo inyecta en la aplicación usando st.markdown."""
+    try:
+        # Abrir y leer el contenido completo del archivo CSS
+        with open(file_name) as f:
+            st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
+    except FileNotFoundError:
+        # Mensaje de advertencia si el archivo no existe
+        st.warning(f"⚠️ Archivo CSS '{file_name}' no encontrado. Usando estilos por defecto.")
+
 # Estilo crítico para fijar el input de chat (necesario para la UX)
 st.markdown("""
     <style>
@@ -33,8 +43,8 @@ st.markdown("""
     }
     </style>
 """, unsafe_allow_html=True)
-# Se elimina el script robusto de JS por ser demasiado verboso.
 
+load_css("styles.css")
 class CharacterCreatorApp:
     IMAGES_FOLDER = "character_images"
     CHATS_FOLDER = "saved_chats"
@@ -138,7 +148,7 @@ class CharacterCreatorApp:
 
         except Exception as e:
             st.error(f"⚠ Error al guardar: {e}")
-            
+
     def load_chat_history(self, selected_file):
             try:
                 # Leer el archivo JSON

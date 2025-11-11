@@ -82,7 +82,7 @@ section.main > div {
 }
 
 .main .block-container {
-  padding: 2rem 2rem 200px 2rem !important; /* Consolidated padding */
+  padding: 2rem 2rem 200px 2rem !important;
   max-width: 100% !important;
 }
 
@@ -111,7 +111,7 @@ section.main > div {
   color: #e5e7eb !important;
   border: 1px solid rgba(255,255,255,0.08) !important;
   resize: none !important;
-  transition: all 0.2s ease-in-out !important; /* Moved transition here */
+  transition: all 0.2s ease-in-out !important;
 }
 
 /* Focus state for both */
@@ -125,8 +125,8 @@ section.main > div {
 
 /* Cleanup for stChatInput (since the above covers most) */
 .stChatInput textarea {
-  background: rgba(255, 255, 255, 0.05) !important; /* Slightly different opacity for base */
-  border: 1px solid rgba(255, 255, 255, 0.1) !important; /* Slightly different opacity for border */
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
   border-radius: 20px !important;
   color: #e5e7eb !important;
   padding: 11px 14px !important;
@@ -220,7 +220,7 @@ button:hover, .stButton > button:hover {
 
 /* --- Responsive --- */
 @media (max-width: 768px) {
-  [data-testid="stChatInputContainer"] { /* Fixed typo: removed extra dot */
+  [data-testid="stChatInputContainer"] {
     padding: 0.5rem !important;
   }
   section[data-testid="stChatMessageContainer"] {
