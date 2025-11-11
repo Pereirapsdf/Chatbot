@@ -140,21 +140,35 @@ class CharacterCreatorApp:
             st.error(f"⚠ Error al guardar: {e}")
 
     def load_chat_history(self, selected_file):
-            try:
-                # ... toda la lógica de validación y asignación de session_state ...
-                
-                # Si la carga interna es exitosa, se llega aquí
-                st.session_state.creator_mode = False
-                st.success(f"📂 Chat cargado. ID: {unique_id}, Modelo: {model_name}")
-                
-            except Exception as e:
-                st.error(f"⚠️ Error cargando chat: {e}")
+        try:
+            with open(selected_file, "r", encoding="utf-8") as f:
+                data = json.load(f)
+
+            # Validar y cargar datos del personaje
+            if not all(k in data for k in ["name", "personality", "greeting", "messages"]):
+                st.error("❌ El archivo no contiene la información mínima requerida (nombre, personalidad, saludo, mensajes).")
+                return
+
+            model_name = data.get("model_name", "gemini-2.0-flash")
+            unique_id = data.get("unique_id", Path(selected_file).stem)
+
+            st.session_state.character_instance = CharacterAI(
+                name=data["name"], personality=data["personality"], greeting=data["greeting"],
+                profile_image_path=data["profile_image_path"], model_name=model_name
+            )
+            st.session_state.character_instance.unique_id = unique_id
+            st.session_state.current_character = data["name"]
+            st.session_state.messages = data["messages"]
+            st.session_state.creator_mode = False
             
-            # Mover la redirección y el rerun fuera del try/except
-            # Esto fuerza la actualización de la interfaz, incluso si la carga falló parcialmente, 
-            # pero asegura que volvamos a 'home'
-            st.session_state.active_menu = "home"
+            # Limpiar historial de chat para la instancia nueva si es necesario (el contexto se recrea desde 'messages')
+            st.session_state.character_instance.clear_history() 
+
+            st.success(f"📂 Chat cargado. ID: {unique_id}, Modelo: {model_name}")
             st.rerun()
+
+        except Exception as e:
+            st.error(f"⚠️ Error cargando chat: {e}")
 
     # ===================== Renderizado de Vistas =====================
     def render_character_creator(self, available_images):
@@ -214,7 +228,7 @@ class CharacterCreatorApp:
                     st.error("⚠ Completa todos los campos y selecciona una imagen.")
                 else:
                     self.create_character(name, personality, greeting, st.session_state.selected_image)
-    
+    # --- Fragmento de la Clase CharacterCreatorApp (Código Corregido) ---
         def render_chatbots_interface(self):
             st.title("🤖 Mis Chatbots")
             chatbot_files = sorted(Path(self.CHATS_FOLDER).glob("*.json"))
