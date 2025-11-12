@@ -1,14 +1,15 @@
-/* === 🎭 CHARACTER AI CREATOR - DARK MODERN STYLE + CHAT FIXED === */
+/* === 🎭 CHARACTER AI CREATOR - DARK MODERN STYLE + CHAT FIXED (Optimized) === */
 
-/* --- Fondo principal oscuro --- */
+/* --- General & Main Background --- */
 [data-testid="stAppViewContainer"] {
   background: linear-gradient(165deg, #262a55,#222a7a, #2c38c0, #030b5e);
   color: #e5e7eb;
   font-family: "Inter", sans-serif;
   background-attachment: fixed;
+  overflow: visible !important;
 }
 
-/* --- Sidebar oscuro moderno --- */
+/* --- Sidebar & Headings --- */
 [data-testid="stSidebar"] {
   background: #16213e !important;
   backdrop-filter: blur(10px) !important;
@@ -18,13 +19,16 @@
   padding-top: 1.5rem !important;
 }
 
+[data-testid="stSidebar"] h1, [data-testid="stSidebar"] h3 {
+  text-align: left !important;
+  padding-left: 12px !important;
+  font-weight: 600 !important;
+}
+
 [data-testid="stSidebar"] h1 {
   font-size: 16px !important;
-  text-align: left !important;
   margin-bottom: 1.5rem !important;
   color: #ffffff !important;
-  font-weight: 600 !important;
-  padding-left: 12px !important;
 }
 
 [data-testid="stSidebar"] h3 {
@@ -34,11 +38,9 @@
   margin-bottom: 12px !important;
   text-transform: uppercase !important;
   letter-spacing: 0.5px !important;
-  text-align: left !important;
-  padding-left: 12px !important;
-  font-weight: 600 !important;
 }
 
+/* --- Sidebar Button --- */
 [data-testid="stSidebar"] .stButton button {
   width: 100% !important;
   text-align: left !important;
@@ -62,12 +64,12 @@
   transform: translateX(4px) !important;
 }
 
-/* --- Ocultar botón de colapsar sidebar --- */
+/* --- Hide Collapse Button --- */
 [data-testid="collapsedControl"] {
   display: none !important;
 }
 
-/* --- Contenedor principal --- */
+/* --- Main Content Container --- */
 section.main > div {
   background: rgba(30, 30, 50, 0.5) !important;
   backdrop-filter: blur(14px) !important;
@@ -80,27 +82,30 @@ section.main > div {
 }
 
 .main .block-container {
-  padding-left: 2rem !important;
-  padding-right: 2rem !important;
-  padding-top: 2rem !important;
-  padding-bottom: 200px !important; /* más espacio para evitar superposición */
+  padding: 2rem 2rem 200px 2rem !important;
   max-width: 100% !important;
 }
 
-/* --- Chat input fijo --- */
+/* --- Chat Input Fixed Container & Textarea Styling --- */
 [data-testid="stChatInputContainer"] {
-   position: fixed !important;
+  position: fixed !important;
   bottom: 0 !important;
-  left: 260px !important; /* ajusta si tu sidebar tiene otro ancho */
+  left: 0 !important;
   right: 0 !important;
-  z-index: 2147483647 !important; /* muy arriba para evitar solapamientos */
+  z-index: 2147483647 !important;
   background-color: #0e1117 !important;
   padding: 1rem !important;
   border-top: 1px solid #262730 !important;
   box-sizing: border-box !important;
+  margin-left: 260px !important; /* Cambiado de left a margin-left */
 }
 
-/* Ajustar el campo de texto */
+/* Ajuste cuando sidebar está colapsado */
+[data-testid="stSidebar"][aria-expanded="false"] ~ * [data-testid="stChatInputContainer"] {
+  margin-left: 0 !important;
+}
+
+/* Target both textarea and stTextArea for uniformity */
 [data-testid="stChatInputContainer"] textarea,
 [data-testid="stChatInputContainer"] .stTextArea {
   width: 100% !important;
@@ -112,25 +117,11 @@ section.main > div {
   color: #e5e7eb !important;
   border: 1px solid rgba(255,255,255,0.08) !important;
   resize: none !important;
-}
-
-
-[data-testid="stChatInputContainer"] textarea:focus {
-  border-color: #5865f2 !important;
-  box-shadow: 0 0 0 2px rgba(88, 101, 242, 0.2) !important;
-  background-color: rgba(255, 255, 255, 0.08) !important;
-  outline: none !important;
-}
-
-.stChatInput textarea {
-  background: rgba(255, 255, 255, 0.05) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  border-radius: 20px !important;
-  color: #e5e7eb !important;
-  padding: 11px 14px !important;
   transition: all 0.2s ease-in-out !important;
 }
 
+/* Focus state for both */
+[data-testid="stChatInputContainer"] textarea:focus,
 .stChatInput textarea:focus {
   border-color: #5865f2 !important;
   box-shadow: 0 0 0 2px rgba(88, 101, 242, 0.2) !important;
@@ -138,14 +129,53 @@ section.main > div {
   outline: none !important;
 }
 
-/* --- Chat mensajes --- */
-section[data-testid="stChatMessageContainer"] {
-    max-height: calc(100vh - 160px) !important; /* se ajustará por JS también */
-   overflow-y: auto !important;
-   padding-bottom: 40px !important; /* base, JS lo incrementará dinámicamente */
-   box-sizing: border-box !important;
+/* Cleanup for stChatInput (since the above covers most) */
+.stChatInput textarea {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 20px !important;
+  color: #e5e7eb !important;
+  padding: 11px 14px !important;
 }
 
+/* User Message - Alineado a la derecha */
+
+div[data-testid="stChatMessage"]:has([data-testid="chatAvatarIcon-user"]) {
+  background: rgba(88, 101, 242, 0.25) !important;
+  margin-left: auto !important;
+  margin-right: 0 !important;
+  border: 1px solid rgba(88, 101, 242, 0.3) !important;
+  flex-direction: row-reverse !important;
+  justify-self: flex-end !important;
+  align-self: flex-end !important;
+}
+
+/* Contenedor del chat message para forzar alineación */
+section[data-testid="stVerticalBlock"]:has(div[data-testid="stChatMessage"]) {
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+section[data-testid="stVerticalBlock"] > div:has([data-testid="chatAvatarIcon-user"]) {
+  align-self: flex-end !important;
+}
+
+/* Asegurar que el contenedor padre también alinee correctamente */
+.stChatMessage:has([data-testid="chatAvatarIcon-user"]) {
+  margin-left: auto !important;
+  margin-right: 0 !important;
+}
+
+
+/* --- Chat Messages Container --- */
+section[data-testid="stChatMessageContainer"] {
+  max-height: calc(100vh - 160px) !important;
+  overflow-y: auto !important;
+  padding-bottom: 40px !important;
+  box-sizing: border-box !important;
+}
+
+/* --- Chat Message Styling (General) --- */
 div[data-testid="stChatMessage"] {
   border-radius: 12px !important;
   padding: 12px 16px !important;
@@ -153,23 +183,71 @@ div[data-testid="stChatMessage"] {
   backdrop-filter: blur(8px) !important;
   transition: all 0.2s ease !important;
   max-width: 85% !important;
+  display: flex !important;
+  width: fit-content !important;
 }
 
 div[data-testid="stChatMessage"]:hover {
   transform: scale(1.01) !important;
 }
 
-div[data-testid="stChatMessage"][data-testid*="user"] {
+/* --- CHAT MESSAGES FIX (Asegurar que el usuario esté a la derecha) --- */
+
+/* 1. ESTILOS BASE DEL MENSAJE (General) */
+div[data-testid="stChatMessage"] {
+  border-radius: 12px !important;
+  padding: 12px 16px !important;
+  margin: 10px 0 !important;
+  backdrop-filter: blur(8px) !important;
+  transition: all 0.2s ease !important;
+  max-width: 85% !important;
+  display: flex !important;
+  width: fit-content !important;
+}
+
+div[data-testid="stChatMessage"]:hover {
+  transform: scale(1.01) !important;
+}
+
+/* 2. ESTILOS DEL BOT (Alineado a la izquierda) */
+/* Aplica a cualquier mensaje que NO sea el de usuario (es decir, el personaje "gabi") */
+div[data-testid="stChatMessage"]:not([data-testid="chat-message-container-user"]) { 
+    background: rgba(255, 255, 255, 0.05) !important;
+    margin-right: auto !important; /* Mantiene a la izquierda */
+    margin-left: 0 !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    flex-direction: row !important; /* Avatar a la izquierda */
+    align-self: flex-start !important; /* Alinear el bloque a la izquierda */
+}
+
+
+/* 3. ESTILOS DEL USUARIO (Forzar alineación a la derecha) */
+/* Selector esencial: Se basa en el rol interno de Streamlit o el ícono por defecto. */
+div[data-testid="stChatMessage"][data-testid="chat-message-container-user"],
+div[data-testid="stChatMessage"]:has([data-testid="chatAvatarIcon-user"]) { 
   background: rgba(88, 101, 242, 0.25) !important;
-  margin-left: auto !important;
+  
+  /* Claves de alineación horizontal: */
+  margin-left: auto !important; 
+  margin-right: 0 !important;
+  
+  /* Clave de orden interno (Texto y Avatar): */
+  flex-direction: row-reverse !important; 
+  
+  /* Clave de alineación del bloque del mensaje: */
+  align-self: flex-end !important;
+  
   border: 1px solid rgba(88, 101, 242, 0.3) !important;
 }
 
-div[data-testid="stChatMessage"][data-testid*="assistant"] {
-  background: rgba(255, 255, 255, 0.05) !important;
-  margin-right: auto !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+/* 4. Forzar el contenedor padre a aplicar la alineación para el usuario */
+/* Este es el selector más importante para el align-self: flex-end */
+section[data-testid="stVerticalBlock"] > div[data-testid="stChatMessage"]:has([data-testid="chatAvatarIcon-user"]),
+section[data-testid="stVerticalBlock"] > div[data-testid="stChatMessage"][data-testid="chat-message-container-user"] {
+  align-self: flex-end !important;
 }
+
+/* --- Estilos de Imagen y Texto dentro del mensaje (se mantienen) --- */
 
 .stChatMessage img {
   border-radius: 50%;
@@ -181,7 +259,26 @@ div[data-testid="stChatMessage"][data-testid*="assistant"] {
   line-height: 1.6;
 }
 
-/* --- Botones generales --- */
+/* --- Fin de CHAT MESSAGES FIX --- */
+
+div[data-testid="stChatMessage"]:hover {
+  transform: scale(1.01) !important;
+}
+
+
+
+
+.stChatMessage img {
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.stChatMessage [data-testid="stMarkdownContainer"] p {
+  color: #fafafa;
+  line-height: 1.6;
+}
+
+/* --- General Buttons --- */
 button, .stButton > button {
   border-radius: 10px !important;
   background: linear-gradient(135deg, #5865f2, #4752c4) !important;
@@ -200,7 +297,7 @@ button:hover, .stButton > button:hover {
   transform: translateY(-2px) !important;
 }
 
-/* --- Scrollbar oscuro --- */
+/* --- Scrollbar --- */
 ::-webkit-scrollbar {
   width: 12px;
   height: 12px;
@@ -223,15 +320,15 @@ button:hover, .stButton > button:hover {
 
 /* --- Responsive --- */
 @media (max-width: 768px) {
-  .stChatInputContainer {
+  [data-testid="stChatInputContainer"] {
     padding: 0.5rem !important;
+    margin-left: 0 !important;
   }
   section[data-testid="stChatMessageContainer"] {
     max-height: calc(100vh - 200px) !important;
   }
-}
-
-
-[data-testid="stAppViewContainer"] {
-  overflow: visible !important; 
+  
+  [data-testid="stSidebar"] {
+    min-width: 0 !important;
+  }
 }
